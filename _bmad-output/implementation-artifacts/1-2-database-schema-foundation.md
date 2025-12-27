@@ -194,6 +194,11 @@ Claude Opus 4.5 (claude-opus-4-5)
 - `packages/db/prisma/schema.prisma` - Added User and Session models, removed url from datasource (Prisma 7 requirement)
 - `packages/db/src/index.ts` - Updated with Prisma 7 driver adapter pattern and proper exports
 - `packages/db/package.json` - Added db:seed script, @prisma/adapter-pg, pg, dotenv, @types/pg dependencies
+- `packages/db/prisma.config.ts` - Updated comment to reference pnpm instead of npm
+- `pnpm-lock.yaml` - Updated with new dependencies
+
+**Created:**
+- `packages/db/prisma/seed.ts` - Database seed script placeholder
 
 **Generated:**
 - `packages/db/src/generated/prisma/` - Prisma client with User and Session types
