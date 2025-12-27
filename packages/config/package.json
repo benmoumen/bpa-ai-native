@@ -1,0 +1,23 @@
+{
+  "name": "@bpa/config",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    "./eslint": "./eslint.config.js",
+    "./tsconfig/base": "./tsconfig.base.json",
+    "./tsconfig/nextjs": "./tsconfig.nextjs.json",
+    "./tsconfig/nestjs": "./tsconfig.nestjs.json"
+  },
+  "files": [
+    "*.js",
+    "*.json"
+  ],
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.39.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.20.0"
+  }
+}
