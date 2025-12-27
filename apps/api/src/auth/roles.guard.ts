@@ -41,7 +41,15 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('Access denied');
     }
 
-    const hasRole = requiredRoles.some((role) => user.roles?.includes(role));
+    // Ensure roles array exists - if missing, user object is malformed
+    if (!Array.isArray(user.roles)) {
+      this.logger.warn(
+        `User ${user.email} has malformed roles property: ${typeof user.roles}`,
+      );
+      throw new ForbiddenException('Invalid user context');
+    }
+
+    const hasRole = requiredRoles.some((role) => user.roles.includes(role));
 
     if (!hasRole) {
       this.logger.debug(

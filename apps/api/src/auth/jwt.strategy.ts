@@ -52,12 +52,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       // Extract roles from realm_access and resource_access
       const roles = this.extractRoles(payload);
 
+      // Extract countryCode from custom claim or attributes
+      const countryCode = this.extractCountryCode(payload);
+
       const user: AuthUser = {
         id: payload.sub,
         email: payload.email,
         name: payload.name || payload.preferred_username,
         keycloakId: payload.sub,
         roles,
+        countryCode,
       };
 
       this.logger.debug(`User authenticated: ${user.email}`);
@@ -101,5 +105,21 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     return roles;
+  }
+
+  /**
+   * Extract country code from Keycloak token claims
+   * Supports custom claim 'country_code' or user attribute mapping
+   */
+  private extractCountryCode(payload: KeycloakJwtPayload): string | undefined {
+    // Check for direct custom claim
+    if (payload.country_code) {
+      return payload.country_code;
+    }
+
+    // Future: Could also check payload attributes if configured
+    // Example: payload.attributes?.country_code?.[0]
+
+    return undefined;
   }
 }

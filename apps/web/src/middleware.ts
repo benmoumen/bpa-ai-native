@@ -5,15 +5,15 @@
  * Compatible with Next.js 16.x
  */
 
-import { auth } from '@/auth';
+import { auth, PROTECTED_PATHS } from '@/auth';
 
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
+  const hasError = !!req.auth?.error;
 
-  // Define protected route patterns
-  const protectedPaths = ['/dashboard', '/services', '/admin'];
-  const isProtectedRoute = protectedPaths.some((path) =>
+  // Use centralized protected route patterns
+  const isProtectedRoute = PROTECTED_PATHS.some((path) =>
     nextUrl.pathname.startsWith(path)
   );
 
@@ -25,12 +25,21 @@ export default auth((req) => {
     return; // Allow auth routes
   }
 
-  if (isProtectedRoute && !isLoggedIn) {
-    // Store the original URL for redirect after login
-    const callbackUrl = encodeURIComponent(nextUrl.pathname + nextUrl.search);
-    return Response.redirect(
-      new URL(`/api/auth/signin?callbackUrl=${callbackUrl}`, nextUrl)
-    );
+  if (isProtectedRoute) {
+    // Force re-authentication if session has errors
+    if (hasError) {
+      const signOutUrl = new URL('/api/auth/signout', nextUrl);
+      signOutUrl.searchParams.set('callbackUrl', nextUrl.pathname);
+      return Response.redirect(signOutUrl);
+    }
+
+    if (!isLoggedIn) {
+      // Store the original URL for redirect after login
+      const callbackUrl = encodeURIComponent(nextUrl.pathname + nextUrl.search);
+      return Response.redirect(
+        new URL(`/api/auth/signin?callbackUrl=${callbackUrl}`, nextUrl)
+      );
+    }
   }
 
   return; // Allow the request

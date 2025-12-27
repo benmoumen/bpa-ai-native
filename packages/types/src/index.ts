@@ -87,6 +87,8 @@ export interface KeycloakJwtPayload {
   iat: number;
   /** Authorized party */
   azp?: string;
+  /** Country code for country-scoped access (custom claim) */
+  country_code?: string;
 }
 
 /**

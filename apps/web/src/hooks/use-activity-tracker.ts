@@ -7,7 +7,7 @@
  * NFR9: 30 minutes inactivity timeout
  */
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
 // How often to check for activity and refresh session (5 minutes)
@@ -19,15 +19,19 @@ const DEBOUNCE_DELAY = 1000;
 /**
  * Hook to track user activity and refresh session
  * Call this hook in your root layout or main app component
+ *
+ * @returns Object with isActive boolean indicating recent activity
  */
 export function useActivityTracker() {
   const { update, status } = useSession();
   const lastActivityRef = useRef<number>(Date.now());
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isActive, setIsActive] = useState(true);
 
   // Track user activity
   const handleActivity = useCallback(() => {
     lastActivityRef.current = Date.now();
+    setIsActive(true);
   }, []);
 
   // Debounced session refresh
@@ -63,12 +67,15 @@ export function useActivityTracker() {
       window.addEventListener(event, debouncedHandler, { passive: true });
     });
 
-    // Periodic session refresh
+    // Periodic session refresh and activity check
     timeoutRef.current = setInterval(() => {
       const timeSinceActivity = Date.now() - lastActivityRef.current;
       // Only refresh if there was recent activity
       if (timeSinceActivity < REFRESH_INTERVAL) {
         refreshSession();
+        setIsActive(true);
+      } else {
+        setIsActive(false);
       }
     }, REFRESH_INTERVAL);
 
@@ -87,6 +94,7 @@ export function useActivityTracker() {
   }, [status, handleActivity, refreshSession]);
 
   return {
-    lastActivity: lastActivityRef.current,
+    /** Whether the user has been active within the refresh interval */
+    isActive,
   };
 }

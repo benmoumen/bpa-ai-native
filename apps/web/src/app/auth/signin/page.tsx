@@ -2,11 +2,19 @@
  * Sign In Page
  *
  * Handles redirecting users to Keycloak for authentication
+ * Respects callbackUrl for post-login redirect
  */
 
 import { signIn } from '@/auth';
 
-export default function SignInPage() {
+interface SignInPageProps {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}
+
+export default async function SignInPage({ searchParams }: SignInPageProps) {
+  const params = await searchParams;
+  const callbackUrl = params.callbackUrl || '/dashboard';
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
@@ -22,7 +30,7 @@ export default function SignInPage() {
         <form
           action={async () => {
             'use server';
-            await signIn('keycloak', { redirectTo: '/dashboard' });
+            await signIn('keycloak', { redirectTo: callbackUrl });
           }}
         >
           <button
