@@ -32,7 +32,7 @@ development_status:
   # Epic 1: Project Foundation & Developer Experience (7 stories)
   epic-1: in-progress
   1-1-monorepo-skeleton-with-starter-template: done
-  1-2-database-schema-foundation: backlog
+  1-2-database-schema-foundation: done
   1-3-authentication-via-keycloak: backlog
   1-4-developer-environment-setup: backlog
   1-5-ci-pipeline-foundation: backlog

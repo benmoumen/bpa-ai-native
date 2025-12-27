@@ -1,8 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Prisma Schema for BPA AI-Native
+// Database: PostgreSQL
+// ORM: Prisma 7.x
+//
+// Naming Conventions:
+// - Models: PascalCase (User, Session)
+// - Tables: snake_case via @@map("table_name")
+// - Fields: camelCase in TypeScript
+// - Columns: snake_case via @map("column_name")
 
 generator client {
   provider = "prisma-client"
@@ -11,5 +15,37 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // Note: Connection URL is configured in prisma.config.ts
+  // For local development, set DATABASE_URL in .env
+}
+
+// =============================================================================
+// User & Authentication Models
+// =============================================================================
+
+/// User model - represents authenticated users from Keycloak
+model User {
+  id         String    @id @default(cuid())
+  email      String    @unique
+  name       String?
+  keycloakId String    @unique @map("keycloak_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  sessions   Session[]
+
+  @@map("users")
+}
+
+/// Session model - tracks active user sessions
+model Session {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
 }
