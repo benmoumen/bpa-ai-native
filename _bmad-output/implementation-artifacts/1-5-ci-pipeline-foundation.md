@@ -1,6 +1,6 @@
 # Story 1.5: CI Pipeline Foundation
 
-Status: review
+Status: done
 
 ---
 
