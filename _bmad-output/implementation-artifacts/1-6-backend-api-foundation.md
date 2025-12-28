@@ -214,6 +214,8 @@ Claude (Opus 4.5)
 - `apps/api/src/health/health.module.ts`
 - `apps/api/src/health/index.ts`
 - `apps/api/__mocks__/@bpa/db.ts` (test mock)
+- `apps/api/src/common/filters/http-exception.filter.spec.ts` (unit tests)
+- `apps/api/src/common/interceptors/transform.interceptor.spec.ts` (unit tests)
 
 ### Change Log
 
@@ -221,3 +223,7 @@ Claude (Opus 4.5)
 |------|--------|--------|
 | 2025-12-28 | Story created from sprint-status.yaml requirements | Development |
 | 2025-12-28 | Implemented all acceptance criteria, all tests passing | Development |
+| 2025-12-28 | Code review: Added unit tests for HttpExceptionFilter and TransformInterceptor | Review |
+| 2025-12-28 | Code review: Fixed error logging severity (500s→error, 4xx→warn) | Review |
+| 2025-12-28 | Code review: Made health memory thresholds configurable via env vars | Review |
+| 2025-12-28 | Code review: Documented connection pooling and Swagger path decisions | Review |
