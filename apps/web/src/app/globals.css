@@ -68,6 +68,20 @@
 
   /* Transitions */
   --transition-sidebar: 200ms ease-in-out;
+
+  /* UBS-Inspired Premium Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03), 0 1px 3px 0 rgb(0 0 0 / 0.02);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.03);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.03);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.03), 0 4px 12px -2px rgb(0 0 0 / 0.04);
+  --shadow-header: 0 1px 3px 0 rgb(0 0 0 / 0.02), 0 1px 2px -1px rgb(0 0 0 / 0.02);
+  --shadow-sidebar: 2px 0 8px -2px rgb(0 0 0 / 0.05);
+
+  /* Premium Gradients */
+  --gradient-premium: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --gradient-card: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(249,250,251,0.4) 100%);
+  --gradient-sidebar: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
 }
 
 /* Dark Mode */
@@ -157,6 +171,44 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-lexend), "Atkinson Hyperlegible", "Noto Sans", system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Premium Typography Scale */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+/* Premium Card Styling */
+.premium-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-cards);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.premium-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+/* Premium Header Styling */
+.premium-header {
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-header);
+}
+
+/* Premium Sidebar Styling */
+.premium-sidebar {
+  background: var(--gradient-sidebar);
+  box-shadow: var(--shadow-sidebar);
 }
 
 /* Focus Visible Styles for Accessibility */

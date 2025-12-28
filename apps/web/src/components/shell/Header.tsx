@@ -55,6 +55,7 @@ export function Header({
     <div
       className={cn(
         'flex h-full items-center justify-between px-6',
+        'bg-white/80 backdrop-blur-sm',
         className
       )}
     >
@@ -102,7 +103,7 @@ export function Header({
 
         {/* Page Title */}
         {title && (
-          <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+          <h1 className="text-xl font-semibold text-foreground tracking-tight">{title}</h1>
         )}
         </div>
       </div>

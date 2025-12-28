@@ -97,8 +97,10 @@ export function CollapsibleSidebar({
   return (
     <div
       className={cn(
-        'flex h-full flex-col bg-sidebar-background text-sidebar-foreground',
+        'flex h-full flex-col text-sidebar-foreground',
+        'bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950',
         'transition-[width] duration-200 ease-in-out',
+        'shadow-[2px_0_8px_-2px_rgba(0,0,0,0.1)]',
         isExpanded ? 'w-[var(--sidebar-width-expanded)]' : 'w-[var(--sidebar-width-collapsed)]',
         className
       )}
@@ -106,14 +108,14 @@ export function CollapsibleSidebar({
       onMouseLeave={handleMouseLeave}
     >
       {/* Logo Section */}
-      <div className="flex h-[var(--header-height)] items-center justify-center border-b border-sidebar-border px-3">
+      <div className="flex h-[var(--header-height)] items-center justify-center border-b border-white/10 px-3">
         {logo || (
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-              <span className="text-sm font-bold">BP</span>
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25">
+              <span className="text-sm font-bold tracking-tight">BP</span>
             </div>
             {isExpanded && (
-              <span className="whitespace-nowrap text-sm font-semibold">
+              <span className="whitespace-nowrap text-base font-semibold tracking-tight text-white">
                 BPA Designer
               </span>
             )}
@@ -133,11 +135,12 @@ export function CollapsibleSidebar({
                 onFocus={() => setFocusedItem(item.id)}
                 onBlur={() => setFocusedItem(null)}
                 className={cn(
-                  'flex w-full items-center gap-3 rounded-lg px-3 py-2',
-                  'transition-colors duration-150',
-                  'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
-                  activeNavItem === item.id && 'bg-sidebar-accent text-sidebar-accent-foreground',
+                  'flex w-full items-center gap-3 rounded-xl px-3 py-2.5',
+                  'transition-all duration-150',
+                  'hover:bg-white/10',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50',
+                  activeNavItem === item.id && 'bg-white/15 text-white shadow-sm',
+                  activeNavItem !== item.id && 'text-slate-300',
                   !isExpanded && 'justify-center'
                 )}
                 aria-current={activeNavItem === item.id ? 'page' : undefined}
@@ -145,7 +148,7 @@ export function CollapsibleSidebar({
               >
                 <span className="shrink-0">{item.icon}</span>
                 {isExpanded && (
-                  <span className="truncate text-sm">{item.label}</span>
+                  <span className="truncate text-sm font-medium">{item.label}</span>
                 )}
               </button>
             </li>
@@ -154,7 +157,7 @@ export function CollapsibleSidebar({
       </nav>
 
       {/* Bottom Section */}
-      <div className="border-t border-sidebar-border py-4">
+      <div className="border-t border-white/10 py-4">
         <ul className="space-y-1 px-2">
           {bottomItems.map((item) => (
             <li key={item.id}>
@@ -163,17 +166,17 @@ export function CollapsibleSidebar({
                 onClick={() => handleNavClick(item)}
                 onKeyDown={(e) => handleKeyDown(e, item)}
                 className={cn(
-                  'flex w-full items-center gap-3 rounded-lg px-3 py-2',
-                  'transition-colors duration-150',
-                  'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+                  'flex w-full items-center gap-3 rounded-xl px-3 py-2.5',
+                  'transition-all duration-150',
+                  'text-slate-400 hover:text-slate-200 hover:bg-white/10',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50',
                   !isExpanded && 'justify-center'
                 )}
                 title={!isExpanded ? item.label : undefined}
               >
                 <span className="shrink-0">{item.icon}</span>
                 {isExpanded && (
-                  <span className="truncate text-sm">{item.label}</span>
+                  <span className="truncate text-sm font-medium">{item.label}</span>
                 )}
               </button>
             </li>
@@ -186,10 +189,10 @@ export function CollapsibleSidebar({
             type="button"
             onClick={toggleSidebar}
             className={cn(
-              'flex w-full items-center gap-3 rounded-lg px-3 py-2',
-              'transition-colors duration-150',
-              'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+              'flex w-full items-center gap-3 rounded-xl px-3 py-2.5',
+              'transition-all duration-150',
+              'text-slate-500 hover:text-slate-300 hover:bg-white/5',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50',
               !isExpanded && 'justify-center'
             )}
             aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
@@ -199,7 +202,7 @@ export function CollapsibleSidebar({
               {sidebarExpanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
             </span>
             {isExpanded && (
-              <span className="truncate text-sm">
+              <span className="truncate text-sm font-medium">
                 {sidebarExpanded ? 'Collapse' : 'Expand'}
               </span>
             )}

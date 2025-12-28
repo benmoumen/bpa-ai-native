@@ -8,6 +8,7 @@ const lexend = Lexend({
   variable: '--font-lexend',
   subsets: ['latin'],
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
 });
 
 const geistMono = Geist_Mono({
@@ -28,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${lexend.variable} ${geistMono.variable} antialiased`}
+        className={`${lexend.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <SessionProvider>{children}</SessionProvider>
       </body>

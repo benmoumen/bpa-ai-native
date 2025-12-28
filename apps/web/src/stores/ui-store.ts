@@ -48,7 +48,7 @@ interface UIState {
 const initialState = {
   sidebarExpanded: true,
   sidebarHoverExpanded: false,
-  leftPanelWidth: 40, // 40% default
+  leftPanelWidth: 35, // 35% default
   activeNavItem: null,
   theme: 'system' as Theme,
   activePanel: 'form' as ActivePanel,

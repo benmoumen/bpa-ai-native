@@ -30,7 +30,7 @@ export function SplitPanel({
   rightPanel,
   leftPanelHeader,
   rightPanelHeader,
-  defaultLeftWidth = 40,
+  defaultLeftWidth = 35,
   minLeftWidth = 20,
   maxLeftWidth = 80,
   className,
@@ -41,7 +41,7 @@ export function SplitPanel({
 
   // Initialize with default if store has no value
   useEffect(() => {
-    if (leftPanelWidth === 40 && defaultLeftWidth !== 40) {
+    if (leftPanelWidth === 35 && defaultLeftWidth !== 35) {
       setLeftPanelWidth(defaultLeftWidth);
     }
   }, [defaultLeftWidth, leftPanelWidth, setLeftPanelWidth]);
@@ -166,7 +166,7 @@ export function SplitPanel({
 
       {/* Right Panel */}
       <div
-        className="flex flex-1 flex-col overflow-hidden"
+        className="flex min-w-0 flex-1 flex-col overflow-hidden"
         role="region"
         aria-label="Right panel"
       >
@@ -175,7 +175,7 @@ export function SplitPanel({
             {rightPanelHeader}
           </div>
         )}
-        <div className="flex-1 overflow-auto">{rightPanel}</div>
+        <div className="min-w-0 flex-1 overflow-auto">{rightPanel}</div>
       </div>
     </div>
   );
