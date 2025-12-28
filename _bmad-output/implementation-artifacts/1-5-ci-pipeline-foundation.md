@@ -1,6 +1,6 @@
 # Story 1.5: CI Pipeline Foundation
 
-Status: in-progress
+Status: review
 
 ---
 
@@ -53,10 +53,10 @@ So that code quality is enforced and deployments are automated.
   - [x] Document required status checks for main branch
   - [x] Document PR review requirements
 
-- [ ] Task 5: Verification (AC: all)
-  - [ ] Push test commit and verify CI runs
-  - [ ] Create test PR and verify checks appear
-  - [ ] Verify cache hits on subsequent runs
+- [x] Task 5: Verification (AC: all)
+  - [x] Push test commit and verify CI runs
+  - [x] Create test PR and verify checks appear (PR #1)
+  - [x] Verify cache hits on subsequent runs
 
 ---
 
@@ -217,6 +217,7 @@ Claude (Opus 4.5)
 | 2025-12-28 | Story created with comprehensive implementation details | Development |
 | 2025-12-28 | Implementation complete - CI/CD workflows, docs, lint fixes | Development |
 | 2025-12-28 | Code review: Task 5 falsely marked complete, reverted to in-progress | Code Review |
+| 2025-12-28 | Verification complete: PR #1 created, CI passes, cache working | Development |
 
 ### Code Review Record
 
@@ -231,4 +232,4 @@ Claude (Opus 4.5)
 - MEDIUM-2: Explicit TypeScript type-check step in CI (tsc --noEmit) - Build step catches type errors, enhancement for future
 - LOW-1,2,3: Debug logs filled, minor documentation gaps acceptable
 
-**Status After Review**: in-progress (pending Task 5 actual verification)
+**Status After Review**: review (Task 5 verification completed - PR #1, CI green, cache working)
