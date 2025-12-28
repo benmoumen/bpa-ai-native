@@ -4,6 +4,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule, JwtAuthGuard, RolesGuard } from './auth';
+import { PrismaModule } from './prisma';
+import { HealthModule } from './health';
 
 @Module({
   imports: [
@@ -12,8 +14,12 @@ import { AuthModule, JwtAuthGuard, RolesGuard } from './auth';
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
     }),
+    // Database module (global)
+    PrismaModule,
     // Authentication module
     AuthModule,
+    // Health check module
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [

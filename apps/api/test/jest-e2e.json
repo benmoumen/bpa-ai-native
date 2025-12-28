@@ -5,5 +5,9 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@bpa/db$": "<rootDir>/../__mocks__/@bpa/db.ts",
+    "^@bpa/types$": "<rootDir>/../../../packages/types/dist/index.js"
   }
 }

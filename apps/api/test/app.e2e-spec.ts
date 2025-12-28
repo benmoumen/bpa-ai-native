@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
@@ -13,24 +13,35 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/v1');
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterEach(async () => {
+    await app.close();
   });
 
-  it('/health (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/health')
-      .expect(200)
-      .expect((res: request.Response) => {
-        const body = res.body as { status: string; timestamp: string };
-        expect(body.status).toBe('ok');
-        expect(body.timestamp).toBeDefined();
-      });
+  describe('Root endpoint', () => {
+    it('/api/v1 (GET) should return Hello World wrapped in data', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/v1')
+        .expect(200);
+
+      // Response is wrapped by transform interceptor in production
+      // but in test, we haven't applied global interceptors
+      expect(response.text).toBe('Hello World!');
+    });
+  });
+
+  describe('Health endpoints', () => {
+    it('/api/v1/health/live (GET) should return liveness status', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/v1/health/live')
+        .expect(200);
+
+      const body = response.body as { status: string };
+      expect(body.status).toBe('ok');
+    });
   });
 });

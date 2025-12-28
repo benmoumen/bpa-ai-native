@@ -35,8 +35,8 @@ development_status:
   1-2-database-schema-foundation: done
   1-3-authentication-via-keycloak: done
   1-4-developer-environment-setup: done
-  1-5-ci-pipeline-foundation: review
-  1-6-backend-api-foundation: backlog
+  1-5-ci-pipeline-foundation: done
+  1-6-backend-api-foundation: done
   1-7-frontend-shell-with-navigation: backlog
   epic-1-retrospective: optional
 
