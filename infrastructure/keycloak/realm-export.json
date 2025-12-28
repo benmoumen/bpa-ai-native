@@ -1,0 +1,167 @@
+{
+  "realm": "bpa",
+  "enabled": true,
+  "displayName": "BPA AI-Native",
+  "displayNameHtml": "<b>BPA</b> AI-Native",
+  "loginTheme": "keycloak",
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "rememberMe": true,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+  "accessTokenLifespan": 3600,
+  "accessTokenLifespanForImplicitFlow": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespanEnabled": false,
+  "offlineSessionMaxLifespan": 5184000,
+  "accessCodeLifespan": 60,
+  "accessCodeLifespanUserAction": 300,
+  "accessCodeLifespanLogin": 1800,
+  "actionTokenGeneratedByAdminLifespan": 43200,
+  "actionTokenGeneratedByUserLifespan": 300,
+  "roles": {
+    "realm": [
+      {
+        "name": "SERVICE_DESIGNER",
+        "description": "Can design and configure services"
+      },
+      {
+        "name": "COUNTRY_ADMIN",
+        "description": "Administrator for a specific country instance"
+      },
+      {
+        "name": "UNCTAD_SUPPORT",
+        "description": "UNCTAD support staff with cross-instance access"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "bpa-web",
+      "name": "BPA Web Application",
+      "description": "BPA AI-Native Frontend Application",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "dev-secret-change-in-production",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:4000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://localhost:4000"
+      ],
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "fullScopeAllowed": true,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "country_code",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "country_code",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "country_code",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "designer@example.com",
+      "email": "designer@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Service",
+      "lastName": "Designer",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SERVICE_DESIGNER"],
+      "attributes": {
+        "country_code": ["SLV"]
+      }
+    },
+    {
+      "username": "admin@example.com",
+      "email": "admin@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Country",
+      "lastName": "Admin",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["COUNTRY_ADMIN"],
+      "attributes": {
+        "country_code": ["SLV"]
+      }
+    },
+    {
+      "username": "support@unctad.org",
+      "email": "support@unctad.org",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "UNCTAD",
+      "lastName": "Support",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["UNCTAD_SUPPORT"]
+    }
+  ]
+}
