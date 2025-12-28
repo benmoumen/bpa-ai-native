@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Lexend } from 'next/font/google';
+import { Geist_Mono } from 'next/font/google';
 import { SessionProvider } from '@/components';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const lexend = Lexend({
+  variable: '--font-lexend',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 const geistMono = Geist_Mono({
@@ -24,9 +26,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${lexend.variable} ${geistMono.variable} antialiased`}
       >
         <SessionProvider>{children}</SessionProvider>
       </body>
