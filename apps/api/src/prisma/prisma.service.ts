@@ -4,7 +4,9 @@ import {
   OnModuleDestroy,
   Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@bpa/db';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 /**
  * PrismaService extends PrismaClient and integrates with NestJS lifecycle.
@@ -32,6 +34,18 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(PrismaService.name);
+
+  constructor(configService: ConfigService) {
+    const connectionString = configService.get<string>('DATABASE_URL');
+    if (!connectionString) {
+      throw new Error(
+        'DATABASE_URL environment variable is not set. ' +
+          'Please copy .env.example to .env and configure your database connection.',
+      );
+    }
+    const adapter = new PrismaPg({ connectionString });
+    super({ adapter });
+  }
 
   async onModuleInit(): Promise<void> {
     this.logger.log('Connecting to database...');
