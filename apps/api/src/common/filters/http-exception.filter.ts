@@ -85,12 +85,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
       );
     }
 
-    // Log all errors with request context
-    this.logger.warn(`HTTP ${status} ${code}: ${message}`, {
+    // Log errors with appropriate severity based on status code
+    const logContext = {
       requestId,
       path: request.url,
       method: request.method,
-    });
+    };
+
+    if (status >= 500) {
+      this.logger.error(`HTTP ${status} ${code}: ${message}`, logContext);
+    } else {
+      this.logger.warn(`HTTP ${status} ${code}: ${message}`, logContext);
+    }
 
     const errorResponse: ErrorResponse = {
       error: {

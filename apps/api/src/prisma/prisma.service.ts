@@ -12,11 +12,18 @@ import { PrismaClient } from '@bpa/db';
  * Features:
  * - Automatic connection on module initialization
  * - Graceful shutdown on application termination
- * - Connection pooling via Prisma default settings
+ * - Connection pooling (configured via DATABASE_URL parameters)
  * - Logging integration with NestJS Logger
  *
+ * Connection Pooling Configuration:
+ * Prisma uses connection pooling by default. Pool settings are configured
+ * via DATABASE_URL query parameters:
+ *   - connection_limit: Max connections (default: num_cpus * 2 + 1)
+ *   - pool_timeout: Seconds to wait for connection (default: 10)
+ *
+ * Example: postgresql://user:pass@host/db?connection_limit=20&pool_timeout=30
+ *
  * Note: Prisma 7+ uses driver adapters or Prisma Accelerate.
- * The DATABASE_URL env var is used for connection configuration.
  * For query logging, set DEBUG="prisma:query" environment variable.
  */
 @Injectable()

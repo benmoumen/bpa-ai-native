@@ -20,6 +20,9 @@ async function bootstrap(): Promise<void> {
   app.setGlobalPrefix('api/v1');
 
   // Configure Swagger/OpenAPI documentation
+  // Note: Swagger is mounted at /api/docs (not /api/v1/docs) intentionally.
+  // API documentation covers all versions and is not version-specific.
+  // This follows the common pattern where docs are accessible at a stable URL.
   const config = new DocumentBuilder()
     .setTitle('BPA AI-Native API')
     .setDescription(
