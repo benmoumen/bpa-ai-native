@@ -5,7 +5,7 @@
 # Stage 1: Dependencies
 # =============================================================================
 FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 # Install pnpm
@@ -17,6 +17,7 @@ COPY apps/web/package.json ./apps/web/
 COPY packages/types/package.json ./packages/types/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/config/package.json ./packages/config/
+COPY packages/db/package.json ./packages/db/
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
@@ -25,6 +26,7 @@ RUN pnpm install --frozen-lockfile
 # Stage 2: Builder
 # =============================================================================
 FROM node:20-alpine AS builder
+RUN apk add --no-cache openssl
 WORKDIR /app
 
 # Install pnpm
@@ -36,9 +38,13 @@ COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 COPY --from=deps /app/packages/types/node_modules ./packages/types/node_modules
 COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
 COPY --from=deps /app/packages/config/node_modules ./packages/config/node_modules
+COPY --from=deps /app/packages/db/node_modules ./packages/db/node_modules
 
 # Copy source code
 COPY . .
+
+# Generate Prisma client
+RUN pnpm --filter=@bpa/db db:generate
 
 # Build arguments for environment variables
 ARG NEXT_PUBLIC_API_URL

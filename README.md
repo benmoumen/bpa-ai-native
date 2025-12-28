@@ -91,11 +91,14 @@ The applications will be available at:
 
 Use these development credentials:
 
-| Email | Password | Role |
-|-------|----------|------|
-| designer@example.com | password | SERVICE_DESIGNER |
-| admin@example.com | password | COUNTRY_ADMIN |
-| support@unctad.org | password | UNCTAD_SUPPORT |
+| Email | Password | Role | Country |
+|-------|----------|------|---------|
+| designer@example.com | password | SERVICE_DESIGNER | SLV |
+| admin@example.com | password | COUNTRY_ADMIN | SLV |
+| support@unctad.org | password | UNCTAD_SUPPORT | - |
+
+> **Note**: The test users have example `country_code` attribute set to "SLV" (El Salvador).
+> For production deployments, update `infrastructure/keycloak/realm-export.json` with appropriate country codes.
 
 ## Architecture
 
