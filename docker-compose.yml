@@ -1,0 +1,81 @@
+# BPA AI-Native Development Infrastructure
+# Run: docker compose up -d
+# Stop: docker compose down
+# Reset: docker compose down -v (removes volumes)
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: bpa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-bpa_ai_native}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-bpa_ai_native}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: bpa-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Keycloak Authentication Server
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: bpa-keycloak
+    restart: unless-stopped
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bpa_ai_native}
+      KC_DB_USERNAME: ${POSTGRES_USER:-postgres}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: ${KEYCLOAK_PORT:-8080}
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    ports:
+      - "${KEYCLOAK_PORT:-8080}:8080"
+    volumes:
+      - ./infrastructure/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    command:
+      - start-dev
+      - --import-realm
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    name: bpa_postgres_data
+  redis_data:
+    name: bpa_redis_data
