@@ -28,8 +28,9 @@ describe('AppController (e2e)', () => {
       .get('/health')
       .expect(200)
       .expect((res: request.Response) => {
-        expect(res.body.status).toBe('ok');
-        expect(res.body.timestamp).toBeDefined();
+        const body = res.body as { status: string; timestamp: string };
+        expect(body.status).toBe('ok');
+        expect(body.timestamp).toBeDefined();
       });
   });
 });

@@ -9,9 +9,12 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import type { AuthUser } from '@bpa/types';
 
 export const CurrentUser = createParamDecorator(
-  (data: keyof AuthUser | undefined, ctx: ExecutionContext): AuthUser | unknown => {
-    const request = ctx.switchToHttp().getRequest();
-    const user = request.user as AuthUser;
+  (
+    data: keyof AuthUser | undefined,
+    ctx: ExecutionContext,
+  ): AuthUser | AuthUser[keyof AuthUser] | undefined => {
+    const request = ctx.switchToHttp().getRequest<{ user?: AuthUser }>();
+    const user = request.user;
 
     // If specific property requested, return just that
     if (data) {

@@ -41,7 +41,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    * Validate JWT payload and extract user information
    * Called after token signature is verified
    */
-  async validate(payload: KeycloakJwtPayload): Promise<AuthUser> {
+  validate(payload: KeycloakJwtPayload): AuthUser {
     try {
       // Check token expiration (additional safety check)
       const now = Math.floor(Date.now() / 1000);
@@ -76,7 +76,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    * Extract and map roles from Keycloak token claims
    */
   private extractRoles(payload: KeycloakJwtPayload): UserRole[] {
-    const validRoles: UserRole[] = ['SERVICE_DESIGNER', 'COUNTRY_ADMIN', 'UNCTAD_SUPPORT'];
+    const validRoles: UserRole[] = [
+      'SERVICE_DESIGNER',
+      'COUNTRY_ADMIN',
+      'UNCTAD_SUPPORT',
+    ];
     const roles: UserRole[] = [];
 
     // Extract from realm_access

@@ -24,9 +24,16 @@ const DEBOUNCE_DELAY = 1000;
  */
 export function useActivityTracker() {
   const { update, status } = useSession();
-  const lastActivityRef = useRef<number>(Date.now());
+  const lastActivityRef = useRef<number>(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isActive, setIsActive] = useState(true);
+
+  // Initialize lastActivity on first render in effect (not during render)
+  useEffect(() => {
+    if (lastActivityRef.current === 0) {
+      lastActivityRef.current = Date.now();
+    }
+  }, []);
 
   // Track user activity
   const handleActivity = useCallback(() => {

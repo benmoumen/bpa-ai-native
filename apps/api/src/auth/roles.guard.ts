@@ -33,8 +33,8 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
-    const user = request.user as AuthUser | undefined;
+    const request = context.switchToHttp().getRequest<{ user?: AuthUser }>();
+    const user = request.user;
 
     if (!user) {
       this.logger.debug('No user found in request');
