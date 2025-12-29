@@ -2,86 +2,88 @@
 
 /* Design Tokens - Light Mode */
 :root {
-  /* Core Colors */
+  /* Core Colors - UBS/Swiss High Contrast */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000; /* Deepest Black */
 
   /* Brand Colors */
-  --color-primary: #374151;
-  --color-accent: #2563EB;
-  --color-accent-alt: #009EDB;
+  --color-primary: #000000;
+  --color-accent: #E60000; /* UBS Red (or kept as Trust Blue #2563EB if strictly Gov is needed, but using Swiss Red for style match) -> Let's keep a sharp Trust Blue but deeper */
+  --color-accent: #0055BB; /* Classic Corporate Blue */
+  --color-accent-alt: #000000;
 
-  /* Semantic Colors */
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
-  --color-muted: #6B7280;
-  --color-surface: #F9FAFB;
+  /* Semantic Colors - High Clarity */
+  --color-success: #008800;
+  --color-warning: #FFCC00;
+  --color-error: #CC0000;
+  --color-muted: #555555;
+  --color-surface: #F2F2F2; /* Light Gray for differentiation */
 
-  /* shadcn/ui Color System */
+  /* shadcn/ui Color System - Stark */
   --card: #ffffff;
-  --card-foreground: #171717;
+  --card-foreground: #000000;
   --popover: #ffffff;
-  --popover-foreground: #171717;
-  --primary: #374151;
+  --popover-foreground: #000000; /* Primary text */
+  --primary: #000000;
   --primary-foreground: #ffffff;
-  --secondary: #F9FAFB;
-  --secondary-foreground: #374151;
-  --muted: #F9FAFB;
-  --muted-foreground: #6B7280;
-  --accent: #2563EB;
-  --accent-foreground: #ffffff;
-  --destructive: #EF4444;
+  --secondary: #F2F2F2;
+  --secondary-foreground: #000000;
+  --muted: #F2F2F2;
+  --muted-foreground: #555555;
+  --accent: #F2F2F2; /* Subtle hover background */
+  --accent-foreground: #000000;
+  --destructive: #CC0000;
   --destructive-foreground: #ffffff;
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --ring: #2563EB;
+  --border: #E6E6E6; /* Crisp light gray border */
+  --input: #E6E6E6;
+  --ring: #000000; /* Focus ring is black */
 
-  /* Sidebar Colors */
-  --sidebar-background: #1F2937;
-  --sidebar-foreground: #F9FAFB;
-  --sidebar-primary: #2563EB;
+  /* Sidebar Colors - Swiss Clean Light */
+  --sidebar-background: #ffffff;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #000000;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #374151;
-  --sidebar-accent-foreground: #F9FAFB;
-  --sidebar-border: #374151;
-  --sidebar-ring: #2563EB;
+  --sidebar-accent: #F2F2F2;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #E6E6E6;
+  --sidebar-ring: #000000;
 
-  /* Spacing */
-  --spacing-xs: 8px;
-  --spacing-sm: 16px;
+  /* Spacing - Strict Grid */
+  --spacing-xs: 4px;
+  --spacing-sm: 12px;
   --spacing-md: 24px;
-  --spacing-lg: 32px;
-  --spacing-xl: 48px;
+  --spacing-lg: 48px;
+  --spacing-xl: 96px;
 
-  /* Border Radius */
-  --radius-sm: 8px;
-  --radius: 8px;
-  --radius-interactive: 12px;
-  --radius-cards: 12px;
-  --radius-lg: 16px;
+  /* Border Radius - Sharp / Geometric */
+  --radius-sm: 0px;
+  --radius: 0px;
+  --radius-interactive: 0px; /* Buttons are square */
+  --radius-cards: 0px; /* Cards are square */
+  --radius-lg: 0px;
 
   /* Layout */
-  --header-height: 64px;
-  --sidebar-width-collapsed: 64px;
-  --sidebar-width-expanded: 240px;
+  --header-height: 80px; /* Taller, more impressonable header */
+  --sidebar-width-collapsed: 80px;
+  --sidebar-width-expanded: 320px; /* Wider for better typography */
 
-  /* Transitions */
-  --transition-sidebar: 200ms ease-in-out;
+  /* Transitions - Instant/Digital */
+  --transition-sidebar: 0ms; /* No animation, instant switch (optional, but keep smooth for now: 200ms) */
+  --transition-sidebar: 200ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* UBS-Inspired Premium Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03), 0 1px 3px 0 rgb(0 0 0 / 0.02);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.03);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.03);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.03), 0 4px 12px -2px rgb(0 0 0 / 0.04);
-  --shadow-header: 0 1px 3px 0 rgb(0 0 0 / 0.02), 0 1px 2px -1px rgb(0 0 0 / 0.02);
-  --shadow-sidebar: 2px 0 8px -2px rgb(0 0 0 / 0.05);
+  /* Shadows - Minimalist / None */
+  --shadow-sm: none;
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08); /* Only for floating elements */
+  --shadow-lg: 0 12px 24px rgba(0,0,0,0.12);
+  --shadow-xl: 0 24px 48px rgba(0,0,0,0.18);
+  --shadow-card: none; /* Borders preferred over shadows */
+  --shadow-header: none; /* Flat header */
+  --shadow-sidebar: none; /* Border separation only */
 
-  /* Premium Gradients */
-  --gradient-premium: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  --gradient-card: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(249,250,251,0.4) 100%);
-  --gradient-sidebar: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  /* Gradients - None (Flat Design) */
+  --gradient-premium: none;
+  --gradient-card: none;
+  --gradient-sidebar: none;
 }
 
 /* Dark Mode */

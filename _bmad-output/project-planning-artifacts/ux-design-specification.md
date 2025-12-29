@@ -533,60 +533,37 @@ src/
 - `CommandPalette` - Universal search (Ctrl+K)
 - `ServiceCard` - Service listing cards with status
 
-### Customization Strategy
+### Visual Language: "Swiss Digital Banking"
 
-**Color Palette (Trust Blue - UN Platform):**
+**Concept**
+The aesthetic is authoritative, precise, and high-contrast, inspired by Swiss design and top-tier digital banking (e.g., UBS). It prioritizes clarity, data density, and trust through strict geometry and minimalism.
 
-| Color | Role | Value | Usage |
-|-------|------|-------|-------|
-| Primary | Main text, headings | `#1a1a1a` | Body text, titles |
-| Accent | Interactive, CTAs | `#2563EB` | Buttons, links, focus states |
-| Success | Positive feedback | `#10B981` | Published, complete |
-| Warning | Caution states | `#F59E0B` | Pending, attention needed |
-| Error | Error states | `#EF4444` | Validation errors, failures |
-| Muted | Secondary text | `#6B7280` | Help text, placeholders |
+**Key Aesthetic Pillars:**
+1.  **Strict Geometry**: Interactables have sharp 0px or near-0px (2px) border radii. No soft, organic shapes.
+2.  **High Contrast**: Pure White (`#FFFFFF`) backgrounds with Deep Black (`#000000`) typography. No "off-whites" or "soft grays" for primary content.
+3.  **Flat Hierarchy**: Borders are preferred over shadows for separation. Depth is communicated through layout and spacing, not elevation.
+4.  **Information Density**: Compact, grid-based layouts that respect the professional nature of the work.
 
-*Note: Trust Blue (#2563EB) chosen over UBS Red for UN institutional identity and trust signaling.*
-
-**Design Tokens (tailwind.config.ts):**
-```typescript
-const config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1a1a1a',
-        accent: '#2563EB',      // Trust Blue
-        success: '#10B981',
-        warning: '#F59E0B',
-        error: '#EF4444',
-        muted: '#6B7280',
-      },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-      },
-      borderRadius: {
-        DEFAULT: '12px',
-        sm: '8px',
-        lg: '16px',
-      },
-      spacing: {
-        xs: '8px',
-        sm: '16px',
-        md: '24px',
-        lg: '32px',
-        xl: '48px',
-      },
-    },
-  },
-}
-```
+**Design Tokens Implementation:**
+-   **Colors**:
+    -   Primary Background: Pure White `#FFFFFF`
+    -   Primary Text: Deep Black `#000000`
+    -   Accent: Corporate Blue `#0055BB` (or retained Trust Blue `#2563EB` if mandated, but applied sharply)
+    -   Sidebar: White with light gray borders `#E6E6E6`
+    -   Errors: Sharp Red `#CC0000`
+-   **Typography**:
+    -   Font Stack: Inter, Helvetica Neue, Arial (Swiss Grotesque style)
+    -   Weight: Heavy use of bold weights for headers, varying weights for hierarchy.
+-   **Components**:
+    -   **Cards**: Flat, 1px solid borders (`#E6E6E6`), no shadow. Hover states use distinct background colors (e.g., `#F2F2F2`) rather than lift.
+    -   **Inputs**: Square corners, 1px solid borders.
+    -   **Buttons**: Rectangular, 0px radius, high-contrast states.
 
 **Component Customization Priorities:**
-1. Button - Trust Blue primary, black secondary, subtle hover states
-2. Card - Premium shadow, generous padding, 12px radius
-3. Input - Clean borders, spacious, clear focus states with blue ring
-4. Dialog - Refined backdrop, smooth animations
-5. Toast - Non-intrusive, auto-dismiss, icon support
+1.  **Button**: Rectangular, high-contrast black/white, sharp states.
+2.  **Card**: Bordered, flat, square corners (0px radius).
+3.  **Input**: Square, clean borders, high-contrast text.
+4.  **layout**: High density, grid-aligned, minimal whitespace fluff.
 
 ## Defining Core Experience
 

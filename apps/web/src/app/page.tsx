@@ -46,52 +46,84 @@ export default function Home() {
             </h2>
           }
           leftPanel={
-            <div className="p-5">
-              <div className="space-y-4">
-                <div className="premium-card p-5 cursor-pointer group">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
+            <div className="p-8 bg-white min-h-screen">
+               <div className="mb-10 pb-4 border-b border-black/10">
+                  <h1 className="text-3xl font-light tracking-tight text-black">Services</h1>
+                  <p className="mt-2 text-muted-foreground font-light">Manage and create government services.</p>
+               </div>
+
+              <div className="grid grid-cols-1 gap-px bg-border border border-border">
+                <div className="block bg-white p-8 hover:bg-slate-50 transition-colors cursor-default group">
+                    <div className="flex items-start gap-6">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-black text-white">
+                         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0 pt-1">
+                        <h3 className="text-xl font-medium text-black group-hover:underline decoration-1 underline-offset-4">New Service</h3>
+                        <p className="mt-2 text-base text-muted-foreground font-light leading-relaxed">
+                          Start a new configuration process.
+                        </p>
+                      </div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity self-center">
+                         <svg className="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                         </svg>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors">Business Registration</h3>
-                      <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
-                        Register new businesses with AI-assisted form generation.
-                      </p>
-                    </div>
-                  </div>
                 </div>
-                <div className="premium-card p-5 cursor-pointer group">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors">Import/Export Permits</h3>
-                      <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
-                        Manage trade permits and documentation.
-                      </p>
-                    </div>
-                  </div>
+
+                <div className="bg-slate-50 px-6 py-3 text-xs font-bold uppercase tracking-widest text-muted-foreground border-y border-border">
+                    Recent
                 </div>
-                <div className="premium-card p-5 cursor-pointer group">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
+
+                <div className="block bg-white p-8 hover:bg-slate-50 transition-colors cursor-default group">
+                    <div className="flex items-start gap-6">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-black/10 text-black">
+                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0 pt-1">
+                        <h3 className="text-xl font-medium text-black group-hover:underline decoration-1 underline-offset-4">Business Registration</h3>
+                        <p className="mt-2 text-base text-muted-foreground font-light leading-relaxed">
+                          LLC and Corp registration flows.
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors">Tax Registration</h3>
-                      <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
-                        Process tax registration and compliance.
-                      </p>
+                </div>
+
+                <div className="block bg-white p-8 hover:bg-slate-50 transition-colors cursor-default group">
+                    <div className="flex items-start gap-6">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-black/10 text-black">
+                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0 pt-1">
+                        <h3 className="text-xl font-medium text-black group-hover:underline decoration-1 underline-offset-4">Import/Export Permits</h3>
+                        <p className="mt-2 text-base text-muted-foreground font-light leading-relaxed">
+                          Cross-border trade documentation.
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                </div>
+
+                <div className="block bg-white p-8 hover:bg-slate-50 transition-colors cursor-default group">
+                    <div className="flex items-start gap-6">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-black/10 text-black">
+                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0 pt-1">
+                        <h3 className="text-xl font-medium text-black group-hover:underline decoration-1 underline-offset-4">Tax Registration</h3>
+                        <p className="mt-2 text-base text-muted-foreground font-light leading-relaxed">
+                          Fiscal compliance and reporting.
+                        </p>
+                      </div>
+                    </div>
                 </div>
               </div>
             </div>
