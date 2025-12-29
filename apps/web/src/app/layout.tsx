@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Lexend } from 'next/font/google';
 import { Geist_Mono } from 'next/font/google';
 import { SessionProvider } from '@/components';
+import { QueryProvider } from '@/lib/query-client';
 import './globals.css';
 
 const lexend = Lexend({
@@ -31,7 +32,9 @@ export default function RootLayout({
       <body
         className={`${lexend.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <SessionProvider>{children}</SessionProvider>
+        <QueryProvider>
+          <SessionProvider>{children}</SessionProvider>
+        </QueryProvider>
       </body>
     </html>
   );

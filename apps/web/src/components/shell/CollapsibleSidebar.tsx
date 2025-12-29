@@ -117,12 +117,13 @@ export function CollapsibleSidebar({
             const active = isActive(item.href);
             return (
               <li key={item.id}>
-                <div
+                <Link
+                  href={item.href}
                   className={cn(
-                    'flex w-full items-center gap-6 px-6 py-4 cursor-not-allowed opacity-80 group border-l-4',
+                    'flex w-full items-center gap-6 px-6 py-4 group border-l-4',
                     'transition-colors duration-150',
-                    active 
-                      ? 'border-black bg-sidebar-accent text-black font-semibold' 
+                    active
+                      ? 'border-black bg-sidebar-accent text-black font-semibold'
                       : 'border-transparent text-sidebar-foreground/70 hover:text-black hover:bg-sidebar-accent/50',
                     !isExpanded && 'justify-center px-0 border-l-0'
                   )}
@@ -136,7 +137,7 @@ export function CollapsibleSidebar({
                       {item.label}
                     </span>
                   )}
-                </div>
+                </Link>
               </li>
             );
           })}
