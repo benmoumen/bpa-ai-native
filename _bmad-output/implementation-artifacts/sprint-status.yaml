@@ -44,7 +44,7 @@ development_status:
   epic-2: in-progress
   2-1-service-database-model-api-foundation: done
   2-2-create-new-service-with-metadata: done
-  2-3-service-list-with-search-filter: ready-for-dev
+  2-3-service-list-with-search-filter: done
   2-4-edit-service-metadata: backlog
   2-5-delete-draft-service: backlog
   2-6-duplicate-existing-service: backlog
