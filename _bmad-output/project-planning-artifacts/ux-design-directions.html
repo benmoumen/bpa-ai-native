@@ -3,28 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BPA AI-Native - Design Direction Mockups</title>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>BPA AI-Native - Swiss Design Exploration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #374151;
-      --accent: #2563EB;
-      --accent-alt: #009EDB;
-      --success: #10B981;
-      --warning: #F59E0B;
-      --error: #EF4444;
-      --muted: #6B7280;
-      --surface: #F9FAFB;
-      --white: #FFFFFF;
-      --border: #E5E7EB;
-
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-      --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+      /* Swiss Color System */
+      --primary: #000000;
+      --secondary: #ffffff;
+      --accent: #0055BB; /* Corporate Blue */
+      --accent-red: #CC0000; /* Semantic Red */
+      --border: #e5e5e5;
+      --surface: #f4f4f4;
+      
+      /* Swiss Geometry */
+      --radius: 0px;
+      --spacing-xs: 4px;
+      --spacing-sm: 12px;
+      --spacing-md: 24px;
+      --spacing-lg: 48px;
     }
 
     * {
@@ -34,10 +30,11 @@
     }
 
     body {
-      font-family: 'Lexend', system-ui, sans-serif;
-      background: #1a1a1a;
+      font-family: 'Inter', sans-serif;
+      background: #f0f0f0;
       color: var(--primary);
-      line-height: 1.6;
+      line-height: 1.4;
+      padding-top: 60px;
     }
 
     /* Navigation */
@@ -46,2192 +43,472 @@
       top: 0;
       left: 0;
       right: 0;
-      background: rgba(26, 26, 26, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 16px 24px;
-      z-index: 1000;
+      background: #000;
+      color: #fff;
+      padding: 0 24px;
+      height: 60px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      z-index: 1000;
     }
 
     .nav h1 {
-      color: white;
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
 
     .nav-links {
       display: flex;
-      gap: 8px;
+      gap: 24px;
     }
 
     .nav-link {
-      color: rgba(255,255,255,0.7);
+      color: #888;
       text-decoration: none;
-      padding: 8px 16px;
-      border-radius: var(--radius-sm);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
-      transition: all 0.2s;
       cursor: pointer;
+      padding: 21px 0;
+      border-bottom: 2px solid transparent;
     }
 
     .nav-link:hover, .nav-link.active {
-      background: rgba(255,255,255,0.1);
-      color: white;
+      color: #fff;
+    }
+    
+    .nav-link.active {
+      border-bottom-color: #fff;
     }
 
-    /* Mockup Container */
+    /* Layout Containers */
     .mockup-container {
-      padding-top: 80px;
-      min-height: 100vh;
+      display: none; /* Hidden by default */
+      min-height: calc(100vh - 60px);
+      padding: 48px;
     }
-
-    .mockup-section {
-      display: none;
-      min-height: 100vh;
-    }
-
-    .mockup-section.active {
+    
+    .mockup-container.active {
       display: block;
     }
 
-    /* Direction Header */
-    .direction-header {
-      background: linear-gradient(135deg, #1a1a1a 0%, #374151 100%);
-      padding: 48px 24px;
-      text-align: center;
-      color: white;
-    }
-
-    .direction-header h2 {
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .direction-header p {
-      font-size: 16px;
-      opacity: 0.8;
-      max-width: 600px;
-      margin: 0 auto 24px;
-    }
-
-    .direction-tags {
+    /* Direction 1: The Terminal */
+    .terminal-layout {
       display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
+      height: 800px;
+      background: #fff;
+      border: 1px solid #000;
     }
 
-    .direction-tag {
-      background: rgba(255,255,255,0.15);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    /* Mockup Frame */
-    .mockup-frame {
-      background: white;
-      margin: 24px;
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow-lg);
-      min-height: 700px;
-    }
-
-    /* ========================================
-       DIRECTION 1: Split Screen Classic
-       ======================================== */
-    .d1-app {
-      display: flex;
-      height: 700px;
-    }
-
-    .d1-sidebar {
-      width: 64px;
-      background: var(--primary);
-      padding: 16px 0;
+    .t-sidebar {
+      width: 60px;
+      background: #000;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      padding: 24px 0;
+      gap: 24px;
     }
 
-    .d1-sidebar-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255,255,255,0.6);
+    .t-icon {
+      width: 24px;
+      height: 24px;
+      background: #333;
       cursor: pointer;
-      transition: all 0.2s;
-      font-size: 18px;
+    }
+    
+    .t-icon.active {
+      background: #fff;
     }
 
-    .d1-sidebar-icon:hover, .d1-sidebar-icon.active {
-      background: rgba(255,255,255,0.1);
-      color: white;
-    }
-
-    .d1-sidebar-icon.active {
-      background: var(--accent);
-    }
-
-    .d1-chat-panel {
-      width: 45%;
-      border-right: 1px solid var(--border);
+    .t-main {
+      flex: 1;
       display: flex;
       flex-direction: column;
     }
 
-    .d1-chat-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--border);
+    .t-header {
+      height: 60px;
+      border-bottom: 1px solid #000;
       display: flex;
+      align-items: center;
+      padding: 0 24px;
       justify-content: space-between;
-      align-items: center;
+    }
+    
+    .t-breadcrumbs {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
     }
 
-    .d1-chat-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .d1-chat-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: var(--success);
-    }
-
-    .d1-chat-status::before {
-      content: '';
-      width: 8px;
-      height: 8px;
-      background: var(--success);
-      border-radius: 50%;
-    }
-
-    .d1-chat-messages {
+    .t-content {
       flex: 1;
-      padding: 24px;
-      overflow-y: auto;
       display: flex;
-      flex-direction: column;
-      gap: 16px;
     }
-
-    .d1-message {
-      max-width: 85%;
-      padding: 14px 18px;
-      border-radius: var(--radius-md);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .d1-message.user {
-      background: var(--accent);
-      color: white;
-      align-self: flex-end;
-      border-bottom-right-radius: 4px;
-    }
-
-    .d1-message.ai {
-      background: var(--surface);
-      color: var(--primary);
-      align-self: flex-start;
-      border-bottom-left-radius: 4px;
-    }
-
-    .d1-chat-input {
-      padding: 16px 24px;
-      border-top: 1px solid var(--border);
-    }
-
-    .d1-input-wrapper {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      background: var(--surface);
-      border-radius: var(--radius-md);
-      padding: 12px 16px;
-      border: 1px solid var(--border);
-    }
-
-    .d1-input-wrapper:focus-within {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    .d1-input-wrapper input {
+    
+    .t-panel {
       flex: 1;
-      border: none;
-      background: none;
-      font-family: inherit;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .d1-send-btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      width: 36px;
-      height: 36px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .d1-send-btn:hover {
-      background: #1d4ed8;
-    }
-
-    .d1-preview-panel {
-      flex: 1;
-      background: var(--surface);
+      border-right: 1px solid #000;
       display: flex;
       flex-direction: column;
     }
-
-    .d1-preview-header {
-      padding: 16px 24px;
-      background: white;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    
+    .t-panel:last-child {
+      border-right: none;
     }
 
-    .d1-preview-tabs {
-      display: flex;
-      gap: 4px;
-    }
-
-    .d1-preview-tab {
-      padding: 8px 16px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .d1-preview-tab.active {
-      background: var(--accent);
-      color: white;
-    }
-
-    .d1-preview-content {
-      flex: 1;
-      padding: 24px;
-      overflow-y: auto;
-    }
-
-    .d1-form-preview {
-      background: white;
-      border-radius: var(--radius-md);
-      padding: 32px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .d1-form-title {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 8px;
-    }
-
-    .d1-form-desc {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-
-    .d1-form-section {
-      margin-bottom: 24px;
-    }
-
-    .d1-form-section-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .d1-form-field {
-      margin-bottom: 16px;
-    }
-
-    .d1-form-label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--primary);
-      margin-bottom: 6px;
-    }
-
-    .d1-form-input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-family: inherit;
-      font-size: 14px;
-      transition: all 0.2s;
-    }
-
-    .d1-form-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    /* ========================================
-       DIRECTION 2: Compact Professional
-       ======================================== */
-    .d2-app {
-      display: flex;
-      height: 700px;
-      background: white;
-    }
-
-    .d2-nav {
-      width: 240px;
-      background: var(--primary);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .d2-logo {
-      font-size: 20px;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 32px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .d2-logo-icon {
-      width: 32px;
-      height: 32px;
-      background: var(--accent);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .d2-nav-section {
-      margin-bottom: 24px;
-    }
-
-    .d2-nav-label {
+    .t-panel-header {
+      padding: 12px 24px;
+      background: #000;
+      color: #fff;
       font-size: 11px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.4);
       text-transform: uppercase;
-      letter-spacing: 1px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+    
+    .t-chat-area {
+      flex: 1;
+      padding: 24px;
+      background: #f9f9f9;
+    }
+    
+    .t-message {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 12px;
+      border: 1px solid #000;
       margin-bottom: 12px;
+      background: #fff;
+    }
+    
+    .t-message.user {
+      background: #000;
+      color: #fff;
+      text-align: right;
     }
 
-    .d2-nav-item {
+    /* Direction 2: The Document */
+    .doc-layout {
+      height: 800px;
+      background: #f4f4f4;
       display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: var(--radius-sm);
-      color: rgba(255,255,255,0.7);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 4px;
-    }
-
-    .d2-nav-item:hover {
-      background: rgba(255,255,255,0.08);
-      color: white;
-    }
-
-    .d2-nav-item.active {
-      background: var(--accent);
-      color: white;
-    }
-
-    .d2-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .d2-topbar {
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .d2-breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    .d2-breadcrumb span:last-child {
-      color: var(--primary);
-      font-weight: 500;
-    }
-
-    .d2-actions {
-      display: flex;
-      gap: 12px;
-    }
-
-    .d2-btn {
-      padding: 8px 16px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .d2-btn-ghost {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--primary);
-    }
-
-    .d2-btn-ghost:hover {
-      background: var(--surface);
-    }
-
-    .d2-btn-primary {
-      background: var(--accent);
-      border: none;
-      color: white;
-    }
-
-    .d2-btn-primary:hover {
-      background: #1d4ed8;
-    }
-
-    .d2-content {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .d2-chat {
-      width: 380px;
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      background: var(--surface);
-    }
-
-    .d2-chat-header {
-      padding: 16px;
-      background: white;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .d2-chat-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 4px;
-    }
-
-    .d2-chat-subtitle {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .d2-messages {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .d2-msg {
-      padding: 12px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      line-height: 1.5;
-      max-width: 90%;
-    }
-
-    .d2-msg.user {
-      background: var(--accent);
-      color: white;
-      align-self: flex-end;
-    }
-
-    .d2-msg.ai {
-      background: white;
-      color: var(--primary);
-      align-self: flex-start;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .d2-input-area {
-      padding: 12px;
-      background: white;
-      border-top: 1px solid var(--border);
-    }
-
-    .d2-input-box {
-      display: flex;
-      gap: 8px;
-    }
-
-    .d2-input {
-      flex: 1;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-family: inherit;
-      font-size: 13px;
-    }
-
-    .d2-input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    .d2-preview {
-      flex: 1;
-      padding: 24px;
-      overflow-y: auto;
-    }
-
-    .d2-card {
-      background: white;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-    }
-
-    .d2-card-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .d2-card-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .d2-card-body {
-      padding: 20px;
-    }
-
-    /* ========================================
-       DIRECTION 3: Focused Workspace
-       ======================================== */
-    .d3-app {
-      height: 700px;
-      background: var(--surface);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .d3-header {
-      background: white;
-      padding: 12px 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .d3-header-left {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
-
-    .d3-logo {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .d3-logo-mark {
-      width: 28px;
-      height: 28px;
-      background: var(--accent);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      color: white;
-      font-size: 14px;
+      padding: 48px;
     }
-
-    .d3-tabs {
-      display: flex;
-      gap: 4px;
-    }
-
-    .d3-tab {
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--muted);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .d3-tab.active {
-      background: var(--surface);
-      color: var(--primary);
-    }
-
-    .d3-tab:hover:not(.active) {
-      color: var(--primary);
-    }
-
-    .d3-header-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .d3-search {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      background: var(--surface);
-      border-radius: var(--radius-sm);
-      color: var(--muted);
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    .d3-search kbd {
-      background: white;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 11px;
-      border: 1px solid var(--border);
-    }
-
-    .d3-body {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .d3-conversation {
-      width: 50%;
-      display: flex;
-      flex-direction: column;
-      background: white;
-      margin: 16px;
-      margin-right: 8px;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .d3-conv-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .d3-conv-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .d3-conv-title h3 {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .d3-badge {
-      background: #dcfce7;
-      color: #16a34a;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .d3-messages {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .d3-msg {
-      display: flex;
-      gap: 12px;
-      max-width: 90%;
-    }
-
-    .d3-msg.user {
-      flex-direction: row-reverse;
-      align-self: flex-end;
-    }
-
-    .d3-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
-    .d3-avatar.user {
-      background: var(--accent);
-      color: white;
-    }
-
-    .d3-avatar.ai {
-      background: var(--surface);
-      color: var(--primary);
-      border: 1px solid var(--border);
-    }
-
-    .d3-msg-content {
-      background: var(--surface);
-      padding: 12px 16px;
-      border-radius: var(--radius-md);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .d3-msg.user .d3-msg-content {
-      background: var(--accent);
-      color: white;
-    }
-
-    .d3-input-area {
-      padding: 16px 20px;
-      border-top: 1px solid var(--border);
-    }
-
-    .d3-input-box {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border: 2px solid var(--border);
-      border-radius: var(--radius-md);
-      transition: all 0.2s;
-    }
-
-    .d3-input-box:focus-within {
-      border-color: var(--accent);
-    }
-
-    .d3-input-box input {
-      flex: 1;
-      border: none;
-      font-family: inherit;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .d3-input-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .d3-input-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-sm);
-      border: none;
-      background: none;
-      color: var(--muted);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .d3-input-btn:hover {
-      background: var(--surface);
-      color: var(--primary);
-    }
-
-    .d3-input-btn.primary {
-      background: var(--accent);
-      color: white;
-    }
-
-    .d3-input-btn.primary:hover {
-      background: #1d4ed8;
-    }
-
-    .d3-preview {
-      width: 50%;
-      margin: 16px;
-      margin-left: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .d3-preview-card {
-      background: white;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      flex: 1;
-      overflow: hidden;
+    
+    .doc-sheet {
+      width: 800px;
+      background: #fff;
+      height: 100%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
     }
-
-    .d3-preview-header {
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    
+    .doc-header {
+      padding: 64px 64px 24px 64px;
+      border-bottom: 2px solid #000;
     }
-
-    .d3-preview-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .d3-preview-toggle {
-      display: flex;
-      background: var(--surface);
-      border-radius: var(--radius-sm);
-      padding: 2px;
-    }
-
-    .d3-preview-toggle button {
-      padding: 6px 12px;
-      border: none;
-      background: none;
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .d3-preview-toggle button.active {
-      background: white;
-      color: var(--primary);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .d3-preview-body {
-      flex: 1;
-      padding: 24px;
-      overflow-y: auto;
-    }
-
-    /* ========================================
-       DIRECTION 4: Dashboard First
-       ======================================== */
-    .d4-app {
-      height: 700px;
-      display: flex;
-      background: var(--surface);
-    }
-
-    .d4-sidebar {
-      width: 220px;
-      background: white;
-      border-right: 1px solid var(--border);
-      padding: 20px 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .d4-logo {
-      padding: 0 20px;
-      margin-bottom: 24px;
-    }
-
-    .d4-logo h1 {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .d4-logo span {
-      font-size: 11px;
-      color: var(--muted);
-      font-weight: 400;
-    }
-
-    .d4-nav {
-      flex: 1;
-    }
-
-    .d4-nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 20px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.2s;
-      border-left: 3px solid transparent;
-    }
-
-    .d4-nav-item:hover {
-      background: var(--surface);
-      color: var(--primary);
-    }
-
-    .d4-nav-item.active {
-      background: rgba(37, 99, 235, 0.08);
-      color: var(--accent);
-      border-left-color: var(--accent);
-    }
-
-    .d4-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .d4-topbar {
-      background: white;
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .d4-page-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .d4-content {
-      flex: 1;
-      padding: 24px;
-      overflow-y: auto;
-    }
-
-    .d4-stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .d4-stat-card {
-      background: white;
-      padding: 20px;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .d4-stat-label {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }
-
-    .d4-stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .d4-stat-change {
-      font-size: 12px;
-      color: var(--success);
-      margin-top: 4px;
-    }
-
-    .d4-grid {
-      display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 24px;
-    }
-
-    .d4-services {
-      background: white;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .d4-services-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .d4-services-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .d4-service-item {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .d4-service-item:hover {
-      background: var(--surface);
-    }
-
-    .d4-service-info h4 {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--primary);
-      margin-bottom: 4px;
-    }
-
-    .d4-service-info span {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .d4-service-status {
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .d4-service-status.published {
-      background: #dcfce7;
-      color: #16a34a;
-    }
-
-    .d4-service-status.draft {
-      background: #fef3c7;
-      color: #d97706;
-    }
-
-    .d4-ai-panel {
-      background: white;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .d4-ai-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .d4-ai-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 4px;
-    }
-
-    .d4-ai-subtitle {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .d4-ai-messages {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .d4-ai-msg {
-      padding: 12px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      line-height: 1.5;
-      max-width: 90%;
-    }
-
-    .d4-ai-msg.ai {
-      background: var(--surface);
-      align-self: flex-start;
-    }
-
-    .d4-ai-input {
-      padding: 12px;
-      border-top: 1px solid var(--border);
-    }
-
-    /* ========================================
-       DIRECTION 5: Minimal Zen
-       ======================================== */
-    .d5-app {
-      height: 700px;
-      background: white;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .d5-header {
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .d5-logo {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .d5-nav {
-      display: flex;
-      gap: 32px;
-    }
-
-    .d5-nav-link {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--muted);
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .d5-nav-link.active {
-      color: var(--primary);
-    }
-
-    .d5-body {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .d5-center {
-      flex: 1;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 48px 40px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .d5-title {
+    
+    .doc-title {
       font-size: 32px;
       font-weight: 700;
-      color: var(--primary);
+      letter-spacing: -0.04em;
       margin-bottom: 8px;
     }
-
-    .d5-subtitle {
+    
+    .doc-meta {
+      font-family: 'Times New Roman', serif;
+      font-style: italic;
+      color: #666;
+    }
+    
+    .doc-body {
+      flex: 1;
+      padding: 48px 64px;
       font-size: 16px;
-      color: var(--muted);
-      margin-bottom: 40px;
     }
-
-    .d5-chat-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      overflow-y: auto;
-      margin-bottom: 24px;
-    }
-
-    .d5-message {
-      max-width: 600px;
-    }
-
-    .d5-message.user {
-      align-self: flex-end;
-    }
-
-    .d5-msg-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }
-
-    .d5-msg-content {
-      font-size: 15px;
-      line-height: 1.7;
-      color: var(--primary);
-    }
-
-    .d5-msg-content.ai {
-      background: var(--surface);
-      padding: 20px 24px;
-      border-radius: var(--radius-md);
-    }
-
-    .d5-input-area {
-      border-top: 1px solid var(--border);
-      padding-top: 24px;
-    }
-
-    .d5-input-box {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      border: 2px solid var(--border);
-      border-radius: var(--radius-md);
-      transition: all 0.2s;
-    }
-
-    .d5-input-box:focus-within {
-      border-color: var(--accent);
-    }
-
-    .d5-input-box input {
-      flex: 1;
-      border: none;
-      font-family: inherit;
-      font-size: 15px;
-      outline: none;
-    }
-
-    .d5-send {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: var(--radius-sm);
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .d5-send:hover {
-      background: #1d4ed8;
-    }
-
-    .d5-preview-panel {
-      width: 400px;
-      background: var(--surface);
-      border-left: 1px solid var(--border);
-      padding: 24px;
-      overflow-y: auto;
-    }
-
-    .d5-preview-header {
-      margin-bottom: 24px;
-    }
-
-    .d5-preview-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 4px;
-    }
-
-    .d5-preview-desc {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .d5-form-preview {
-      background: white;
-      border-radius: var(--radius-md);
-      padding: 24px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    /* ========================================
-       DIRECTION 6: Command Center
-       ======================================== */
-    .d6-app {
-      height: 700px;
-      background: #0f172a;
-      display: flex;
-    }
-
-    .d6-sidebar {
-      width: 56px;
-      background: #1e293b;
-      padding: 16px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .d6-sidebar-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #64748b;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .d6-sidebar-btn:hover {
-      background: rgba(255,255,255,0.05);
-      color: #94a3b8;
-    }
-
-    .d6-sidebar-btn.active {
-      background: var(--accent);
-      color: white;
-    }
-
-    .d6-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .d6-topbar {
-      background: #1e293b;
-      padding: 12px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .d6-breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: #64748b;
-    }
-
-    .d6-breadcrumb span:last-child {
-      color: #e2e8f0;
-    }
-
-    .d6-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .d6-action-btn {
-      padding: 8px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .d6-action-btn.ghost {
-      background: transparent;
-      border: 1px solid #334155;
-      color: #94a3b8;
-    }
-
-    .d6-action-btn.ghost:hover {
-      background: #334155;
-    }
-
-    .d6-action-btn.primary {
-      background: var(--accent);
-      border: none;
-      color: white;
-    }
-
-    .d6-content {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .d6-chat {
-      width: 45%;
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid #1e293b;
-    }
-
-    .d6-chat-header {
-      padding: 16px 20px;
-      background: #1e293b;
-    }
-
-    .d6-chat-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #e2e8f0;
-      margin-bottom: 4px;
-    }
-
-    .d6-chat-meta {
-      font-size: 11px;
-      color: #64748b;
-    }
-
-    .d6-messages {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .d6-msg {
-      max-width: 85%;
-      padding: 12px 16px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .d6-msg.user {
-      background: var(--accent);
-      color: white;
-      align-self: flex-end;
-    }
-
-    .d6-msg.ai {
-      background: #1e293b;
-      color: #e2e8f0;
-      align-self: flex-start;
-    }
-
-    .d6-input-area {
-      padding: 16px 20px;
-      background: #1e293b;
-    }
-
-    .d6-input-box {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      padding: 12px 16px;
-      background: #0f172a;
-      border: 1px solid #334155;
-      border-radius: var(--radius-sm);
-    }
-
-    .d6-input-box:focus-within {
-      border-color: var(--accent);
-    }
-
-    .d6-input-box input {
-      flex: 1;
-      background: none;
-      border: none;
-      font-family: inherit;
-      font-size: 13px;
-      color: #e2e8f0;
-      outline: none;
-    }
-
-    .d6-input-box input::placeholder {
-      color: #475569;
-    }
-
-    .d6-preview {
-      flex: 1;
-      background: #0f172a;
-      padding: 20px;
-      overflow-y: auto;
-    }
-
-    .d6-preview-card {
-      background: #1e293b;
-      border-radius: var(--radius-md);
-      overflow: hidden;
-    }
-
-    .d6-preview-header {
-      padding: 14px 20px;
-      border-bottom: 1px solid #334155;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .d6-preview-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #e2e8f0;
-    }
-
-    .d6-preview-body {
-      padding: 20px;
-      background: white;
-      min-height: 300px;
-    }
-
-    /* Icons (using emoji for simplicity) */
-    .icon::before {
-      font-style: normal;
-    }
-
-    /* Comparison Section */
-    .comparison-section {
-      padding: 48px 24px;
-      background: #1a1a1a;
-    }
-
-    .comparison-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: white;
-      text-align: center;
+    
+    .doc-field {
       margin-bottom: 32px;
     }
+    
+    .doc-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    
+    .doc-input {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      padding: 8px 0;
+      font-size: 18px;
+      outline: none;
+    }
+    
+    .doc-input:focus {
+      border-bottom-color: #000;
+    }
 
-    .comparison-grid {
+    /* Direction 3: The Grid */
+    .grid-layout {
+      height: 800px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      border: 1px solid #000;
+    }
+    
+    .g-sidebar {
+      border-right: 1px solid #000;
+      padding: 24px;
+    }
+    
+    .g-item {
+      padding: 12px;
+      border: 1px solid transparent;
+      margin-bottom: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .g-item.active {
+      border-color: #000;
+      background: #f4f4f4;
+    }
+    
+    .g-main {
+      padding: 24px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      max-width: 1200px;
-      margin: 0 auto;
+      grid-template-rows: auto 1fr;
+      gap: 24px;
     }
-
-    .comparison-card {
-      background: rgba(255,255,255,0.05);
-      border-radius: var(--radius-md);
+    
+    .g-header {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 4px solid #000; /* Bold header line */
+      padding-bottom: 12px;
+    }
+    
+    .g-title {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+    
+    .g-card {
+      border: 1px solid #000;
+      height: 200px;
       padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: background 0.2s;
       cursor: pointer;
-      transition: all 0.2s;
-      border: 2px solid transparent;
+    }
+    
+    .g-card:hover {
+      background: #000;
+      color: #fff;
+    }
+    
+    .g-card-icon {
+      width: 40px;
+      height: 40px;
+      border: 1px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .comparison-card:hover {
-      background: rgba(255,255,255,0.08);
+    .g-card:hover .g-card-icon {
+      border-color: #fff;
     }
 
-    .comparison-card.selected {
-      border-color: var(--accent);
-      background: rgba(37, 99, 235, 0.1);
+    /* Utility */
+    .desc-tag {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #000;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 999px; /* Pill for meta UI only */
+      font-size: 12px;
+      opacity: 0.8;
     }
 
-    .comparison-card h3 {
-      font-size: 16px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 8px;
-    }
-
-    .comparison-card p {
-      font-size: 13px;
-      color: rgba(255,255,255,0.6);
-      line-height: 1.5;
-    }
   </style>
 </head>
 <body>
+
   <nav class="nav">
-    <h1>BPA AI-Native Design Directions</h1>
+    <h1>BPA DESIGN EXPLORATION // SWISS SERIES</h1>
     <div class="nav-links">
-      <a class="nav-link active" onclick="showDirection(1)">Direction 1</a>
-      <a class="nav-link" onclick="showDirection(2)">Direction 2</a>
-      <a class="nav-link" onclick="showDirection(3)">Direction 3</a>
-      <a class="nav-link" onclick="showDirection(4)">Direction 4</a>
-      <a class="nav-link" onclick="showDirection(5)">Direction 5</a>
-      <a class="nav-link" onclick="showDirection(6)">Direction 6</a>
-      <a class="nav-link" onclick="showDirection(0)">Compare All</a>
+      <a class="nav-link active" onclick="switchView('terminal')">01 THE TERMINAL</a>
+      <a class="nav-link" onclick="switchView('document')">02 THE DOCUMENT</a>
+      <a class="nav-link" onclick="switchView('grid')">03 THE GRID</a>
     </div>
   </nav>
 
-  <div class="mockup-container">
-    <!-- Direction 1: Split Screen Classic -->
-    <section id="direction-1" class="mockup-section active">
-      <div class="direction-header">
-        <h2>Direction 1: Split Screen Classic</h2>
-        <p>The proven pattern: conversation on the left, live preview on the right. Minimal sidebar for navigation. Maximum focus on the AI interaction.</p>
-        <div class="direction-tags">
-          <span class="direction-tag">Familiar Pattern</span>
-          <span class="direction-tag">Balanced Layout</span>
-          <span class="direction-tag">High Focus</span>
-        </div>
+  <!-- DIRECTION 1: THE TERMINAL -->
+  <div id="terminal" class="mockup-container active">
+    <div class="terminal-layout">
+      <div class="t-sidebar">
+        <div class="t-icon active"></div>
+        <div class="t-icon"></div>
+        <div class="t-icon"></div>
       </div>
-      <div class="mockup-frame">
-        <div class="d1-app">
-          <div class="d1-sidebar">
-            <div class="d1-sidebar-icon">🏠</div>
-            <div class="d1-sidebar-icon active">💬</div>
-            <div class="d1-sidebar-icon">📋</div>
-            <div class="d1-sidebar-icon">⚙️</div>
-          </div>
-          <div class="d1-chat-panel">
-            <div class="d1-chat-header">
-              <span class="d1-chat-title">Restaurant License Application</span>
-              <span class="d1-chat-status">AI Ready</span>
-            </div>
-            <div class="d1-chat-messages">
-              <div class="d1-message user">I need a restaurant license application form</div>
-              <div class="d1-message ai">I'll create a restaurant license application for you. This typically includes business details, owner information, and health & safety compliance sections. Let me build that now...</div>
-              <div class="d1-message user">Add a section for food handling certificates</div>
-              <div class="d1-message ai">Done! I've added a Food Handling Certification section with fields for certificate number, issue date, and file upload. You can see it in the preview.</div>
-            </div>
-            <div class="d1-chat-input">
-              <div class="d1-input-wrapper">
-                <input type="text" placeholder="Describe what you need...">
-                <button class="d1-send-btn">→</button>
+      <div class="t-main">
+        <div class="t-header">
+          <div class="t-breadcrumbs">SYS / CONFIG / NEW_SERVICE / AI_ASSIST</div>
+          <div style="font-weight: 700;">CONNECTED</div>
+        </div>
+        <div class="t-content">
+          <div class="t-panel" style="width: 40%;">
+            <div class="t-panel-header">Console Log</div>
+            <div class="t-chat-area">
+              <div class="t-message ai">
+                > System initiated.<br>
+                > Awaiting declaration of intent.<br>
+                > What service shall we configure today?
+              </div>
+              <div class="t-message user">
+                > Create a restaurant permit for downtown zone.
+              </div>
+              <div class="t-message ai">
+                 > Analyzing municipal code 42.1...<br>
+                 > Detected 3 requirements:<br>
+                 > 1. Health Inspection<br>
+                 > 2. Fire Safety<br>
+                 > 3. Liquor License (Optional)
               </div>
             </div>
           </div>
-          <div class="d1-preview-panel">
-            <div class="d1-preview-header">
-              <div class="d1-preview-tabs">
-                <div class="d1-preview-tab active">Citizen View</div>
-                <div class="d1-preview-tab">Admin View</div>
-              </div>
-            </div>
-            <div class="d1-preview-content">
-              <div class="d1-form-preview">
-                <h2 class="d1-form-title">Restaurant License Application</h2>
-                <p class="d1-form-desc">Apply for a new restaurant operating license</p>
-                <div class="d1-form-section">
-                  <h3 class="d1-form-section-title">Business Information</h3>
-                  <div class="d1-form-field">
-                    <label class="d1-form-label">Restaurant Name *</label>
-                    <input class="d1-form-input" type="text" placeholder="Enter restaurant name">
-                  </div>
-                  <div class="d1-form-field">
-                    <label class="d1-form-label">Business Address *</label>
-                    <input class="d1-form-input" type="text" placeholder="Enter address">
-                  </div>
-                </div>
-                <div class="d1-form-section">
-                  <h3 class="d1-form-section-title">Food Handling Certification</h3>
-                  <div class="d1-form-field">
-                    <label class="d1-form-label">Certificate Number *</label>
-                    <input class="d1-form-input" type="text" placeholder="Enter certificate number">
-                  </div>
-                </div>
-              </div>
+          <div class="t-panel">
+            <div class="t-panel-header">Live Schema Preview</div>
+            <div style="padding: 24px; font-family: 'JetBrains Mono', monospace; font-size: 12px;">
+              <div style="margin-bottom: 8px; color: #666;">// Generated Configuration</div>
+              <div style="color: #0055BB;">const</div> serviceDef = {<br>
+              &nbsp;&nbsp;id: <span style="color: #CC0000;">"permit_rest_downtown"</span>,<br>
+              &nbsp;&nbsp;requires_inspection: <span style="color: #0055BB;">true</span>,<br>
+              &nbsp;&nbsp;steps: [<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;{ type: <span style="color: #CC0000;">"form"</span>, schema: <span style="color: #CC0000;">"applicant_details"</span> },<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;{ type: <span style="color: #CC0000;">"upload"</span>, doc: <span style="color: #CC0000;">"health_cert"</span> }<br>
+              &nbsp;&nbsp;]<br>
+              }
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+    <div class="desc-tag">Concept: High Density / Financial / Developer-Centric</div>
+  </div>
 
-    <!-- Direction 2: Compact Professional -->
-    <section id="direction-2" class="mockup-section">
-      <div class="direction-header">
-        <h2>Direction 2: Compact Professional</h2>
-        <p>Efficient use of space with expanded sidebar navigation. More structured, enterprise-ready feel. Chat is contained but accessible.</p>
-        <div class="direction-tags">
-          <span class="direction-tag">Enterprise Ready</span>
-          <span class="direction-tag">Rich Navigation</span>
-          <span class="direction-tag">Compact Density</span>
+  <!-- DIRECTION 2: THE DOCUMENT -->
+  <div id="document" class="mockup-container">
+    <div class="doc-layout">
+      <div class="doc-sheet">
+        <div class="doc-header">
+          <div class="doc-meta">Draft · 27 Dec 2025</div>
+          <h2 class="doc-title">Restaurant Operation Permit</h2>
+          <div style="width: 40px; height: 4px; background: #000; margin-top: 16px;"></div>
         </div>
-      </div>
-      <div class="mockup-frame">
-        <div class="d2-app">
-          <div class="d2-nav">
-            <div class="d2-logo">
-              <div class="d2-logo-icon">B</div>
-              <span>BPA</span>
-            </div>
-            <div class="d2-nav-section">
-              <div class="d2-nav-label">Main</div>
-              <div class="d2-nav-item">🏠 Dashboard</div>
-              <div class="d2-nav-item active">📝 Services</div>
-              <div class="d2-nav-item">📊 Analytics</div>
-            </div>
-            <div class="d2-nav-section">
-              <div class="d2-nav-label">Library</div>
-              <div class="d2-nav-item">📁 Templates</div>
-              <div class="d2-nav-item">🔧 Components</div>
-            </div>
+        <div class="doc-body">
+          <p style="margin-bottom: 32px; font-size: 18px; line-height: 1.6;">
+            This document outlines the requirements for operating a food establishment within the city limits. 
+            The AI assistant suggests the following structure based on <span style="background: #e0e0e0; padding: 2px 4px;">Municipal Code 42.1</span>.
+          </p>
+          
+          <div class="doc-field">
+            <label class="doc-label">1. Establishment Name</label>
+            <input type="text" class="doc-input" value="The Golden Spoon" readonly>
           </div>
-          <div class="d2-main">
-            <div class="d2-topbar">
-              <div class="d2-breadcrumb">
-                <span>Services</span>
-                <span>/</span>
-                <span>Restaurant License</span>
-              </div>
-              <div class="d2-actions">
-                <button class="d2-btn d2-btn-ghost">Preview</button>
-                <button class="d2-btn d2-btn-primary">Publish</button>
-              </div>
-            </div>
-            <div class="d2-content">
-              <div class="d2-chat">
-                <div class="d2-chat-header">
-                  <div class="d2-chat-title">AI Assistant</div>
-                  <div class="d2-chat-subtitle">Building your service</div>
-                </div>
-                <div class="d2-messages">
-                  <div class="d2-msg user">Create a restaurant license form</div>
-                  <div class="d2-msg ai">I've created a restaurant license application with standard sections. What would you like to customize?</div>
-                </div>
-                <div class="d2-input-area">
-                  <div class="d2-input-box">
-                    <input class="d2-input" type="text" placeholder="Ask AI...">
-                    <button class="d2-btn d2-btn-primary">Send</button>
-                  </div>
-                </div>
-              </div>
-              <div class="d2-preview">
-                <div class="d2-card">
-                  <div class="d2-card-header">
-                    <span class="d2-card-title">Form Preview</span>
-                  </div>
-                  <div class="d2-card-body">
-                    <div class="d1-form-field">
-                      <label class="d1-form-label">Restaurant Name</label>
-                      <input class="d1-form-input" type="text">
-                    </div>
-                    <div class="d1-form-field">
-                      <label class="d1-form-label">License Type</label>
-                      <input class="d1-form-input" type="text">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          
+          <div class="doc-field">
+            <label class="doc-label">2. Primary Operator</label>
+            <input type="text" class="doc-input" placeholder="Enter operator name..." readonly>
+          </div>
+          
+          <div class="doc-field">
+             <label class="doc-label">3. Certification</label>
+             <div style="border: 1px dashed #000; padding: 24px; text-align: center; color: #666; font-size: 14px; margin-top: 8px;">
+               Health Inspection Certificate (Pending)
+             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+    <div class="desc-tag">Concept: Editorial / Legal / Paper Metaphor</div>
+  </div>
 
-    <!-- Direction 3: Focused Workspace -->
-    <section id="direction-3" class="mockup-section">
-      <div class="direction-header">
-        <h2>Direction 3: Focused Workspace</h2>
-        <p>Horizontal tabs for navigation, equal split between conversation and preview. Modern workspace aesthetic with floating panels.</p>
-        <div class="direction-tags">
-          <span class="direction-tag">Modern Workspace</span>
-          <span class="direction-tag">Floating Panels</span>
-          <span class="direction-tag">Equal Focus</span>
-        </div>
+  <!-- DIRECTION 3: THE GRID -->
+  <div id="grid" class="mockup-container">
+    <div class="grid-layout">
+      <div class="g-sidebar">
+        <div style="margin-bottom: 48px; font-weight: 700; font-size: 24px; letter-spacing: -0.05em;">BPA.</div>
+        <div class="g-item active">Dashboard</div>
+        <div class="g-item">Services</div>
+        <div class="g-item">Users</div>
+        <div class="g-item">Settings</div>
       </div>
-      <div class="mockup-frame">
-        <div class="d3-app">
-          <div class="d3-header">
-            <div class="d3-header-left">
-              <div class="d3-logo">
-                <div class="d3-logo-mark">B</div>
-                <span>BPA</span>
-              </div>
-              <div class="d3-tabs">
-                <div class="d3-tab active">Services</div>
-                <div class="d3-tab">Templates</div>
-                <div class="d3-tab">Analytics</div>
-              </div>
-            </div>
-            <div class="d3-header-right">
-              <div class="d3-search">
-                <span>🔍</span>
-                <span>Search...</span>
-                <kbd>⌘K</kbd>
-              </div>
-            </div>
+      <div class="g-main">
+        <div class="g-header">
+          <div class="g-title">Services</div>
+          <div style="padding: 12px 24px; background: #000; color: #fff; font-weight: 600; font-size: 14px;">+ NEW</div>
+        </div>
+        
+        <div class="g-card">
+          <div class="g-card-icon">NB</div>
+          <div>
+            <div style="font-weight: 700; font-size: 18px; margin-bottom: 4px;">New Business</div>
+            <div style="font-size: 13px; opacity: 0.7;">Registration Flow</div>
           </div>
-          <div class="d3-body">
-            <div class="d3-conversation">
-              <div class="d3-conv-header">
-                <div class="d3-conv-title">
-                  <h3>Restaurant License</h3>
-                  <span class="d3-badge">Draft</span>
-                </div>
-              </div>
-              <div class="d3-messages">
-                <div class="d3-msg user">
-                  <div class="d3-msg-content">I need a restaurant license application form</div>
-                  <div class="d3-avatar user">M</div>
-                </div>
-                <div class="d3-msg">
-                  <div class="d3-avatar ai">AI</div>
-                  <div class="d3-msg-content">I'll create a comprehensive restaurant license form. I'm adding sections for business details, owner info, and compliance requirements...</div>
-                </div>
-              </div>
-              <div class="d3-input-area">
-                <div class="d3-input-box">
-                  <input type="text" placeholder="Describe your changes...">
-                  <div class="d3-input-actions">
-                    <button class="d3-input-btn">📎</button>
-                    <button class="d3-input-btn primary">→</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="d3-preview">
-              <div class="d3-preview-card">
-                <div class="d3-preview-header">
-                  <span class="d3-preview-title">Live Preview</span>
-                  <div class="d3-preview-toggle">
-                    <button class="active">Citizen</button>
-                    <button>Admin</button>
-                  </div>
-                </div>
-                <div class="d3-preview-body">
-                  <div class="d1-form-title" style="margin-bottom: 16px;">Restaurant License</div>
-                  <div class="d1-form-field">
-                    <label class="d1-form-label">Business Name</label>
-                    <input class="d1-form-input" type="text">
-                  </div>
-                </div>
-              </div>
-            </div>
+        </div>
+        
+        <div class="g-card">
+          <div class="g-card-icon">TR</div>
+          <div>
+            <div style="font-weight: 700; font-size: 18px; margin-bottom: 4px;">Tax Return</div>
+            <div style="font-size: 13px; opacity: 0.7;">Fiscal Year 2025</div>
+          </div>
+        </div>
+        
+        <div class="g-card">
+          <div class="g-card-icon">IP</div>
+          <div>
+            <div style="font-weight: 700; font-size: 18px; margin-bottom: 4px;">Import Permit</div>
+            <div style="font-size: 13px; opacity: 0.7;">Customs & Border</div>
           </div>
         </div>
       </div>
-    </section>
-
-    <!-- Direction 4: Dashboard First -->
-    <section id="direction-4" class="mockup-section">
-      <div class="direction-header">
-        <h2>Direction 4: Dashboard First</h2>
-        <p>Dashboard overview as the primary view. AI assistant is contextual, appearing as a sidebar panel. Focus on service management.</p>
-        <div class="direction-tags">
-          <span class="direction-tag">Overview First</span>
-          <span class="direction-tag">Contextual AI</span>
-          <span class="direction-tag">Management Focus</span>
-        </div>
-      </div>
-      <div class="mockup-frame">
-        <div class="d4-app">
-          <div class="d4-sidebar">
-            <div class="d4-logo">
-              <h1>BPA Platform</h1>
-              <span>AI-Native</span>
-            </div>
-            <div class="d4-nav">
-              <div class="d4-nav-item active">📊 Dashboard</div>
-              <div class="d4-nav-item">📝 Services</div>
-              <div class="d4-nav-item">📁 Templates</div>
-              <div class="d4-nav-item">👥 Users</div>
-              <div class="d4-nav-item">⚙️ Settings</div>
-            </div>
-          </div>
-          <div class="d4-main">
-            <div class="d4-topbar">
-              <h2 class="d4-page-title">Dashboard</h2>
-            </div>
-            <div class="d4-content">
-              <div class="d4-stats">
-                <div class="d4-stat-card">
-                  <div class="d4-stat-label">Active Services</div>
-                  <div class="d4-stat-value">24</div>
-                  <div class="d4-stat-change">+3 this month</div>
-                </div>
-                <div class="d4-stat-card">
-                  <div class="d4-stat-label">Applications</div>
-                  <div class="d4-stat-value">1,847</div>
-                  <div class="d4-stat-change">+12% growth</div>
-                </div>
-                <div class="d4-stat-card">
-                  <div class="d4-stat-label">Avg. Processing</div>
-                  <div class="d4-stat-value">2.3 days</div>
-                  <div class="d4-stat-change">-0.5 days</div>
-                </div>
-                <div class="d4-stat-card">
-                  <div class="d4-stat-label">Completion Rate</div>
-                  <div class="d4-stat-value">94%</div>
-                  <div class="d4-stat-change">+2%</div>
-                </div>
-              </div>
-              <div class="d4-grid">
-                <div class="d4-services">
-                  <div class="d4-services-header">
-                    <span class="d4-services-title">Recent Services</span>
-                  </div>
-                  <div class="d4-service-item">
-                    <div class="d4-service-info">
-                      <h4>Restaurant License</h4>
-                      <span>Updated 2 hours ago</span>
-                    </div>
-                    <span class="d4-service-status draft">Draft</span>
-                  </div>
-                  <div class="d4-service-item">
-                    <div class="d4-service-info">
-                      <h4>Business Permit</h4>
-                      <span>Updated yesterday</span>
-                    </div>
-                    <span class="d4-service-status published">Published</span>
-                  </div>
-                  <div class="d4-service-item">
-                    <div class="d4-service-info">
-                      <h4>Construction License</h4>
-                      <span>Updated 3 days ago</span>
-                    </div>
-                    <span class="d4-service-status published">Published</span>
-                  </div>
-                </div>
-                <div class="d4-ai-panel">
-                  <div class="d4-ai-header">
-                    <div class="d4-ai-title">AI Assistant</div>
-                    <div class="d4-ai-subtitle">Ask me anything about your services</div>
-                  </div>
-                  <div class="d4-ai-messages">
-                    <div class="d4-ai-msg ai">Hello! I can help you create new services, analyze performance, or answer questions. What would you like to do?</div>
-                  </div>
-                  <div class="d4-ai-input">
-                    <div class="d2-input-box">
-                      <input class="d2-input" type="text" placeholder="Ask AI...">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Direction 5: Minimal Zen -->
-    <section id="direction-5" class="mockup-section">
-      <div class="direction-header">
-        <h2>Direction 5: Minimal Zen</h2>
-        <p>Maximum breathing room. Centered conversation with generous whitespace. Preview as collapsible side panel. Calming, focused experience.</p>
-        <div class="direction-tags">
-          <span class="direction-tag">Maximum Whitespace</span>
-          <span class="direction-tag">Centered Focus</span>
-          <span class="direction-tag">Calm Aesthetic</span>
-        </div>
-      </div>
-      <div class="mockup-frame">
-        <div class="d5-app">
-          <div class="d5-header">
-            <div class="d5-logo">BPA</div>
-            <div class="d5-nav">
-              <a class="d5-nav-link active">Create</a>
-              <a class="d5-nav-link">Services</a>
-              <a class="d5-nav-link">Templates</a>
-            </div>
-          </div>
-          <div class="d5-body">
-            <div class="d5-center">
-              <h1 class="d5-title">Restaurant License Application</h1>
-              <p class="d5-subtitle">Tell me what you need, and I'll build it.</p>
-              <div class="d5-chat-area">
-                <div class="d5-message user">
-                  <div class="d5-msg-label">You</div>
-                  <div class="d5-msg-content">I need a restaurant license application form with sections for business info, owner details, and health compliance.</div>
-                </div>
-                <div class="d5-message">
-                  <div class="d5-msg-label">AI Assistant</div>
-                  <div class="d5-msg-content ai">I've created your restaurant license application with three sections: Business Information, Owner Details, and Health & Compliance. The form includes all standard fields and validation. You can see the preview on the right, and tell me about any changes you'd like.</div>
-                </div>
-              </div>
-              <div class="d5-input-area">
-                <div class="d5-input-box">
-                  <input type="text" placeholder="Describe what you'd like to change...">
-                  <button class="d5-send">Send</button>
-                </div>
-              </div>
-            </div>
-            <div class="d5-preview-panel">
-              <div class="d5-preview-header">
-                <div class="d5-preview-title">Live Preview</div>
-                <div class="d5-preview-desc">Citizen view</div>
-              </div>
-              <div class="d5-form-preview">
-                <div class="d1-form-title" style="font-size: 18px; margin-bottom: 16px;">Restaurant License</div>
-                <div class="d1-form-field">
-                  <label class="d1-form-label">Business Name</label>
-                  <input class="d1-form-input" type="text">
-                </div>
-                <div class="d1-form-field">
-                  <label class="d1-form-label">Owner Name</label>
-                  <input class="d1-form-input" type="text">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Direction 6: Command Center -->
-    <section id="direction-6" class="mockup-section">
-      <div class="direction-header">
-        <h2>Direction 6: Command Center (Dark)</h2>
-        <p>Dark theme for extended sessions. Compact, information-dense layout. Power-user focused with keyboard shortcuts emphasized.</p>
-        <div class="direction-tags">
-          <span class="direction-tag">Dark Theme</span>
-          <span class="direction-tag">Power Users</span>
-          <span class="direction-tag">Information Dense</span>
-        </div>
-      </div>
-      <div class="mockup-frame">
-        <div class="d6-app">
-          <div class="d6-sidebar">
-            <div class="d6-sidebar-btn active">🏠</div>
-            <div class="d6-sidebar-btn">📝</div>
-            <div class="d6-sidebar-btn">📊</div>
-            <div class="d6-sidebar-btn">⚙️</div>
-          </div>
-          <div class="d6-main">
-            <div class="d6-topbar">
-              <div class="d6-breadcrumb">
-                <span>Services</span>
-                <span>/</span>
-                <span>Restaurant License</span>
-              </div>
-              <div class="d6-actions">
-                <button class="d6-action-btn ghost">⌘P Preview</button>
-                <button class="d6-action-btn primary">Publish</button>
-              </div>
-            </div>
-            <div class="d6-content">
-              <div class="d6-chat">
-                <div class="d6-chat-header">
-                  <div class="d6-chat-title">AI Builder</div>
-                  <div class="d6-chat-meta">Streaming • 3 turns</div>
-                </div>
-                <div class="d6-messages">
-                  <div class="d6-msg user">Create restaurant license form</div>
-                  <div class="d6-msg ai">Building restaurant license application... Added: Business Info, Owner Details, Compliance sections. Ready for customization.</div>
-                  <div class="d6-msg user">Add health certificate upload</div>
-                  <div class="d6-msg ai">Added file upload for health certificates with PDF/JPG validation.</div>
-                </div>
-                <div class="d6-input-area">
-                  <div class="d6-input-box">
-                    <input type="text" placeholder="/ for commands, or describe changes...">
-                    <span style="color: #475569; font-size: 12px;">⌘↵</span>
-                  </div>
-                </div>
-              </div>
-              <div class="d6-preview">
-                <div class="d6-preview-card">
-                  <div class="d6-preview-header">
-                    <span class="d6-preview-title">Form Preview</span>
-                  </div>
-                  <div class="d6-preview-body">
-                    <div class="d1-form-title" style="font-size: 20px; margin-bottom: 20px;">Restaurant License Application</div>
-                    <div class="d1-form-field">
-                      <label class="d1-form-label">Business Name *</label>
-                      <input class="d1-form-input" type="text">
-                    </div>
-                    <div class="d1-form-field">
-                      <label class="d1-form-label">Health Certificate</label>
-                      <input class="d1-form-input" type="text" placeholder="Upload PDF or JPG">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Comparison View -->
-    <section id="direction-0" class="mockup-section">
-      <div class="comparison-section">
-        <h2 class="comparison-title">Compare All Directions</h2>
-        <div class="comparison-grid">
-          <div class="comparison-card" onclick="showDirection(1)">
-            <h3>1. Split Screen Classic</h3>
-            <p>Familiar chat + preview layout. Minimal sidebar. Maximum focus on conversation.</p>
-          </div>
-          <div class="comparison-card" onclick="showDirection(2)">
-            <h3>2. Compact Professional</h3>
-            <p>Expanded navigation. Enterprise-ready feel. Structured workspace.</p>
-          </div>
-          <div class="comparison-card" onclick="showDirection(3)">
-            <h3>3. Focused Workspace</h3>
-            <p>Horizontal tabs. Floating panels. Modern workspace aesthetic.</p>
-          </div>
-          <div class="comparison-card" onclick="showDirection(4)">
-            <h3>4. Dashboard First</h3>
-            <p>Overview-centric. AI as contextual sidebar. Service management focus.</p>
-          </div>
-          <div class="comparison-card" onclick="showDirection(5)">
-            <h3>5. Minimal Zen</h3>
-            <p>Maximum whitespace. Centered conversation. Calming, focused experience.</p>
-          </div>
-          <div class="comparison-card" onclick="showDirection(6)">
-            <h3>6. Command Center</h3>
-            <p>Dark theme. Power-user focused. Keyboard shortcuts emphasized.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    </div>
+    <div class="desc-tag">Concept: Modular / Dashboard / Bento Box</div>
   </div>
 
   <script>
-    function showDirection(num) {
-      // Hide all sections
-      document.querySelectorAll('.mockup-section').forEach(s => s.classList.remove('active'));
-      // Show selected section
-      document.getElementById('direction-' + num).classList.add('active');
-      // Update nav
-      document.querySelectorAll('.nav-link').forEach((link, i) => {
-        link.classList.toggle('active', i === (num === 0 ? 6 : num - 1));
-      });
-      // Scroll to top
-      window.scrollTo(0, 0);
+    function switchView(id) {
+      // Hide all containers
+      document.querySelectorAll('.mockup-container').forEach(el => el.classList.remove('active'));
+      // Show selected
+      document.getElementById(id).classList.add('active');
+      
+      // Update nav state
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+      event.target.classList.add('active');
     }
   </script>
 </body>
