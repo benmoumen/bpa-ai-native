@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import {
   AppShell,
   CollapsibleSidebar,
@@ -7,6 +8,8 @@ import {
   SplitPanel,
   SkipLinks,
 } from '@/components';
+import { CreateServiceDialog } from '@/components/services';
+import type { Service } from '@/lib/api/services';
 
 /**
  * Home page demonstrating the shell layout system.
@@ -19,6 +22,12 @@ import {
  * - SkipLinks: Accessibility navigation
  */
 export default function Home() {
+  const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
+
+  const handleServiceCreated = (service: Service) => {
+    // TODO: Add toast notification and refresh service list
+    console.log('Service created:', service);
+  };
   return (
     <>
       <SkipLinks />
@@ -53,7 +62,11 @@ export default function Home() {
                </div>
 
               <div className="grid grid-cols-1 gap-px bg-border border border-border">
-                <div className="block bg-white p-8 hover:bg-slate-50 transition-colors cursor-default group">
+                <button
+                  type="button"
+                  onClick={() => setCreateDialogOpen(true)}
+                  className="block w-full text-left bg-white p-8 hover:bg-slate-50 transition-colors cursor-pointer group"
+                >
                     <div className="flex items-start gap-6">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-black text-white">
                          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +85,7 @@ export default function Home() {
                          </svg>
                       </div>
                     </div>
-                </div>
+                </button>
 
                 <div className="bg-slate-50 px-6 py-3 text-xs font-bold uppercase tracking-widest text-muted-foreground border-y border-border">
                     Recent
@@ -175,6 +188,12 @@ export default function Home() {
           }
         />
       </AppShell>
+
+      <CreateServiceDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSuccess={handleServiceCreated}
+      />
     </>
   );
 }
