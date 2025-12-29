@@ -22,7 +22,10 @@ interface StatusFilterProps {
   className?: string;
 }
 
-const statusOptions: { value: ServiceStatus | 'ALL'; label: string }[] = [
+// 'ALL' is a UI-only filter value, not a real service status
+type StatusFilterValue = ServiceStatus | 'ALL';
+
+const statusOptions: { value: StatusFilterValue; label: string }[] = [
   { value: 'ALL', label: 'All Statuses' },
   { value: 'DRAFT', label: 'Draft' },
   { value: 'PUBLISHED', label: 'Published' },
@@ -32,9 +35,10 @@ const statusOptions: { value: ServiceStatus | 'ALL'; label: string }[] = [
 export function StatusFilter({ className }: StatusFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentStatus = searchParams.get('status') || 'ALL';
+  const currentStatus: StatusFilterValue =
+    (searchParams.get('status') as ServiceStatus) || 'ALL';
 
-  const handleChange = (value: string) => {
+  const handleChange = (value: StatusFilterValue) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value && value !== 'ALL') {
       params.set('status', value);

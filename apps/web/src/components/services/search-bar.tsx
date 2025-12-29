@@ -11,7 +11,7 @@
  * URL takes over again.
  */
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -47,9 +47,6 @@ function createPendingStore() {
   };
 }
 
-// Module-level store instance
-const pendingStore = createPendingStore();
-
 export function SearchBar({
   className,
   placeholder = 'Search services...',
@@ -57,6 +54,9 @@ export function SearchBar({
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlSearch = searchParams.get('search') || '';
+
+  // Per-instance store using useMemo to avoid module-level shared state
+  const pendingStore = useMemo(() => createPendingStore(), []);
 
   // Subscribe to pending store
   const pending = useSyncExternalStore(
@@ -94,7 +94,7 @@ export function SearchBar({
       // Clear pending after pushing to URL
       pendingStore.set(null);
     },
-    [router, searchParams]
+    [router, searchParams, pendingStore]
   );
 
   const handleChange = (newValue: string) => {

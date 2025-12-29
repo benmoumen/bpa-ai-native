@@ -8,6 +8,7 @@
  */
 
 import Link from 'next/link';
+import { useCallback, useRef, type KeyboardEvent } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Table,
@@ -47,6 +48,40 @@ function formatDate(dateString: string): string {
 }
 
 export function ServiceTable({ services, isLoading }: ServiceTableProps) {
+  const rowRefs = useRef<(HTMLTableRowElement | null)[]>([]);
+
+  // Handle keyboard navigation between rows
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLTableRowElement>, index: number) => {
+      const rows = rowRefs.current.filter(Boolean);
+      let nextIndex: number | null = null;
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          nextIndex = Math.min(index + 1, rows.length - 1);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          nextIndex = Math.max(index - 1, 0);
+          break;
+        case 'Home':
+          e.preventDefault();
+          nextIndex = 0;
+          break;
+        case 'End':
+          e.preventDefault();
+          nextIndex = rows.length - 1;
+          break;
+      }
+
+      if (nextIndex !== null && rows[nextIndex]) {
+        rows[nextIndex]?.focus();
+      }
+    },
+    []
+  );
+
   if (isLoading) {
     return <ServiceTableSkeleton />;
   }
@@ -73,8 +108,16 @@ export function ServiceTable({ services, isLoading }: ServiceTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {services.map((service) => (
-          <TableRow key={service.id}>
+        {services.map((service, index) => (
+          <TableRow
+            key={service.id}
+            ref={(el) => {
+              rowRefs.current[index] = el;
+            }}
+            tabIndex={0}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            className="focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black"
+          >
             <TableCell>
               <Link
                 href={`/services/${service.id}`}
@@ -118,7 +161,7 @@ function ServiceTableSkeleton() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {Array.from({ length: 5 }).map((_, i) => (
+        {Array.from({ length: 8 }).map((_, i) => (
           <TableRow key={i}>
             <TableCell>
               <div className="h-5 w-48 animate-pulse bg-slate-100" />
