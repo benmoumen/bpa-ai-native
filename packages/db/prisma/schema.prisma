@@ -20,6 +20,17 @@ datasource db {
 }
 
 // =============================================================================
+// Enums
+// =============================================================================
+
+/// ServiceStatus enum - tracks the lifecycle state of a service
+enum ServiceStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// =============================================================================
 // User & Authentication Models
 // =============================================================================
 
@@ -32,6 +43,7 @@ model User {
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
   sessions   Session[]
+  services   Service[]
 
   @@map("users")
 }
@@ -48,4 +60,29 @@ model Session {
   @@index([userId])
   @@index([expiresAt])
   @@map("sessions")
+}
+
+// =============================================================================
+// Service Models
+// =============================================================================
+
+/// Service model - represents a configurable government service
+model Service {
+  id          String        @id @default(cuid())
+  name        String        @db.VarChar(255)
+  description String?       @db.Text
+  category    String?       @db.VarChar(100)
+  status      ServiceStatus @default(DRAFT)
+  createdBy   String        @map("created_by")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+
+  // Indexes for common query patterns (NFR4: service list < 1s)
+  @@index([status])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@map("services")
 }

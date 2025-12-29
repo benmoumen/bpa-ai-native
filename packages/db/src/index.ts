@@ -22,6 +22,9 @@ import { PrismaPg } from '@prisma/adapter-pg';
 export { PrismaClient, Prisma } from './generated/prisma/client.js';
 export type { User, Session } from './generated/prisma/client.js';
 
+// Re-export Service model type (Prisma 7 exports it as ServiceModel)
+export type { ServiceModel as Service } from './generated/prisma/models/Service.js';
+
 // Re-export enums if any
 export * from './generated/prisma/enums.js';
 

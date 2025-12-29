@@ -76,12 +76,21 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.json"
+        }
+      ]
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@bpa/db$": "<rootDir>/__mocks__/@bpa/db.ts",
+      "^@bpa/types$": "<rootDir>/../../../packages/types/src/index.ts"
+    }
   }
 }

@@ -4,10 +4,10 @@
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
+    "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "<rootDir>/../tsconfig.json" }]
   },
   "moduleNameMapper": {
-    "^@bpa/db$": "<rootDir>/../__mocks__/@bpa/db.ts",
-    "^@bpa/types$": "<rootDir>/../../../packages/types/dist/index.js"
+    "^@bpa/db$": "<rootDir>/../src/__mocks__/@bpa/db.ts",
+    "^@bpa/types$": "<rootDir>/../../../packages/types/src/index.ts"
   }
 }
