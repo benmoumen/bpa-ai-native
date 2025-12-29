@@ -36,3 +36,6 @@ coverage/
 # Misc
 *.log
 *.tsbuildinfo
+
+# TTS audio files
+.claude/audio/
