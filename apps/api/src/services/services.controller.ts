@@ -34,7 +34,7 @@ import { CurrentUser } from '../auth';
 
 @ApiTags('Services')
 @ApiBearerAuth()
-@Controller('api/v1/services')
+@Controller('services')
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 

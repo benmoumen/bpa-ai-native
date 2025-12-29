@@ -113,36 +113,54 @@ export class ServicesService {
    * Update a service
    */
   async update(id: string, dto: UpdateServiceDto): Promise<Service> {
-    // Verify service exists
-    await this.findOne(id);
-
     this.logger.log(`Updating service ${id}`);
 
-    return this.prisma.service.update({
-      where: { id },
-      data: {
-        name: dto.name,
-        description: dto.description,
-        category: dto.category,
-        status: dto.status,
-      },
-    });
+    try {
+      return await this.prisma.service.update({
+        where: { id },
+        data: {
+          name: dto.name,
+          description: dto.description,
+          category: dto.category,
+          status: dto.status,
+        },
+      });
+    } catch (error) {
+      // Handle Prisma's RecordNotFound error (P2025)
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        (error as { code: string }).code === 'P2025'
+      ) {
+        throw new NotFoundException(`Service with ID "${id}" not found`);
+      }
+      throw error;
+    }
   }
 
   /**
    * Soft delete a service (set status to ARCHIVED)
    */
   async remove(id: string): Promise<Service> {
-    // Verify service exists
-    await this.findOne(id);
-
     this.logger.log(`Archiving service ${id}`);
 
-    return this.prisma.service.update({
-      where: { id },
-      data: {
-        status: ServiceStatus.ARCHIVED,
-      },
-    });
+    try {
+      return await this.prisma.service.update({
+        where: { id },
+        data: {
+          status: ServiceStatus.ARCHIVED,
+        },
+      });
+    } catch (error) {
+      // Handle Prisma's RecordNotFound error (P2025)
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        (error as { code: string }).code === 'P2025'
+      ) {
+        throw new NotFoundException(`Service with ID "${id}" not found`);
+      }
+      throw error;
+    }
   }
 }

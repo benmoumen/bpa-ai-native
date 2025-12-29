@@ -252,7 +252,10 @@ describe('ServicesService', () => {
     });
 
     it('should throw NotFoundException when updating non-existent service', async () => {
-      mockPrismaService.service.findUnique.mockResolvedValue(null);
+      // Mock Prisma throwing P2025 error (record not found)
+      const prismaError = new Error('Record not found');
+      (prismaError as Error & { code: string }).code = 'P2025';
+      mockPrismaService.service.update.mockRejectedValue(prismaError);
 
       await expect(
         service.update('non-existent', { name: 'New Name' }),
@@ -304,7 +307,10 @@ describe('ServicesService', () => {
     });
 
     it('should throw NotFoundException when deleting non-existent service', async () => {
-      mockPrismaService.service.findUnique.mockResolvedValue(null);
+      // Mock Prisma throwing P2025 error (record not found)
+      const prismaError = new Error('Record not found');
+      (prismaError as Error & { code: string }).code = 'P2025';
+      mockPrismaService.service.update.mockRejectedValue(prismaError);
 
       await expect(service.remove('non-existent')).rejects.toThrow(
         NotFoundException,

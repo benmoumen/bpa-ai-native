@@ -6,7 +6,12 @@
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe, ExecutionContext, CanActivate } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationPipe,
+  ExecutionContext,
+  CanActivate,
+} from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import request from 'supertest';
@@ -48,16 +53,19 @@ describe('Services API (e2e)', () => {
   const createdServiceIds: string[] = [];
 
   // Mock Prisma service with in-memory data store
-  const mockServices = new Map<string, {
-    id: string;
-    name: string;
-    description: string | null;
-    category: string | null;
-    status: ServiceStatus;
-    createdBy: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }>();
+  const mockServices = new Map<
+    string,
+    {
+      id: string;
+      name: string;
+      description: string | null;
+      category: string | null;
+      status: ServiceStatus;
+      createdBy: string;
+      createdAt: Date;
+      updatedAt: Date;
+    }
+  >();
 
   const mockPrismaService = {
     service: {
@@ -78,53 +86,66 @@ describe('Services API (e2e)', () => {
         createdServiceIds.push(id);
         return Promise.resolve(service);
       }),
-      findMany: jest.fn().mockImplementation(({ where, skip, take, orderBy }) => {
-        let services = Array.from(mockServices.values());
+      findMany: jest
+        .fn()
+        .mockImplementation(({ where, skip, take, orderBy }) => {
+          let services = Array.from(mockServices.values());
 
-        // Apply filters
-        if (where?.status) {
-          services = services.filter(s => s.status === where.status);
-        }
-        if (where?.OR) {
-          const searchTerm = where.OR[0]?.name?.contains?.toLowerCase();
-          if (searchTerm) {
-            services = services.filter(s =>
-              s.name.toLowerCase().includes(searchTerm) ||
-              (s.description && s.description.toLowerCase().includes(searchTerm))
-            );
+          // Apply filters
+          if (where?.status) {
+            services = services.filter((s) => s.status === where.status);
           }
-        }
+          if (where?.OR) {
+            const searchTerm = where.OR[0]?.name?.contains?.toLowerCase();
+            if (searchTerm) {
+              services = services.filter(
+                (s) =>
+                  s.name.toLowerCase().includes(searchTerm) ||
+                  (s.description &&
+                    s.description.toLowerCase().includes(searchTerm)),
+              );
+            }
+          }
 
-        // Apply sorting
-        const sortField = orderBy ? Object.keys(orderBy)[0] as keyof typeof services[0] : 'createdAt';
-        const sortOrder = orderBy ? Object.values(orderBy)[0] : 'desc';
-        services.sort((a, b) => {
-          const aVal = a[sortField];
-          const bVal = b[sortField];
-          if (aVal === null) return 1;
-          if (bVal === null) return -1;
-          if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
-          if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
-          return 0;
-        });
+          // Apply sorting
+          const sortField = orderBy
+            ? (Object.keys(orderBy)[0] as keyof (typeof services)[0])
+            : 'createdAt';
+          const sortOrder = orderBy ? Object.values(orderBy)[0] : 'desc';
+          services.sort((a, b) => {
+            const aVal = a[sortField];
+            const bVal = b[sortField];
+            if (aVal === null) return 1;
+            if (bVal === null) return -1;
+            if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+            if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+          });
 
-        // Apply pagination
-        const start = skip ?? 0;
-        const end = start + (take ?? 20);
-        return Promise.resolve(services.slice(start, end));
-      }),
+          // Apply pagination
+          const start = skip ?? 0;
+          const end = start + (take ?? 20);
+          return Promise.resolve(services.slice(start, end));
+        }),
       findUnique: jest.fn().mockImplementation(({ where }) => {
         const service = mockServices.get(where.id);
         return Promise.resolve(service ?? null);
       }),
       update: jest.fn().mockImplementation(({ where, data }) => {
         const service = mockServices.get(where.id);
-        if (!service) return Promise.resolve(null);
+        if (!service) {
+          // Simulate Prisma P2025 error for record not found
+          const error = new Error('Record to update not found.');
+          (error as Error & { code: string }).code = 'P2025';
+          return Promise.reject(error);
+        }
 
         const updated = {
           ...service,
           ...(data.name !== undefined && { name: data.name }),
-          ...(data.description !== undefined && { description: data.description }),
+          ...(data.description !== undefined && {
+            description: data.description,
+          }),
           ...(data.category !== undefined && { category: data.category }),
           ...(data.status !== undefined && { status: data.status }),
           updatedAt: new Date(),
@@ -135,7 +156,7 @@ describe('Services API (e2e)', () => {
       count: jest.fn().mockImplementation(({ where } = {}) => {
         let services = Array.from(mockServices.values());
         if (where?.status) {
-          services = services.filter(s => s.status === where.status);
+          services = services.filter((s) => s.status === where.status);
         }
         return Promise.resolve(services.length);
       }),
@@ -158,10 +179,12 @@ describe('Services API (e2e)', () => {
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          load: [() => ({
-            KEYCLOAK_URL: 'http://test-keycloak',
-            KEYCLOAK_REALM: 'test-realm',
-          })],
+          load: [
+            () => ({
+              KEYCLOAK_URL: 'http://test-keycloak',
+              KEYCLOAK_REALM: 'test-realm',
+            }),
+          ],
         }),
       ],
       controllers: [ServicesController],
@@ -183,6 +206,7 @@ describe('Services API (e2e)', () => {
     const reflector = app.get(Reflector);
 
     // Apply global middleware (matching main.ts configuration)
+    app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(
       new ValidationPipe({
         transform: true,
@@ -287,15 +311,25 @@ describe('Services API (e2e)', () => {
     beforeAll(async () => {
       // Seed test data
       const testServices = [
-        { name: 'Alpha Service', description: 'First service', category: 'Category A' },
-        { name: 'Beta Service', description: 'Second service', category: 'Category B' },
-        { name: 'Gamma Service', description: 'Third service', category: 'Category A' },
+        {
+          name: 'Alpha Service',
+          description: 'First service',
+          category: 'Category A',
+        },
+        {
+          name: 'Beta Service',
+          description: 'Second service',
+          category: 'Category B',
+        },
+        {
+          name: 'Gamma Service',
+          description: 'Third service',
+          category: 'Category A',
+        },
       ];
 
       for (const svc of testServices) {
-        await request(app.getHttpServer())
-          .post('/api/v1/services')
-          .send(svc);
+        await request(app.getHttpServer()).post('/api/v1/services').send(svc);
       }
     });
 
@@ -338,7 +372,7 @@ describe('Services API (e2e)', () => {
 
       expect(response.body.data).toBeInstanceOf(Array);
       const found = response.body.data.some((s: { name: string }) =>
-        s.name.includes('Alpha')
+        s.name.includes('Alpha'),
       );
       expect(found).toBe(true);
     });
@@ -388,7 +422,10 @@ describe('Services API (e2e)', () => {
     beforeAll(async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/services')
-        .send({ name: 'Service to Update', description: 'Original description' });
+        .send({
+          name: 'Service to Update',
+          description: 'Original description',
+        });
 
       serviceToUpdateId = response.body.data.id;
     });

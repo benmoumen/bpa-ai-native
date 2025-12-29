@@ -17,7 +17,10 @@ export class ServiceResponseDto {
   @ApiPropertyOptional({ description: 'Service category' })
   category?: string | null;
 
-  @ApiProperty({ description: 'Service status', enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'] })
+  @ApiProperty({
+    description: 'Service status',
+    enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'],
+  })
   status!: string;
 
   @ApiProperty({ description: 'User ID who created the service' })

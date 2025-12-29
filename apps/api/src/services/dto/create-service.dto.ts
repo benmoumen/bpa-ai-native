@@ -25,9 +25,11 @@ export class CreateServiceDto {
   @ApiPropertyOptional({
     description: 'Description of the service',
     example: 'Register a new business entity',
+    maxLength: 2000,
   })
   @IsString()
   @IsOptional()
+  @MaxLength(2000)
   description?: string;
 
   @ApiPropertyOptional({
