@@ -205,6 +205,109 @@ This is a **replacement project** requiring systematic reverse engineering:
 | **Translations** | Multi-language i18n support |
 | **Advanced Workflows** | Complex BPMN patterns, parallel flows |
 
+## Core Domain Concepts
+
+These concepts are the foundational domain model extracted from the legacy BPA system. They must be preserved in the AI-Native rebuild to maintain functional parity.
+
+### Service vs Registration
+
+The BPA distinguishes between two core entity types:
+
+| Concept | Definition | Role |
+|---------|------------|------|
+| **Service** | Configuration container that owns all entities | Holds forms, workflows, bots, determinants, costs, translations |
+| **Registration** | Authorization container that applicants apply for | Represents what is being granted (permit, license, certificate) |
+
+**Key Relationship:** A Service can have multiple Registrations (ManyToMany). For example:
+- Service: "Business Licensing"
+- Registrations: "New Business License", "License Renewal", "License Amendment"
+
+Each Registration represents a distinct application process that may share forms and workflows from the parent Service but has its own:
+- Document requirements
+- Cost structure
+- Processing rules (determinants)
+
+### 4-Status Model
+
+The universal workflow state machine for processing applications:
+
+| Status | Code | Description | Transitions |
+|--------|------|-------------|-------------|
+| **Pending** | 0 | Awaiting action at current role | → Passed, Returned, Rejected |
+| **Passed** | 1 | Approved by current role | → Next role's Pending |
+| **Returned** | 2 | Sent back for corrections | → Pending (resubmit) |
+| **Rejected** | 3 | Permanently rejected | Terminal state |
+| **User-Defined** | 4+ | Custom statuses per role | Role-specific logic |
+
+This model provides:
+- **Universal grammar** across all government services
+- **Predictable transitions** applicants can understand
+- **Extensibility** via user-defined statuses for complex workflows
+
+### Role Types
+
+Roles are processing state executors in the workflow:
+
+| Role Type | Executor | Configuration |
+|-----------|----------|---------------|
+| **UserRole** | Human official | Form schema, UI permissions, assigned pool |
+| **BotRole** | Automated system | Retry logic, timeout, bot sequence |
+
+**Key Properties:**
+- `startRole` — marks workflow entry point
+- `sortOrderNumber` — defines sequence
+- `visibleForApplicant` — controls applicant visibility
+- Roles link to Registrations and Institutions
+
+### BOT Contract Architecture
+
+BOTs are integration endpoints with standardized I/O contracts:
+
+```
+Bot
+├── InputMapping (1:N)
+│   └── Maps: form field → service request field
+│
+└── OutputMapping (1:N)
+    └── Maps: service response field → form field
+```
+
+This contract-based approach enables:
+- **Plug & play** integrations (payment gateways, external APIs, AI agents)
+- **Testable contracts** independent of implementation
+- **Hidden field filtering** for UI/service separation
+
+### 5 Form Types
+
+Forms follow a specific workflow order:
+
+| Type | Order | Purpose |
+|------|-------|---------|
+| **GuideForm** | 1 | Instructions and eligibility checks |
+| **ApplicantForm** | 2 | Main data collection |
+| **DocumentForm** | 3 | File upload requirements |
+| **PaymentForm** | 4 | Fee collection |
+| **SendFileForm** | 5 | Final submission |
+
+**AI-Native Evolution:** These 5 types become sections in a conversational flow, with the LLM dynamically revealing sections based on context.
+
+### Determinants (Conditional Logic)
+
+Field-level conditional rules with polymorphic types:
+
+| Determinant Type | Use Case |
+|------------------|----------|
+| TextDeterminant | Text field conditions (equals, contains, startsWith) |
+| SelectDeterminant | Dropdown selection conditions |
+| DateDeterminant | Date range conditions |
+| NumericDeterminant | Numeric comparison conditions |
+| BooleanDeterminant | Checkbox conditions |
+| ClassificationDeterminant | Catalog/taxonomy conditions |
+
+**AI-Native Evolution:** Determinants become LLM-evaluable natural language rules:
+- Legacy: `{ "field": "age", "operator": "lt", "value": 18 }`
+- AI-Native: `"If applicant is a minor (under 18), require guardian consent"`
+
 ## User Journeys
 
 ### Primary User: Service Designer

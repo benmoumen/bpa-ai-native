@@ -12,6 +12,11 @@ total_stories: 78
 total_epics: 11
 validation_status: 'PASSED'
 ready_for_development: true
+implementation_progress:
+  epic_1: 'COMPLETED (7/7 stories)'
+  epic_2: 'IN_PROGRESS (3/11 stories)'
+  overall: '10 stories completed, 68 remaining'
+last_updated: '2025-12-29'
 ---
 
 # bpa-ai-native - Epic Breakdown
@@ -522,6 +527,8 @@ Epic 1 (Foundation)
 
 ### Story 1.1: Monorepo Scaffolding with Turborepo
 
+**Status: ✅ COMPLETED**
+
 As a **Developer**,
 I want a properly configured Turborepo monorepo with pnpm and TypeScript strict mode,
 So that I have a consistent, performant development environment for building the application.
@@ -551,6 +558,8 @@ So that I have a consistent, performant development environment for building the
 
 ### Story 1.2: Next.js Web Application Setup
 
+**Status: ✅ COMPLETED**
+
 As a **Developer**,
 I want the Next.js 16.1 frontend application configured with React 19.2 and App Router,
 So that I can build the Service Designer interface with modern React patterns.
@@ -576,6 +585,8 @@ So that I can build the Service Designer interface with modern React patterns.
 
 ### Story 1.3: NestJS API Application Setup
 
+**Status: ✅ COMPLETED**
+
 As a **Developer**,
 I want the NestJS 11 backend API configured with a health endpoint,
 So that I can build backend services with dependency injection and modular architecture.
@@ -600,6 +611,8 @@ So that I can build backend services with dependency injection and modular archi
 ---
 
 ### Story 1.4: Shared Packages Configuration
+
+**Status: ✅ COMPLETED**
 
 As a **Developer**,
 I want shared packages for database, UI components, types, and configuration,
@@ -627,6 +640,8 @@ So that code is reusable across web and API applications without duplication.
 ---
 
 ### Story 1.5: Database Schema & Prisma Setup
+
+**Status: ✅ COMPLETED**
 
 As a **Developer**,
 I want PostgreSQL configured with Prisma 7 and baseline schema,
@@ -658,6 +673,8 @@ So that the application can persist user sessions and prepare for service data.
 ---
 
 ### Story 1.6: Keycloak SSO Integration
+
+**Status: ✅ COMPLETED**
 
 As a **User**,
 I want to authenticate via Keycloak SSO using OAuth 2.0 + PKCE,
@@ -696,6 +713,8 @@ So that I can securely access the Service Designer with my organization credenti
 
 ### Story 1.7: CI/CD Pipeline Setup
 
+**Status: ✅ COMPLETED**
+
 As a **Developer**,
 I want GitHub Actions workflows for lint, test, build, and deployment,
 So that code quality is enforced and deployments are automated.
@@ -728,7 +747,7 @@ So that code quality is enforced and deployments are automated.
 ---
 
 **Epic 1 Summary:**
-- 7 stories created
+- 7 stories created — **ALL COMPLETED ✅**
 - FR47 (Keycloak SSO) fully covered
 - NFR7-15 (Security) addressed in Story 1.6
 - NFR27 (Keycloak connection) addressed in Story 1.6
@@ -746,6 +765,8 @@ So that code quality is enforced and deployments are automated.
 ---
 
 ### Story 2.1: Service Database Model & API Foundation
+
+**Status: ✅ COMPLETED**
 
 As a **Developer**,
 I want the Service entity defined in Prisma with basic CRUD API endpoints,
@@ -781,6 +802,8 @@ So that the application can persist and retrieve service data.
 
 ### Story 2.2: Create New Service with Metadata
 
+**Status: ✅ COMPLETED**
+
 As a **Service Designer**,
 I want to create a new government service with basic metadata,
 So that I can begin configuring a service for my country.
@@ -808,6 +831,8 @@ So that I can begin configuring a service for my country.
 ---
 
 ### Story 2.3: Service List with Search & Filter
+
+**Status: ✅ COMPLETED**
 
 As a **Service Designer**,
 I want to view all services with search and filter capabilities,
@@ -985,12 +1010,130 @@ So that I can quickly start with common government service patterns.
 
 ---
 
+### Story 2.9: Registration Database Model & API
+
+As a **Developer**,
+I want the Registration entity defined in Prisma with CRUD API endpoints,
+So that Services can contain multiple Registrations (authorization types).
+
+**Background:**
+Per the BPA domain model, a Service is a configuration container, while a Registration represents what applicants actually apply for (permit, license, certificate). A Service can have multiple Registrations.
+
+**Acceptance Criteria:**
+
+**Given** Prisma schema in `packages/db`
+**When** the developer inspects `schema.prisma`
+**Then** the Registration model is defined with fields:
+  - `id` (UUID, primary key)
+  - `serviceId` (foreign key to Service)
+  - `name` (string, required)
+  - `shortName` (string, required)
+  - `key` (string, unique identifier)
+  - `description` (text, optional)
+  - `isActive` (boolean, default true)
+  - `sortOrder` (integer, default 0)
+  - `createdAt`, `updatedAt` (timestamps)
+
+**Given** the API module for registrations exists
+**When** the developer inspects `apps/api/src/registrations`
+**Then** the following endpoints are available:
+  - `POST /api/services/:serviceId/registrations` (create)
+  - `GET /api/services/:serviceId/registrations` (list for service)
+  - `GET /api/registrations/:id` (get one)
+  - `PATCH /api/registrations/:id` (update)
+  - `DELETE /api/registrations/:id` (delete)
+
+**Given** all endpoints require authentication
+**When** a request lacks valid JWT
+**Then** the API responds with 401 Unauthorized
+
+---
+
+### Story 2.10: Registration CRUD within Service
+
+As a **Service Designer**,
+I want to create and manage Registrations within a Service,
+So that I can define the different authorization types applicants can apply for.
+
+**Acceptance Criteria:**
+
+**Given** the Service Designer is viewing a Service
+**When** they navigate to the "Registrations" tab
+**Then** a list of existing Registrations is displayed
+**And** an "Add Registration" button is available
+
+**Given** the Service Designer clicks "Add Registration"
+**When** the creation form appears
+**Then** they can enter:
+  - Registration Name (required, max 100 chars)
+  - Short Name (required, max 20 chars)
+  - Unique Key (auto-generated, editable)
+  - Description (optional)
+
+**Given** valid registration data is entered
+**When** the Service Designer saves the form
+**Then** a new Registration is created under the Service
+**And** an audit log entry records the creation
+
+**Given** an existing Registration
+**When** the Service Designer clicks "Edit"
+**Then** they can modify all fields except the unique key
+**And** changes are saved with audit trail
+
+**Given** a Registration with no linked applications
+**When** the Service Designer clicks "Delete"
+**Then** a confirmation dialog appears
+**And** upon confirmation, the Registration is removed
+
+---
+
+### Story 2.11: Document Requirements & Costs per Registration
+
+As a **Service Designer**,
+I want to configure document requirements and costs for each Registration,
+So that applicants know what files to upload and fees to pay.
+
+**Background:**
+Document Requirements and Costs are linked to Registrations, not Services directly. This allows different authorization types to have different requirements.
+
+**Acceptance Criteria:**
+
+**Given** the Service Designer is viewing a Registration
+**When** they navigate to the "Documents" section
+**Then** they can add document requirements with:
+  - Document Name (required)
+  - Description (optional)
+  - Required (boolean)
+
+**Given** the Service Designer is viewing a Registration
+**When** they navigate to the "Costs" section
+**Then** they can add costs with:
+  - Cost Name (required)
+  - Cost Type (FIXED or FORMULA)
+  - Amount (for FIXED type)
+  - Formula expression (for FORMULA type, using JSONata)
+  - Currency code
+
+**Given** document requirements exist
+**When** the applicant submits an application
+**Then** required documents must be uploaded
+**And** optional documents may be uploaded
+
+**Given** costs are configured
+**When** the applicant views the application
+**Then** the calculated fees are displayed
+**And** payment is required before submission
+
+---
+
 **Epic 2 Summary:**
-- 8 stories created
-- FR1-FR8 fully covered
+- 11 stories created (8 Service + 3 Registration)
+- **3 stories COMPLETED ✅** (2.1, 2.2, 2.3: DB model, Create, List)
+- **8 stories remaining** (2.4-2.11: Edit, Delete, Duplicate, Lifecycle, Templates, Registration CRUD)
+- FR1-FR8 fully covered + Registration domain concepts
 - NFR4 (service list < 1s) addressed in Story 2.3
 - Depends on Epic 1 (auth + database)
-- Enables Epic 3 (forms attached to services)
+- Enables Epic 3 (forms attached to services/registrations)
 
 ---
 
@@ -1576,9 +1719,131 @@ So that no dead ends or unreachable steps exist.
 
 ---
 
+### Story 4.9: Role Status Configuration (4-Status Model)
+
+As a **Service Designer**,
+I want to configure statuses for each workflow role following the 4-Status model,
+So that application states are consistent and well-defined across all registrations.
+
+**Acceptance Criteria:**
+
+**Given** a workflow step (role) is selected
+**When** the Service Designer opens the Status Configuration panel
+**Then** the 4-Status model is displayed:
+  - PENDING (awaiting processing)
+  - PASSED (approved by this role)
+  - RETURNED (sent back for revision)
+  - REJECTED (permanently declined)
+
+**Given** the Service Designer configures a role status
+**When** they edit a status entry
+**Then** they can configure:
+  - Status name (localized label)
+  - Notification message template
+  - Weight (priority for conflict resolution)
+  - Sort order (display ordering)
+  - Allowed transitions (which statuses this can move to)
+
+**Given** status transitions are configured
+**When** the role is at a specific status
+**Then** only valid transitions are available to operators
+**And** invalid transitions are disabled with explanation
+
+**Given** a BOT role is configured
+**When** status outcomes are defined
+**Then** SUCCESS maps to PASSED status
+**And** FAILURE can map to RETURNED or REJECTED based on config
+**And** retry logic is applied for transient failures
+
+**Given** the role status configuration is saved
+**When** the workflow is validated
+**Then** the system verifies:
+  - At least PENDING and one terminal status exist
+  - All transitions form valid state machine
+  - No orphan statuses (unreachable from PENDING)
+
+**Technical Notes:**
+- Implements `RoleStatus` entity per `WorkflowRole`
+- Uses `ApplicationStatus` enum: PENDING (0), PASSED (1), RETURNED (2), REJECTED (3)
+- Status messages link to notification templates
+- Weight determines priority when multiple statuses apply
+
+---
+
+### Story 4.10: Role-Registration Binding
+
+As a **Service Designer**,
+I want to bind workflow roles to specific registrations,
+So that each registration type has its own processing path.
+
+**Acceptance Criteria:**
+
+**Given** a workflow role is selected
+**When** the Service Designer opens the Registration Binding panel
+**Then** all registrations in the service are listed
+**And** currently bound registrations are checked
+
+**Given** the Service Designer binds a registration to a role
+**When** they check a registration
+**Then** a `RoleRegistration` link is created
+**And** `finalResultIssued` defaults to false
+
+**Given** a role can issue final results
+**When** the Service Designer marks it as "Final Approver"
+**Then** `finalResultIssued` is set to true
+**And** the role's PASSED/REJECTED statuses become terminal for that registration
+
+**Given** a registration has no roles bound
+**When** the workflow is validated
+**Then** an error is displayed: "Registration has no processing roles"
+
+**Given** multiple registrations are bound to a role
+**When** applications are processed
+**Then** the role handles all bound registration types
+**And** status transitions apply per registration context
+
+---
+
+### Story 4.11: Role-Institution Assignment
+
+As a **Service Designer**,
+I want to assign institutions to workflow roles,
+So that the service can be published and roles know which org handles them.
+
+**Acceptance Criteria:**
+
+**Given** a workflow role is selected
+**When** the Service Designer opens the Institution Assignment panel
+**Then** available institutions are listed
+**And** currently assigned institutions are highlighted
+
+**Given** the Service Designer assigns an institution
+**When** they select from the list
+**Then** a `RoleInstitution` link is created
+**And** the role displays the institution badge
+
+**Given** a role has no institution assigned
+**When** the service is validated for publishing
+**Then** an error blocks publishing: "Role requires institution assignment"
+
+**Given** multiple institutions are assigned to a role
+**When** applications are processed
+**Then** any operator from those institutions can process
+**And** institution context is tracked in audit log
+
+**Given** all roles have institution assignments
+**When** the service publish is attempted
+**Then** validation passes for role assignments
+**And** the service can proceed to final publishing checks
+
+---
+
 **Epic 4 Summary:**
-- 8 stories created
+- 11 stories created (expanded from 8)
 - FR18-FR24 fully covered
+- **NEW:** 4-Status Model (Story 4.9) aligns with legacy BPA patterns
+- **NEW:** Role-Registration binding (Story 4.10) enables multi-registration support
+- **NEW:** Role-Institution assignment (Story 4.11) required for publishing
 - Depends on Epic 1, Epic 2, Epic 3 (forms to assign)
 - Enables Epic 5 (determinants in workflow conditions)
 

@@ -1524,61 +1524,358 @@ model CatalogGroup {
 }
 ```
 
-#### BOT Configuration
+#### Core Entity Models (Service, Registration, Form)
+
+These are the foundational entities that define government services.
+
+```prisma
+// Service = Configuration Container
+// Owns all entities: registrations, forms, workflows, bots, determinants, costs
+model Service {
+  id           String        @id @default(cuid())
+  name         String
+  shortName    String?       @map("short_name")
+  description  String?
+  status       ServiceStatus @default(DRAFT)
+  sortOrder    Int           @default(0) @map("sort_order")
+  isActive     Boolean       @default(true) @map("is_active")
+  publishedAt  DateTime?     @map("published_at")
+
+  // Audit trail
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  createdById  String        @map("created_by_id")
+  updatedById  String?       @map("updated_by_id")
+
+  // Relations
+  registrations     Registration[]
+  forms             Form[]
+  workflowRoles     WorkflowRole[]
+  bots              Bot[]
+  visibilityRules   VisibilityRule[]
+  catalogs          Catalog[]
+  certificates      CertificateTemplate[]
+
+  @@map("services")
+}
+
+enum ServiceStatus {
+  DRAFT       // Being configured
+  PUBLISHED   // Live in production
+  ARCHIVED    // Soft deleted
+}
+
+// Registration = Authorization Container
+// What applicants apply for (permit, license, certificate)
+// A Service can have multiple Registrations (e.g., "New License", "Renewal", "Amendment")
+model Registration {
+  id                String       @id @default(cuid())
+  serviceId         String       @map("service_id")
+  name              String
+  shortName         String       @map("short_name")
+  key               String       @unique // e.g., "business-license-new"
+  description       String?
+  isActive          Boolean      @default(true) @map("is_active")
+  sortOrder         Int          @default(0) @map("sort_order")
+
+  // Audit trail
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  service              Service             @relation(fields: [serviceId], references: [id])
+  documentRequirements DocumentRequirement[]
+  costs                Cost[]
+  roleRegistrations    RoleRegistration[]
+
+  @@map("registrations")
+}
+
+// DocumentRequirement - Links global Requirements to Registrations
+model DocumentRequirement {
+  id              String       @id @default(cuid())
+  registrationId  String       @map("registration_id")
+  requirementId   String       @map("requirement_id")
+  name            String?      // Optional override name
+  isRequired      Boolean      @default(true) @map("is_required")
+
+  registration    Registration @relation(fields: [registrationId], references: [id])
+  requirement     Requirement  @relation(fields: [requirementId], references: [id])
+
+  @@map("document_requirements")
+}
+
+// Requirement - Global document type definitions (reusable templates)
+model Requirement {
+  id          String   @id @default(cuid())
+  name        String
+  tooltip     String?
+  template    String?  // Document template reference
+
+  documentRequirements DocumentRequirement[]
+
+  @@map("requirements")
+}
+
+// Cost - Registration-specific fees
+model Cost {
+  id              String       @id @default(cuid())
+  registrationId  String       @map("registration_id")
+  name            String
+  type            CostType
+  fixedAmount     Decimal?     @map("fixed_amount")
+  formula         String?      // JSONata expression for calculated costs
+  currency        String       @default("USD")
+
+  registration    Registration @relation(fields: [registrationId], references: [id])
+
+  @@map("costs")
+}
+
+enum CostType {
+  FIXED
+  FORMULA
+}
+
+// Form - 5 ordered form types per workflow
+model Form {
+  id           String    @id @default(cuid())
+  serviceId    String    @map("service_id")
+  type         FormType
+  name         String
+  schema       Json      // JSON Schema (Form.io compatible)
+  order        Int       // 1-5 based on type
+
+  service      Service   @relation(fields: [serviceId], references: [id])
+  fields       FormField[]
+
+  @@map("forms")
+}
+
+// FormType - 5 ordered form types (from legacy BPA)
+enum FormType {
+  GUIDE       // 1 - Instructions and eligibility checks
+  APPLICANT   // 2 - Main data collection
+  DOCUMENT    // 3 - File upload requirements
+  PAYMENT     // 4 - Fee collection
+  SEND_FILE   // 5 - Final submission
+}
+
+// FormField - Individual form fields for visibility rule targeting
+model FormField {
+  id        String   @id @default(cuid())
+  formId    String   @map("form_id")
+  key       String   // Field key in schema
+  name      String
+  type      String   // text, select, date, number, boolean, file, etc.
+  required  Boolean  @default(false)
+
+  form      Form     @relation(fields: [formId], references: [id])
+
+  @@unique([formId, key])
+  @@map("form_fields")
+}
+
+// RoleRegistration - Links roles to registrations they can process
+model RoleRegistration {
+  id              String       @id @default(cuid())
+  roleId          String       @map("role_id")
+  registrationId  String       @map("registration_id")
+
+  role            WorkflowRole @relation(fields: [roleId], references: [id])
+  registration    Registration @relation(fields: [registrationId], references: [id])
+
+  @@unique([roleId, registrationId])
+  @@map("role_registrations")
+}
+
+// ApplicationStatus - 4-Status Universal Workflow Model
+// This is the universal state machine for processing applications
+enum ApplicationStatus {
+  PENDING   // 0 - Awaiting action at current role
+  PASSED    // 1 - Approved by current role, moves to next
+  RETURNED  // 2 - Sent back for corrections
+  REJECTED  // 3 - Permanently rejected (terminal)
+}
+```
+
+#### BOT Configuration (Contract-Based Architecture)
+
+Per legacy BPA patterns, BOTs use separate Input/Output mappings for clear I/O contracts:
+
 ```prisma
 model Bot {
-  id        String   @id @default(cuid())
-  name      String
-  type      BotType
-  config    Json     // Type-specific configuration
-  mappings  BotMapping[]
-  serviceId String   @map("service_id")
+  id                 String   @id @default(cuid())
+  serviceId          String   @map("service_id")
+  name               String
+  shortName          String?  @map("short_name")
+  description        String?
+  botType            BotType  @map("bot_type")
+  botCategory        BotCategory? @map("bot_category")
+  serviceEndpoint    String?  @map("service_endpoint")  // External API URL
+  authenticationType AuthType? @map("auth_type")
+  config             Json?    // Type-specific configuration
+  isEnabled          Boolean  @default(true) @map("is_enabled")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  service        Service         @relation(fields: [serviceId], references: [id])
+  inputMappings  InputMapping[]
+  outputMappings OutputMapping[]
 
   @@map("bots")
 }
 
 enum BotType {
   DOCUMENT   // PDF/OCR extraction
-  DATA       // External DB queries
+  DATA       // External DB/API queries
   INTERNAL   // Service-to-service
+  PAYMENT    // Payment gateway integration
+  VALIDATION // Field/form validation
+  LLMAGENT   // AI-Native: LLM-powered processing
 }
 
-model BotMapping {
-  id             String  @id @default(cuid())
-  botId          String  @map("bot_id")
-  sourceField    String  @map("source_field")
-  targetField    String  @map("target_field")
-  transformation String? // JSONata expression
+enum BotCategory {
+  VERIFICATION  // Verify applicant data
+  ENRICHMENT    // Enrich form with external data
+  CALCULATION   // Compute derived values
+  NOTIFICATION  // Send notifications
+  INTEGRATION   // External system sync
+}
 
-  @@map("bot_mappings")
+enum AuthType {
+  NONE
+  BASIC
+  OAUTH2
+  API_KEY
+  CERTIFICATE
+}
+
+// Input Mapping: form field → service request field
+model InputMapping {
+  id                String  @id @default(cuid())
+  botId             String  @map("bot_id")
+  formFieldKey      String  @map("form_field_key")      // Source: form field
+  serviceFieldKey   String  @map("service_field_key")   // Target: API request
+  transformation    String? // JSONata expression
+  isHiddenInForm    Boolean @default(false) @map("hidden_form")
+  isHiddenInService Boolean @default(false) @map("hidden_service")
+
+  bot Bot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@map("bot_input_mappings")
+}
+
+// Output Mapping: service response field → form field
+model OutputMapping {
+  id                String  @id @default(cuid())
+  botId             String  @map("bot_id")
+  serviceFieldKey   String  @map("service_field_key")   // Source: API response
+  formFieldKey      String  @map("form_field_key")      // Target: form field
+  transformation    String? // JSONata expression
+  isHiddenInForm    Boolean @default(false) @map("hidden_form")
+  isHiddenInService Boolean @default(false) @map("hidden_service")
+
+  bot Bot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@map("bot_output_mappings")
 }
 ```
 
-#### Enhanced Workflow Roles
+#### Enhanced Workflow Roles (4-Status Model)
+
+Roles implement the universal 4-Status workflow grammar with UserRole/BotRole polymorphism:
+
 ```prisma
 model WorkflowRole {
-  id           String        @id @default(cuid())
-  workflowId   String        @map("workflow_id")
-  name         String
-  type         RoleType
-  category     RoleCategory?
-  order        Int
-  statusConfig Json          @map("status_config")
-  formConfig   Json?         @map("form_config")
-  botId        String?       @map("bot_id")
+  id                   String        @id @default(cuid())
+  workflowId           String        @map("workflow_id")
+  name                 String
+  shortName            String?       @map("short_name")
+  description          String?
+  roleType             RoleType      @default(USER) @map("role_type")
+  category             RoleCategory?
+  assignedTo           String?       @map("assigned_to")  // Role pool assignment
+  sortOrder            Int           @default(0) @map("sort_order")
+  isStartRole          Boolean       @default(false) @map("is_start_role")
+  visibleForApplicant  Boolean       @default(true) @map("visible_for_applicant")
+  formSchema           Json?         @map("form_schema")  // Role-specific form config
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+
+  // BotRole-specific fields (when roleType = BOT)
+  botId                String?       @map("bot_id")
+  repeatUntilSuccess   Boolean       @default(false) @map("repeat_until_success")
+  repeatIntervalMins   Int?          @map("repeat_interval_mins")
+  timeoutMins          Int?          @map("timeout_mins")
+  botSuccessMessage    String?       @map("bot_success_message")
+  botFailMessage       String?       @map("bot_fail_message")
+
+  // UserRole-specific fields (when roleType = USER)
+  allowConfirmPayments Boolean       @default(false) @map("allow_confirm_payments")
+  allowFinancialAccess Boolean       @default(false) @map("allow_financial_access")
+
+  workflow          Workflow           @relation(fields: [workflowId], references: [id])
+  roleStatuses      RoleStatus[]
+  roleRegistrations RoleRegistration[]
+  roleInstitutions  RoleInstitution[]
 
   @@map("workflow_roles")
 }
 
 enum RoleType {
-  HUMAN
-  BOT
+  USER  // Human executor with UI form
+  BOT   // Automated executor with retry logic
 }
 
 enum RoleCategory {
   REVISION    // Review and decide
   APPROVAL    // Authorize
   COLLECTION  // Issue certificate
+  VALIDATION  // Verify/check data
+  PAYMENT     // Process payment
+}
+
+// 4-Status Model: Status transitions per role
+model RoleStatus {
+  id               String           @id @default(cuid())
+  roleId           String           @map("role_id")
+  statusType       ApplicationStatus @map("status_type")
+  name             String           // Localized status name
+  weight           Int              @default(0)  // Priority
+  sortOrder        Int              @default(0) @map("sort_order")
+  notificationMsg  String?          @map("notification_message")
+  transitionsTo    ApplicationStatus[] @map("transitions_to")  // Allowed next states
+
+  role WorkflowRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@map("role_statuses")
+}
+
+// Role-Registration binding (which roles handle which registrations)
+model RoleRegistration {
+  id                String   @id @default(cuid())
+  roleId            String   @map("role_id")
+  registrationId    String   @map("registration_id")
+  finalResultIssued Boolean  @default(false) @map("final_result_issued")
+
+  role         WorkflowRole @relation(fields: [roleId], references: [id])
+  registration Registration @relation(fields: [registrationId], references: [id])
+
+  @@unique([roleId, registrationId])
+  @@map("role_registrations")
+}
+
+// Role-Institution binding (which institutions staff which roles)
+model RoleInstitution {
+  id            String @id @default(cuid())
+  roleId        String @map("role_id")
+  institutionId String @map("institution_id")
+
+  role WorkflowRole @relation(fields: [roleId], references: [id])
+
+  @@unique([roleId, institutionId])
+  @@map("role_institutions")
 }
 ```
 
