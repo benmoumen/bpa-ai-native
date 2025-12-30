@@ -59,7 +59,7 @@ development_status:
   2-9-registration-database-model-api: done
   2-10-registration-crud-within-service: done
   2-11-document-requirements-costs-per-registration: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: done
 
   # Epic 3: Form Building & Configuration (10 stories)
   epic-3: backlog
