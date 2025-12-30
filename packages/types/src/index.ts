@@ -206,3 +206,220 @@ export interface ListRegistrationsQuery {
   /** Sort order */
   sortOrder?: 'asc' | 'desc';
 }
+
+// =============================================================================
+// Requirement Types
+// =============================================================================
+
+/**
+ * Requirement entity - global document type definitions (reusable templates)
+ */
+export interface Requirement {
+  /** Unique requirement ID */
+  id: string;
+  /** Requirement name (max 100 chars) */
+  name: string;
+  /** Tooltip/description for the requirement */
+  tooltip?: string | null;
+  /** Document template reference URL */
+  template?: string | null;
+  /** Whether the requirement is active */
+  isActive: boolean;
+  /** Creation timestamp */
+  createdAt: Date;
+  /** Last update timestamp */
+  updatedAt: Date;
+}
+
+/**
+ * DTO for creating a new requirement
+ */
+export interface CreateRequirementInput {
+  /** Requirement name (required, max 100 chars) */
+  name: string;
+  /** Tooltip/description (optional) */
+  tooltip?: string;
+  /** Document template reference URL (optional) */
+  template?: string;
+}
+
+/**
+ * DTO for updating an existing requirement
+ */
+export interface UpdateRequirementInput {
+  /** Updated name */
+  name?: string;
+  /** Updated tooltip */
+  tooltip?: string;
+  /** Updated template reference */
+  template?: string;
+  /** Updated active status */
+  isActive?: boolean;
+}
+
+/**
+ * Requirement list query parameters
+ */
+export interface ListRequirementsQuery {
+  /** Page number (1-indexed) */
+  page?: number;
+  /** Items per page */
+  limit?: number;
+  /** Filter by active status */
+  isActive?: boolean;
+  /** Search in name and tooltip */
+  search?: string;
+  /** Sort by field */
+  sortBy?: 'name' | 'createdAt' | 'updatedAt';
+  /** Sort order */
+  sortOrder?: 'asc' | 'desc';
+}
+
+// =============================================================================
+// Document Requirement Types
+// =============================================================================
+
+/**
+ * DocumentRequirement entity - links global Requirements to specific Registrations
+ */
+export interface DocumentRequirement {
+  /** Unique document requirement ID */
+  id: string;
+  /** Parent registration ID */
+  registrationId: string;
+  /** Referenced requirement ID */
+  requirementId: string;
+  /** Override name for this specific usage (optional) */
+  nameOverride?: string | null;
+  /** Whether this document is required */
+  isRequired: boolean;
+  /** Display order within the registration */
+  sortOrder: number;
+  /** Creation timestamp */
+  createdAt: Date;
+  /** Last update timestamp */
+  updatedAt: Date;
+  /** The referenced requirement (populated when included) */
+  requirement?: Requirement;
+}
+
+/**
+ * DTO for creating a new document requirement
+ */
+export interface CreateDocumentRequirementInput {
+  /** Requirement ID to link (required) */
+  requirementId: string;
+  /** Override name for this specific usage (optional) */
+  nameOverride?: string;
+  /** Whether this document is required (default: true) */
+  isRequired?: boolean;
+  /** Display order (default: 0) */
+  sortOrder?: number;
+}
+
+/**
+ * DTO for updating an existing document requirement
+ */
+export interface UpdateDocumentRequirementInput {
+  /** Updated override name */
+  nameOverride?: string;
+  /** Updated required flag */
+  isRequired?: boolean;
+  /** Updated display order */
+  sortOrder?: number;
+}
+
+// =============================================================================
+// Cost Types
+// =============================================================================
+
+/**
+ * Cost type - defines how cost amounts are calculated
+ */
+export type CostType = 'FIXED' | 'FORMULA';
+
+/**
+ * Cost entity - registration-specific fees
+ */
+export interface Cost {
+  /** Unique cost ID */
+  id: string;
+  /** Parent registration ID */
+  registrationId: string;
+  /** Cost name (max 100 chars) */
+  name: string;
+  /** Cost type (FIXED or FORMULA) */
+  type: CostType;
+  /** Fixed amount (required for FIXED type) */
+  fixedAmount?: string | null; // Decimal as string for precision
+  /** JSONata formula expression (required for FORMULA type) */
+  formula?: string | null;
+  /** Currency code (3 letters, default: USD) */
+  currency: string;
+  /** Display order within the registration */
+  sortOrder: number;
+  /** Whether the cost is active */
+  isActive: boolean;
+  /** Creation timestamp */
+  createdAt: Date;
+  /** Last update timestamp */
+  updatedAt: Date;
+}
+
+/**
+ * DTO for creating a new cost
+ */
+export interface CreateCostInput {
+  /** Cost name (required, max 100 chars) */
+  name: string;
+  /** Cost type (required) */
+  type: CostType;
+  /** Fixed amount (required for FIXED type) */
+  fixedAmount?: string;
+  /** JSONata formula expression (required for FORMULA type) */
+  formula?: string;
+  /** Currency code (default: USD) */
+  currency?: string;
+  /** Display order (default: 0) */
+  sortOrder?: number;
+}
+
+/**
+ * DTO for updating an existing cost
+ */
+export interface UpdateCostInput {
+  /** Updated name */
+  name?: string;
+  /** Updated type */
+  type?: CostType;
+  /** Updated fixed amount */
+  fixedAmount?: string;
+  /** Updated formula */
+  formula?: string;
+  /** Updated currency */
+  currency?: string;
+  /** Updated display order */
+  sortOrder?: number;
+  /** Updated active status */
+  isActive?: boolean;
+}
+
+/**
+ * Cost list query parameters
+ */
+export interface ListCostsQuery {
+  /** Page number (1-indexed) */
+  page?: number;
+  /** Items per page */
+  limit?: number;
+  /** Filter by active status */
+  isActive?: boolean;
+  /** Filter by cost type */
+  type?: CostType;
+  /** Search in name */
+  search?: string;
+  /** Sort by field */
+  sortBy?: 'name' | 'sortOrder' | 'createdAt' | 'updatedAt';
+  /** Sort order */
+  sortOrder?: 'asc' | 'desc';
+}

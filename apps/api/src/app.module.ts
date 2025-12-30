@@ -8,6 +8,10 @@ import { PrismaModule } from './prisma';
 import { HealthModule } from './health';
 import { ServicesModule } from './services';
 import { RegistrationsModule } from './registrations';
+import { TemplatesModule } from './templates';
+import { RequirementsModule } from './requirements';
+import { DocumentRequirementsModule } from './document-requirements';
+import { CostsModule } from './costs';
 
 @Module({
   imports: [
@@ -26,6 +30,14 @@ import { RegistrationsModule } from './registrations';
     ServicesModule,
     // Registrations module
     RegistrationsModule,
+    // Templates module (public read-only)
+    TemplatesModule,
+    // Requirements module (global requirement library)
+    RequirementsModule,
+    // Document Requirements module (link requirements to registrations)
+    DocumentRequirementsModule,
+    // Costs module (registration costs)
+    CostsModule,
   ],
   controllers: [AppController],
   providers: [

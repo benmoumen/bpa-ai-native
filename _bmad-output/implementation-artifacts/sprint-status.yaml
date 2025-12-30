@@ -47,7 +47,7 @@ development_status:
   epic-1-retrospective: done
 
   # Epic 2: Service Lifecycle Management (11 stories)
-  epic-2: in-progress
+  epic-2: done
   2-1-service-database-model-api-foundation: done
   2-2-create-new-service-with-metadata: done
   2-3-service-list-with-search-filter: done
@@ -55,10 +55,10 @@ development_status:
   2-5-delete-draft-service: done
   2-6-duplicate-existing-service: done
   2-7-service-lifecycle-state-management: done
-  2-8-service-template-gallery: backlog
+  2-8-service-template-gallery: done
   2-9-registration-database-model-api: done
-  2-10-registration-crud-within-service: backlog
-  2-11-document-requirements-costs-per-registration: backlog
+  2-10-registration-crud-within-service: done
+  2-11-document-requirements-costs-per-registration: done
   epic-2-retrospective: optional
 
   # Epic 3: Form Building & Configuration (10 stories)

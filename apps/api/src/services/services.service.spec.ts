@@ -9,6 +9,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { PrismaService } from '../prisma';
+import { TemplatesService } from '../templates';
 import { ServiceStatus } from '@bpa/db';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
@@ -16,6 +17,7 @@ import { UpdateServiceDto } from './dto/update-service.dto';
 describe('ServicesService', () => {
   let service: ServicesService;
   let prismaService: PrismaService;
+  let templatesService: TemplatesService;
 
   // Mock service data
   const mockService = {
@@ -25,6 +27,21 @@ describe('ServicesService', () => {
     category: 'Business',
     status: ServiceStatus.DRAFT,
     createdBy: 'user-456',
+    createdAt: new Date('2025-01-01'),
+    updatedAt: new Date('2025-01-01'),
+  };
+
+  // Mock template data
+  const mockTemplate = {
+    id: 'template-123',
+    name: 'Business Registration',
+    description: 'Standard template for business registration',
+    category: 'Business',
+    previewImageUrl: null,
+    formCount: 3,
+    workflowSteps: 4,
+    config: { forms: ['form1'], workflow: ['step1'] },
+    isActive: true,
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-01'),
   };
@@ -52,6 +69,10 @@ describe('ServicesService', () => {
     ),
   };
 
+  const mockTemplatesService = {
+    findOne: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -60,11 +81,16 @@ describe('ServicesService', () => {
           provide: PrismaService,
           useValue: mockPrismaService,
         },
+        {
+          provide: TemplatesService,
+          useValue: mockTemplatesService,
+        },
       ],
     }).compile();
 
     service = module.get<ServicesService>(ServicesService);
     prismaService = module.get<PrismaService>(PrismaService);
+    templatesService = module.get<TemplatesService>(TemplatesService);
 
     // Reset all mocks before each test
     jest.clearAllMocks();
@@ -709,6 +735,106 @@ describe('ServicesService', () => {
       await expect(service.restore('service-123', 'user-456')).rejects.toThrow(
         'Cannot restore service with status "PUBLISHED". Only ARCHIVED services can be restored.',
       );
+    });
+  });
+
+  describe('createFromTemplate', () => {
+    it('should create a service from a template', async () => {
+      const serviceFromTemplate = {
+        ...mockService,
+        id: 'service-from-template',
+        name: 'Business Registration (Copy)',
+        description: 'Standard template for business registration',
+        category: 'Business',
+        createdBy: 'user-789',
+      };
+
+      mockTemplatesService.findOne.mockResolvedValue(mockTemplate);
+      mockPrismaService.service.create.mockResolvedValue(serviceFromTemplate);
+
+      const result = await service.createFromTemplate(
+        'template-123',
+        'user-789',
+      );
+
+      expect(result).toEqual(serviceFromTemplate);
+      expect(result.name).toBe('Business Registration (Copy)');
+      expect(result.status).toBe(ServiceStatus.DRAFT);
+      expect(mockTemplatesService.findOne).toHaveBeenCalledWith('template-123');
+      expect(mockPrismaService.service.create).toHaveBeenCalledWith({
+        data: {
+          name: 'Business Registration (Copy)',
+          description: mockTemplate.description,
+          category: mockTemplate.category,
+          status: ServiceStatus.DRAFT,
+          createdBy: 'user-789',
+        },
+      });
+    });
+
+    it('should throw NotFoundException when template does not exist', async () => {
+      mockTemplatesService.findOne.mockRejectedValue(
+        new NotFoundException('Template with ID "non-existent" not found'),
+      );
+
+      await expect(
+        service.createFromTemplate('non-existent', 'user-789'),
+      ).rejects.toThrow(NotFoundException);
+      await expect(
+        service.createFromTemplate('non-existent', 'user-789'),
+      ).rejects.toThrow('Template with ID "non-existent" not found');
+      expect(mockPrismaService.service.create).not.toHaveBeenCalled();
+    });
+
+    it('should handle template with null description', async () => {
+      const templateNoDesc = {
+        ...mockTemplate,
+        description: null,
+      };
+      const serviceFromTemplate = {
+        ...mockService,
+        id: 'service-from-template',
+        name: 'Business Registration (Copy)',
+        description: null,
+        category: 'Business',
+        createdBy: 'user-789',
+      };
+
+      mockTemplatesService.findOne.mockResolvedValue(templateNoDesc);
+      mockPrismaService.service.create.mockResolvedValue(serviceFromTemplate);
+
+      await service.createFromTemplate('template-123', 'user-789');
+
+      expect(mockPrismaService.service.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          description: null,
+        }),
+      });
+    });
+
+    it('should always create with DRAFT status', async () => {
+      const serviceFromTemplate = {
+        ...mockService,
+        id: 'service-from-template',
+        name: 'Business Registration (Copy)',
+        status: ServiceStatus.DRAFT,
+        createdBy: 'user-789',
+      };
+
+      mockTemplatesService.findOne.mockResolvedValue(mockTemplate);
+      mockPrismaService.service.create.mockResolvedValue(serviceFromTemplate);
+
+      const result = await service.createFromTemplate(
+        'template-123',
+        'user-789',
+      );
+
+      expect(result.status).toBe(ServiceStatus.DRAFT);
+      expect(mockPrismaService.service.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          status: ServiceStatus.DRAFT,
+        }),
+      });
     });
   });
 

@@ -25,6 +25,10 @@ export type { User, Session } from './generated/prisma/client.js';
 // Re-export model types (Prisma 7 exports them as ModelName)
 export type { ServiceModel as Service } from './generated/prisma/models/Service.js';
 export type { RegistrationModel as Registration } from './generated/prisma/models/Registration.js';
+export type { ServiceTemplateModel as ServiceTemplate } from './generated/prisma/models/ServiceTemplate.js';
+export type { RequirementModel as Requirement } from './generated/prisma/models/Requirement.js';
+export type { DocumentRequirementModel as DocumentRequirement } from './generated/prisma/models/DocumentRequirement.js';
+export type { CostModel as Cost } from './generated/prisma/models/Cost.js';
 
 // Re-export enums if any
 export * from './generated/prisma/enums.js';

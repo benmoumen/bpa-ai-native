@@ -489,12 +489,12 @@ describe('RegistrationsService', () => {
     it('should throw NotFoundException when deleting non-existent registration', async () => {
       mockPrismaService.registration.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.remove('non-existent', mockUserId),
-      ).rejects.toThrow(NotFoundException);
-      await expect(
-        service.remove('non-existent', mockUserId),
-      ).rejects.toThrow('Registration with ID "non-existent" not found');
+      await expect(service.remove('non-existent', mockUserId)).rejects.toThrow(
+        NotFoundException,
+      );
+      await expect(service.remove('non-existent', mockUserId)).rejects.toThrow(
+        'Registration with ID "non-existent" not found',
+      );
     });
 
     it('should throw ForbiddenException when user is not parent service owner', async () => {
@@ -502,12 +502,10 @@ describe('RegistrationsService', () => {
         mockRegistrationWithService,
       );
 
-      await expect(
-        service.remove('reg-123', 'other-user'),
-      ).rejects.toThrow(ForbiddenException);
-      await expect(
-        service.remove('reg-123', 'other-user'),
-      ).rejects.toThrow(
+      await expect(service.remove('reg-123', 'other-user')).rejects.toThrow(
+        ForbiddenException,
+      );
+      await expect(service.remove('reg-123', 'other-user')).rejects.toThrow(
         'You do not have permission to delete this registration',
       );
     });

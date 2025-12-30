@@ -7,3 +7,5 @@ export { ServiceTable } from './service-table';
 export { ServiceMetadataForm } from './ServiceMetadataForm';
 export { ServiceStatusBadge } from './ServiceStatusBadge';
 export { ServiceActions } from './ServiceActions';
+export { TemplateCard } from './TemplateCard';
+export { TemplateGallery } from './TemplateGallery';

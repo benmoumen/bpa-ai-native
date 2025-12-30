@@ -13,6 +13,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma';
+import { TemplatesService } from '../templates';
 import { ServiceStatus, type Service, type Prisma } from '@bpa/db';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
@@ -30,7 +31,10 @@ export interface PaginatedServices {
 export class ServicesService {
   private readonly logger = new Logger(ServicesService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly templatesService: TemplatesService,
+  ) {}
 
   /**
    * Create a new service
@@ -282,6 +286,46 @@ export class ServicesService {
     );
 
     return duplicate;
+  }
+
+  /**
+   * Create a new service from a template
+   *
+   * Uses the template's metadata and configuration to bootstrap a new service.
+   * The created service is always in DRAFT status.
+   *
+   * @param templateId - ID of the template to use
+   * @param userId - ID of the user creating the service
+   * @returns The newly created service
+   * @throws NotFoundException if template not found
+   */
+  async createFromTemplate(
+    templateId: string,
+    userId: string,
+  ): Promise<Service> {
+    this.logger.log(
+      `Creating service from template ${templateId} for user ${userId}`,
+    );
+
+    // Fetch the template (throws NotFoundException if not found)
+    const template = await this.templatesService.findOne(templateId);
+
+    // Create the service with template metadata
+    const service = await this.prisma.service.create({
+      data: {
+        name: `${template.name} (Copy)`,
+        description: template.description,
+        category: template.category,
+        status: ServiceStatus.DRAFT,
+        createdBy: userId,
+      },
+    });
+
+    this.logger.log(
+      `Created service ${service.id} from template ${templateId}`,
+    );
+
+    return service;
   }
 
   /**

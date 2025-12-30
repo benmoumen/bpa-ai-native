@@ -164,7 +164,10 @@ export class ServicesController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid UUID or service is not in DRAFT status' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid UUID or service is not in DRAFT status',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Not owner of service' })
   @ApiResponse({ status: 404, description: 'Service not found' })
@@ -181,7 +184,10 @@ export class ServicesController {
     description:
       'Creates a copy of the specified service with name "[Original Name] (Copy)" and status DRAFT. The duplicate is independent from the original.',
   })
-  @ApiParam({ name: 'id', description: 'ID of the service to duplicate (UUID)' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the service to duplicate (UUID)',
+  })
   @ApiResponse({
     status: 201,
     description: 'Service duplicated successfully',
@@ -195,6 +201,35 @@ export class ServicesController {
     @CurrentUser() user: AuthUser,
   ): Promise<ServiceResponseDto> {
     const service = await this.servicesService.duplicate(id, user.id);
+    return ServiceResponseDto.fromEntity(service);
+  }
+
+  @Post('from-template/:templateId')
+  @ApiOperation({
+    summary: 'Create a service from a template',
+    description:
+      'Creates a new service using the specified template as a starting point. The service is created in DRAFT status with name "[Template Name] (Copy)".',
+  })
+  @ApiParam({
+    name: 'templateId',
+    description: 'ID of the template to use (cuid)',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Service created from template successfully',
+    type: ServiceResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid template ID format' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Template not found' })
+  async createFromTemplate(
+    @Param('templateId', ParseUUIDPipe) templateId: string,
+    @CurrentUser() user: AuthUser,
+  ): Promise<ServiceResponseDto> {
+    const service = await this.servicesService.createFromTemplate(
+      templateId,
+      user.id,
+    );
     return ServiceResponseDto.fromEntity(service);
   }
 
@@ -213,7 +248,8 @@ export class ServicesController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid UUID or service is not in DRAFT status or validation failed',
+    description:
+      'Invalid UUID or service is not in DRAFT status or validation failed',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Not owner of service' })

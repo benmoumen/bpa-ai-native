@@ -67,7 +67,11 @@ export class RegistrationsController {
     @Body() dto: CreateRegistrationDto,
     @CurrentUser() user: AuthUser,
   ): Promise<RegistrationResponseDto> {
-    const registration = await this.registrationsService.create(serviceId, dto, user.id);
+    const registration = await this.registrationsService.create(
+      serviceId,
+      dto,
+      user.id,
+    );
     return RegistrationResponseDto.fromEntity(registration);
   }
 
@@ -122,7 +126,9 @@ export class RegistrationsController {
   @ApiResponse({ status: 400, description: 'Invalid UUID format' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Registration not found' })
-  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<RegistrationResponseDto> {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<RegistrationResponseDto> {
     const registration = await this.registrationsService.findOne(id);
     return RegistrationResponseDto.fromEntity(registration);
   }
@@ -144,7 +150,11 @@ export class RegistrationsController {
     @Body() dto: UpdateRegistrationDto,
     @CurrentUser() user: AuthUser,
   ): Promise<RegistrationResponseDto> {
-    const registration = await this.registrationsService.update(id, dto, user.id);
+    const registration = await this.registrationsService.update(
+      id,
+      dto,
+      user.id,
+    );
     return RegistrationResponseDto.fromEntity(registration);
   }
 

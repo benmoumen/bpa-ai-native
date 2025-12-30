@@ -30,6 +30,12 @@ enum ServiceStatus {
   ARCHIVED
 }
 
+/// CostType enum - defines how cost amounts are calculated
+enum CostType {
+  FIXED   // Fixed amount specified directly
+  FORMULA // Calculated using JSONata expression
+}
+
 // =============================================================================
 // User & Authentication Models
 // =============================================================================
@@ -89,6 +95,37 @@ model Service {
 }
 
 // =============================================================================
+// Template Models
+// =============================================================================
+
+/// ServiceTemplate model - pre-defined service templates for quick-start creation
+/// Templates contain placeholder configurations that become functional as form/workflow features are added
+model ServiceTemplate {
+  id              String   @id @default(cuid())
+  name            String   @db.VarChar(255)
+  description     String?  @db.Text
+  category        String   @db.VarChar(100)
+  previewImageUrl String?  @map("preview_image_url") @db.VarChar(500)
+
+  // Metadata computed from config (placeholder counts for Phase 1)
+  formCount       Int      @default(0) @map("form_count")
+  workflowSteps   Int      @default(0) @map("workflow_steps")
+
+  // Template configuration stored as JSON
+  // Structure: { forms: [], workflow: { steps: [] } }
+  config          Json     @default("{}")
+
+  // System fields
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([isActive])
+  @@map("service_templates")
+}
+
+// =============================================================================
 // Registration Models
 // =============================================================================
 
@@ -107,11 +144,78 @@ model Registration {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
-  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  service              Service               @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  documentRequirements DocumentRequirement[]
+  costs                Cost[]
 
   // Compound unique: key must be unique within each service
   @@unique([serviceId, key])
   @@index([serviceId])
   @@index([isActive])
   @@map("registrations")
+}
+
+// =============================================================================
+// Requirement & Cost Models
+// =============================================================================
+
+/// Requirement model - global document type definitions (reusable templates)
+model Requirement {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(100)
+  tooltip   String?  @db.Text
+  template  String?  @db.VarChar(500) // Document template reference
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  documentRequirements DocumentRequirement[]
+
+  @@index([isActive])
+  @@map("requirements")
+}
+
+/// DocumentRequirement model - links global Requirements to specific Registrations
+model DocumentRequirement {
+  id             String   @id @default(cuid())
+  registrationId String   @map("registration_id")
+  requirementId  String   @map("requirement_id")
+  nameOverride   String?  @db.VarChar(100) @map("name_override")
+  isRequired     Boolean  @default(true) @map("is_required")
+  sortOrder      Int      @default(0) @map("sort_order")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  requirement  Requirement  @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  // Each requirement can only be added once per registration
+  @@unique([registrationId, requirementId])
+  @@index([registrationId])
+  @@index([requirementId])
+  @@map("document_requirements")
+}
+
+/// Cost model - registration-specific fees with FIXED or FORMULA types
+model Cost {
+  id             String   @id @default(cuid())
+  registrationId String   @map("registration_id")
+  name           String   @db.VarChar(100)
+  type           CostType
+  fixedAmount    Decimal? @map("fixed_amount") @db.Decimal(10, 2)
+  formula        String?  @db.Text // JSONata expression for calculated costs
+  currency       String   @default("USD") @db.VarChar(3)
+  sortOrder      Int      @default(0) @map("sort_order")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@index([registrationId])
+  @@index([isActive])
+  @@map("costs")
 }

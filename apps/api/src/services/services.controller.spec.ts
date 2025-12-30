@@ -251,7 +251,10 @@ describe('ServicesController', () => {
         deleted: true,
       });
 
-      const result = await controller.deletePermanently('service-123', mockUser);
+      const result = await controller.deletePermanently(
+        'service-123',
+        mockUser,
+      );
 
       expect(result).toEqual({ id: 'service-123', deleted: true });
       expect(mockServicesService.deletePermanently).toHaveBeenCalledWith(
@@ -329,7 +332,9 @@ describe('ServicesController', () => {
 
     it('should propagate BadRequestException when service is not DRAFT', async () => {
       mockServicesService.publish.mockRejectedValue(
-        new BadRequestException('Cannot publish service with status "PUBLISHED"'),
+        new BadRequestException(
+          'Cannot publish service with status "PUBLISHED"',
+        ),
       );
 
       await expect(controller.publish('service-123', mockUser)).rejects.toThrow(

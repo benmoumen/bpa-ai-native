@@ -3,8 +3,9 @@
 /**
  * Service Detail Page
  *
- * Displays and allows editing of service metadata.
+ * Displays and allows editing of service metadata and registrations.
  * Story 2.4: Edit Service Metadata
+ * Story 2.10: Registration CRUD within Service
  */
 
 import { Suspense, use } from 'react';
@@ -20,6 +21,7 @@ import {
   SkipLinks,
 } from '@/components';
 import { ServiceMetadataForm } from '@/components/services/ServiceMetadataForm';
+import { RegistrationList } from '@/components/registrations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useService } from '@/hooks/use-services';
@@ -124,6 +126,11 @@ function ServiceDetailContent({ serviceId }: ServiceDetailContentProps) {
           service={service}
           isEditable={isEditable}
         />
+
+        {/* Registrations Section */}
+        <div className="mt-8 border-t border-black/10 pt-8">
+          <RegistrationList serviceId={serviceId} isEditable={isEditable} />
+        </div>
       </div>
     </div>
   );
