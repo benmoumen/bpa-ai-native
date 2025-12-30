@@ -143,3 +143,138 @@ export async function updateService(
   const result: ApiResponse<Service> = await response.json();
   return result.data;
 }
+
+export interface DeleteServiceResponse {
+  id: string;
+  deleted: true;
+}
+
+/**
+ * Duplicate an existing service
+ *
+ * Creates a copy of the service with name "[Original Name] (Copy)" and status DRAFT.
+ * The duplicate is independent from the original.
+ */
+export async function duplicateService(id: string): Promise<Service> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/services/${id}/duplicate`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    }
+  );
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to duplicate service' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  return response.json();
+}
+
+/**
+ * Permanently delete a DRAFT service
+ *
+ * Only services with DRAFT status can be permanently deleted.
+ * This action cannot be undone.
+ */
+export async function deleteServicePermanently(
+  id: string
+): Promise<DeleteServiceResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/services/${id}/permanent`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+    }
+  );
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to delete service' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  return response.json();
+}
+
+/**
+ * Publish a DRAFT service
+ *
+ * Transitions a service from DRAFT to PUBLISHED status.
+ * Only DRAFT services can be published.
+ */
+export async function publishService(id: string): Promise<Service> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/services/${id}/publish`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    }
+  );
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to publish service' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  const result: ApiResponse<Service> = await response.json();
+  return result.data;
+}
+
+/**
+ * Archive a PUBLISHED service
+ *
+ * Transitions a service from PUBLISHED to ARCHIVED status.
+ * Only PUBLISHED services can be archived.
+ */
+export async function archiveService(id: string): Promise<Service> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/services/${id}/archive`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    }
+  );
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to archive service' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  const result: ApiResponse<Service> = await response.json();
+  return result.data;
+}
+
+/**
+ * Restore an ARCHIVED service to DRAFT
+ *
+ * Transitions a service from ARCHIVED to DRAFT status.
+ * Only ARCHIVED services can be restored.
+ */
+export async function restoreService(id: string): Promise<Service> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/services/${id}/restore`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    }
+  );
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to restore service' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  const result: ApiResponse<Service> = await response.json();
+  return result.data;
+}

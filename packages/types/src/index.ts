@@ -125,3 +125,84 @@ export interface PaginatedResponse<T> {
   limit: number;
   totalPages: number;
 }
+
+// =============================================================================
+// Registration Types
+// =============================================================================
+
+/**
+ * Registration entity - represents an authorization type within a service
+ * (e.g., permit, license, certificate that applicants apply for)
+ */
+export interface Registration {
+  /** Unique registration ID */
+  id: string;
+  /** Parent service ID */
+  serviceId: string;
+  /** Registration name (max 100 chars) */
+  name: string;
+  /** Short name for UI display (max 20 chars) */
+  shortName: string;
+  /** Unique key within the service (max 50 chars) */
+  key: string;
+  /** Optional description */
+  description?: string | null;
+  /** Whether the registration is active */
+  isActive: boolean;
+  /** Display order within the service */
+  sortOrder: number;
+  /** Creation timestamp */
+  createdAt: Date;
+  /** Last update timestamp */
+  updatedAt: Date;
+}
+
+/**
+ * DTO for creating a new registration
+ */
+export interface CreateRegistrationInput {
+  /** Registration name (required, max 100 chars) */
+  name: string;
+  /** Short name (required, max 20 chars) */
+  shortName: string;
+  /** Unique key within service (optional, auto-generated from name if not provided) */
+  key?: string;
+  /** Optional description */
+  description?: string;
+  /** Display order (default: 0) */
+  sortOrder?: number;
+}
+
+/**
+ * DTO for updating an existing registration
+ */
+export interface UpdateRegistrationInput {
+  /** Updated name */
+  name?: string;
+  /** Updated short name */
+  shortName?: string;
+  /** Updated description */
+  description?: string;
+  /** Updated active status */
+  isActive?: boolean;
+  /** Updated display order */
+  sortOrder?: number;
+}
+
+/**
+ * Registration list query parameters
+ */
+export interface ListRegistrationsQuery {
+  /** Page number (1-indexed) */
+  page?: number;
+  /** Items per page */
+  limit?: number;
+  /** Filter by active status */
+  isActive?: boolean;
+  /** Search in name and description */
+  search?: string;
+  /** Sort by field */
+  sortBy?: 'name' | 'sortOrder' | 'createdAt' | 'updatedAt';
+  /** Sort order */
+  sortOrder?: 'asc' | 'desc';
+}

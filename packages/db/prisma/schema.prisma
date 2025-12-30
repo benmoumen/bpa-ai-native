@@ -78,11 +78,40 @@ model Service {
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
   // Relations
-  creator User @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  creator       User           @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  registrations Registration[]
 
   // Indexes for common query patterns (NFR4: service list < 1s)
   @@index([status])
   @@index([createdBy])
   @@index([createdAt])
   @@map("services")
+}
+
+// =============================================================================
+// Registration Models
+// =============================================================================
+
+/// Registration model - represents an authorization type within a service
+/// (e.g., permit, license, certificate that applicants apply for)
+model Registration {
+  id          String   @id @default(cuid())
+  serviceId   String   @map("service_id")
+  name        String   @db.VarChar(100)
+  shortName   String   @db.VarChar(20) @map("short_name")
+  key         String   @db.VarChar(50)
+  description String?  @db.Text
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  // Compound unique: key must be unique within each service
+  @@unique([serviceId, key])
+  @@index([serviceId])
+  @@index([isActive])
+  @@map("registrations")
 }

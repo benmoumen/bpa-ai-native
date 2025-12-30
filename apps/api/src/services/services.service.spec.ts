@@ -6,7 +6,7 @@
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { PrismaService } from '../prisma';
 import { ServiceStatus } from '@bpa/db';
@@ -29,14 +29,27 @@ describe('ServicesService', () => {
     updatedAt: new Date('2025-01-01'),
   };
 
+  // Transaction client methods (used inside $transaction callbacks)
+  const mockTxService = {
+    updateMany: jest.fn(),
+    deleteMany: jest.fn(),
+    findUnique: jest.fn(),
+    findUniqueOrThrow: jest.fn(),
+  };
+
   const mockPrismaService = {
     service: {
       create: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
       count: jest.fn(),
     },
+    // Transaction mock - executes callback with transaction client
+    $transaction: jest.fn((callback: (tx: unknown) => Promise<unknown>) =>
+      callback({ service: mockTxService }),
+    ),
   };
 
   beforeEach(async () => {
@@ -238,7 +251,7 @@ describe('ServicesService', () => {
       mockPrismaService.service.findUnique.mockResolvedValue(mockService);
       mockPrismaService.service.update.mockResolvedValue(updatedService);
 
-      const result = await service.update('service-123', dto);
+      const result = await service.update('service-123', dto, 'user-456');
 
       expect(result.name).toBe('Updated Name');
       expect(mockPrismaService.service.update).toHaveBeenCalledWith({
@@ -252,13 +265,10 @@ describe('ServicesService', () => {
     });
 
     it('should throw NotFoundException when updating non-existent service', async () => {
-      // Mock Prisma throwing P2025 error (record not found)
-      const prismaError = new Error('Record not found');
-      (prismaError as Error & { code: string }).code = 'P2025';
-      mockPrismaService.service.update.mockRejectedValue(prismaError);
+      mockPrismaService.service.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.update('non-existent', { name: 'New Name' }),
+        service.update('non-existent', { name: 'New Name' }, 'user-456'),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -273,7 +283,7 @@ describe('ServicesService', () => {
         name: dto.name,
       });
 
-      const result = await service.update('service-123', dto);
+      const result = await service.update('service-123', dto, 'user-456');
 
       expect(result.name).toBe('Only Name Updated');
       expect(mockPrismaService.service.update).toHaveBeenCalledWith({
@@ -297,7 +307,7 @@ describe('ServicesService', () => {
       mockPrismaService.service.findUnique.mockResolvedValue(mockService);
       mockPrismaService.service.update.mockResolvedValue(archivedService);
 
-      const result = await service.remove('service-123');
+      const result = await service.remove('service-123', 'user-456');
 
       expect(result.status).toBe(ServiceStatus.ARCHIVED);
       expect(mockPrismaService.service.update).toHaveBeenCalledWith({
@@ -307,13 +317,511 @@ describe('ServicesService', () => {
     });
 
     it('should throw NotFoundException when deleting non-existent service', async () => {
-      // Mock Prisma throwing P2025 error (record not found)
-      const prismaError = new Error('Record not found');
-      (prismaError as Error & { code: string }).code = 'P2025';
-      mockPrismaService.service.update.mockRejectedValue(prismaError);
+      mockPrismaService.service.findUnique.mockResolvedValue(null);
 
-      await expect(service.remove('non-existent')).rejects.toThrow(
+      await expect(service.remove('non-existent', 'user-456')).rejects.toThrow(
         NotFoundException,
+      );
+    });
+  });
+
+  describe('deletePermanently', () => {
+    it('should permanently delete a DRAFT service', async () => {
+      // Transaction succeeds - deleteMany returns count: 1
+      mockTxService.deleteMany.mockResolvedValue({ count: 1 });
+
+      const result = await service.deletePermanently('service-123', 'user-456');
+
+      expect(result).toEqual({ id: 'service-123', deleted: true });
+      expect(mockTxService.deleteMany).toHaveBeenCalledWith({
+        where: {
+          id: 'service-123',
+          createdBy: 'user-456',
+          status: ServiceStatus.DRAFT,
+        },
+      });
+    });
+
+    it('should throw NotFoundException when service does not exist', async () => {
+      // Transaction fails - deleteMany returns count: 0
+      mockTxService.deleteMany.mockResolvedValue({ count: 0 });
+      // Error check finds no service
+      mockTxService.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.deletePermanently('non-existent', 'user-456'),
+      ).rejects.toThrow(NotFoundException);
+      await expect(
+        service.deletePermanently('non-existent', 'user-456'),
+      ).rejects.toThrow('Service with ID "non-existent" not found');
+    });
+
+    it('should throw BadRequestException when service is PUBLISHED', async () => {
+      // Transaction fails - deleteMany returns count: 0
+      mockTxService.deleteMany.mockResolvedValue({ count: 0 });
+      // Error check finds PUBLISHED service
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.PUBLISHED,
+        createdBy: 'user-456',
+      });
+
+      await expect(
+        service.deletePermanently('service-123', 'user-456'),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.deletePermanently('service-123', 'user-456'),
+      ).rejects.toThrow(
+        'Cannot permanently delete service with status "PUBLISHED". Only DRAFT services can be permanently deleted.',
+      );
+    });
+
+    it('should throw BadRequestException when service is ARCHIVED', async () => {
+      // Transaction fails - deleteMany returns count: 0
+      mockTxService.deleteMany.mockResolvedValue({ count: 0 });
+      // Error check finds ARCHIVED service
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.ARCHIVED,
+        createdBy: 'user-456',
+      });
+
+      await expect(
+        service.deletePermanently('service-123', 'user-456'),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.deletePermanently('service-123', 'user-456'),
+      ).rejects.toThrow(
+        'Cannot permanently delete service with status "ARCHIVED". Only DRAFT services can be permanently deleted.',
+      );
+    });
+  });
+
+  describe('duplicate', () => {
+    it('should create a duplicate of an existing service', async () => {
+      const duplicateService = {
+        ...mockService,
+        id: 'service-duplicate',
+        name: 'Test Service (Copy)',
+        createdBy: 'user-789',
+      };
+
+      mockPrismaService.service.findUnique.mockResolvedValue(mockService);
+      mockPrismaService.service.create.mockResolvedValue(duplicateService);
+
+      const result = await service.duplicate('service-123', 'user-789');
+
+      expect(result).toEqual(duplicateService);
+      expect(result.name).toBe('Test Service (Copy)');
+      expect(result.status).toBe(ServiceStatus.DRAFT);
+      expect(mockPrismaService.service.findUnique).toHaveBeenCalledWith({
+        where: { id: 'service-123' },
+      });
+      expect(mockPrismaService.service.create).toHaveBeenCalledWith({
+        data: {
+          name: 'Test Service (Copy)',
+          description: mockService.description,
+          category: mockService.category,
+          status: ServiceStatus.DRAFT,
+          createdBy: 'user-789',
+        },
+      });
+    });
+
+    it('should duplicate a PUBLISHED service as DRAFT', async () => {
+      const publishedService = {
+        ...mockService,
+        status: ServiceStatus.PUBLISHED,
+      };
+      const duplicateService = {
+        ...mockService,
+        id: 'service-duplicate',
+        name: 'Test Service (Copy)',
+        status: ServiceStatus.DRAFT,
+        createdBy: 'user-789',
+      };
+
+      mockPrismaService.service.findUnique.mockResolvedValue(publishedService);
+      mockPrismaService.service.create.mockResolvedValue(duplicateService);
+
+      const result = await service.duplicate('service-123', 'user-789');
+
+      expect(result.status).toBe(ServiceStatus.DRAFT);
+    });
+
+    it('should duplicate an ARCHIVED service as DRAFT', async () => {
+      const archivedService = {
+        ...mockService,
+        status: ServiceStatus.ARCHIVED,
+      };
+      const duplicateService = {
+        ...mockService,
+        id: 'service-duplicate',
+        name: 'Test Service (Copy)',
+        status: ServiceStatus.DRAFT,
+        createdBy: 'user-789',
+      };
+
+      mockPrismaService.service.findUnique.mockResolvedValue(archivedService);
+      mockPrismaService.service.create.mockResolvedValue(duplicateService);
+
+      const result = await service.duplicate('service-123', 'user-789');
+
+      expect(result.status).toBe(ServiceStatus.DRAFT);
+    });
+
+    it('should throw NotFoundException when duplicating non-existent service', async () => {
+      mockPrismaService.service.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.duplicate('non-existent', 'user-789'),
+      ).rejects.toThrow(NotFoundException);
+      await expect(
+        service.duplicate('non-existent', 'user-789'),
+      ).rejects.toThrow('Service with ID "non-existent" not found');
+      expect(mockPrismaService.service.create).not.toHaveBeenCalled();
+    });
+
+    it('should preserve description and category in duplicate', async () => {
+      const serviceWithDetails = {
+        ...mockService,
+        description: 'Detailed description',
+        category: 'Finance',
+      };
+      const duplicateService = {
+        ...serviceWithDetails,
+        id: 'service-duplicate',
+        name: 'Test Service (Copy)',
+        createdBy: 'user-789',
+      };
+
+      mockPrismaService.service.findUnique.mockResolvedValue(
+        serviceWithDetails,
+      );
+      mockPrismaService.service.create.mockResolvedValue(duplicateService);
+
+      await service.duplicate('service-123', 'user-789');
+
+      expect(mockPrismaService.service.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          description: 'Detailed description',
+          category: 'Finance',
+        }),
+      });
+    });
+
+    it('should handle service with null description and category', async () => {
+      const minimalService = {
+        ...mockService,
+        description: null,
+        category: null,
+      };
+      const duplicateService = {
+        ...minimalService,
+        id: 'service-duplicate',
+        name: 'Test Service (Copy)',
+        createdBy: 'user-789',
+      };
+
+      mockPrismaService.service.findUnique.mockResolvedValue(minimalService);
+      mockPrismaService.service.create.mockResolvedValue(duplicateService);
+
+      await service.duplicate('service-123', 'user-789');
+
+      expect(mockPrismaService.service.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          description: null,
+          category: null,
+        }),
+      });
+    });
+  });
+
+  describe('publish', () => {
+    it('should publish a DRAFT service', async () => {
+      const publishedService = {
+        ...mockService,
+        status: ServiceStatus.PUBLISHED,
+      };
+
+      // Transaction succeeds - atomic update worked
+      mockTxService.updateMany.mockResolvedValue({ count: 1 });
+      mockTxService.findUniqueOrThrow.mockResolvedValue(publishedService);
+
+      const result = await service.publish('service-123', 'user-456');
+
+      expect(result.status).toBe(ServiceStatus.PUBLISHED);
+      expect(mockPrismaService.$transaction).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when service does not exist', async () => {
+      // Transaction fails - no matching record, then lookup confirms not found
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue(null);
+
+      await expect(service.publish('non-existent', 'user-456')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw BadRequestException when publishing a PUBLISHED service', async () => {
+      // Transaction fails - status doesn't match, then lookup confirms wrong status
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.PUBLISHED,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.publish('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.publish('service-123', 'user-456')).rejects.toThrow(
+        'Cannot publish service with status "PUBLISHED". Only DRAFT services can be published.',
+      );
+    });
+
+    it('should throw BadRequestException when publishing an ARCHIVED service', async () => {
+      // Transaction fails - status doesn't match, then lookup confirms wrong status
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.ARCHIVED,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.publish('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.publish('service-123', 'user-456')).rejects.toThrow(
+        'Cannot publish service with status "ARCHIVED". Only DRAFT services can be published.',
+      );
+    });
+  });
+
+  describe('archive', () => {
+    it('should archive a PUBLISHED service', async () => {
+      const archivedService = {
+        ...mockService,
+        status: ServiceStatus.ARCHIVED,
+      };
+
+      // Transaction succeeds - atomic update worked
+      mockTxService.updateMany.mockResolvedValue({ count: 1 });
+      mockTxService.findUniqueOrThrow.mockResolvedValue(archivedService);
+
+      const result = await service.archive('service-123', 'user-456');
+
+      expect(result.status).toBe(ServiceStatus.ARCHIVED);
+      expect(mockPrismaService.$transaction).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when service does not exist', async () => {
+      // Transaction fails - no matching record, then lookup confirms not found
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue(null);
+
+      await expect(service.archive('non-existent', 'user-456')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw BadRequestException when archiving a DRAFT service', async () => {
+      // Transaction fails - status doesn't match, then lookup confirms wrong status
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.DRAFT,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.archive('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.archive('service-123', 'user-456')).rejects.toThrow(
+        'Cannot archive service with status "DRAFT". Only PUBLISHED services can be archived.',
+      );
+    });
+
+    it('should throw BadRequestException when archiving an ARCHIVED service', async () => {
+      // Transaction fails - status doesn't match, then lookup confirms wrong status
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.ARCHIVED,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.archive('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.archive('service-123', 'user-456')).rejects.toThrow(
+        'Cannot archive service with status "ARCHIVED". Only PUBLISHED services can be archived.',
+      );
+    });
+  });
+
+  describe('restore', () => {
+    it('should restore an ARCHIVED service to DRAFT', async () => {
+      const draftService = { ...mockService, status: ServiceStatus.DRAFT };
+
+      // Transaction succeeds - atomic update worked
+      mockTxService.updateMany.mockResolvedValue({ count: 1 });
+      mockTxService.findUniqueOrThrow.mockResolvedValue(draftService);
+
+      const result = await service.restore('service-123', 'user-456');
+
+      expect(result.status).toBe(ServiceStatus.DRAFT);
+      expect(mockPrismaService.$transaction).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when service does not exist', async () => {
+      // Transaction fails - no matching record, then lookup confirms not found
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue(null);
+
+      await expect(service.restore('non-existent', 'user-456')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw BadRequestException when restoring a DRAFT service', async () => {
+      // Transaction fails - status doesn't match, then lookup confirms wrong status
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.DRAFT,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.restore('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.restore('service-123', 'user-456')).rejects.toThrow(
+        'Cannot restore service with status "DRAFT". Only ARCHIVED services can be restored.',
+      );
+    });
+
+    it('should throw BadRequestException when restoring a PUBLISHED service', async () => {
+      // Transaction fails - status doesn't match, then lookup confirms wrong status
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.PUBLISHED,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.restore('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.restore('service-123', 'user-456')).rejects.toThrow(
+        'Cannot restore service with status "PUBLISHED". Only ARCHIVED services can be restored.',
+      );
+    });
+  });
+
+  describe('State Machine Integration', () => {
+    it('should allow full lifecycle: DRAFT -> PUBLISHED -> ARCHIVED -> DRAFT', async () => {
+      // Start with DRAFT
+      const draftService = { ...mockService, status: ServiceStatus.DRAFT };
+      const publishedService = {
+        ...mockService,
+        status: ServiceStatus.PUBLISHED,
+      };
+      const archivedService = {
+        ...mockService,
+        status: ServiceStatus.ARCHIVED,
+      };
+      const restoredService = { ...mockService, status: ServiceStatus.DRAFT };
+
+      // DRAFT -> PUBLISHED (via transaction)
+      mockTxService.updateMany.mockResolvedValue({ count: 1 });
+      mockTxService.findUniqueOrThrow.mockResolvedValue(publishedService);
+      const published = await service.publish('service-123', 'user-456');
+      expect(published.status).toBe(ServiceStatus.PUBLISHED);
+
+      // PUBLISHED -> ARCHIVED (via transaction)
+      jest.clearAllMocks();
+      mockTxService.updateMany.mockResolvedValue({ count: 1 });
+      mockTxService.findUniqueOrThrow.mockResolvedValue(archivedService);
+      const archived = await service.archive('service-123', 'user-456');
+      expect(archived.status).toBe(ServiceStatus.ARCHIVED);
+
+      // ARCHIVED -> DRAFT (via transaction)
+      jest.clearAllMocks();
+      mockTxService.updateMany.mockResolvedValue({ count: 1 });
+      mockTxService.findUniqueOrThrow.mockResolvedValue(restoredService);
+      const restored = await service.restore('service-123', 'user-456');
+      expect(restored.status).toBe(ServiceStatus.DRAFT);
+    });
+
+    it('should prevent invalid transitions: DRAFT cannot be archived', async () => {
+      // Transaction fails - status doesn't match (archive requires PUBLISHED)
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.DRAFT,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.archive('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should prevent invalid transitions: DRAFT cannot be restored', async () => {
+      // Transaction fails - status doesn't match (restore requires ARCHIVED)
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.DRAFT,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.restore('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should prevent invalid transitions: PUBLISHED cannot be published again', async () => {
+      // Transaction fails - status doesn't match (publish requires DRAFT)
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.PUBLISHED,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.publish('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should prevent invalid transitions: PUBLISHED cannot be restored', async () => {
+      // Transaction fails - status doesn't match (restore requires ARCHIVED)
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.PUBLISHED,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.restore('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should prevent invalid transitions: ARCHIVED cannot be published', async () => {
+      // Transaction fails - status doesn't match (publish requires DRAFT)
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.ARCHIVED,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.publish('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should prevent invalid transitions: ARCHIVED cannot be archived again', async () => {
+      // Transaction fails - status doesn't match (archive requires PUBLISHED)
+      mockTxService.updateMany.mockResolvedValue({ count: 0 });
+      mockTxService.findUnique.mockResolvedValue({
+        status: ServiceStatus.ARCHIVED,
+        createdBy: 'user-456',
+      });
+
+      await expect(service.archive('service-123', 'user-456')).rejects.toThrow(
+        BadRequestException,
       );
     });
   });

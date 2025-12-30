@@ -3,13 +3,15 @@
 /**
  * ServiceTable Component
  *
- * Displays services in a table with columns for name, status, category, and last modified.
+ * Displays services in a table with columns for name, status, category, last modified, and actions.
  * Swiss-style minimal design with black borders.
  */
 
 import Link from 'next/link';
-import { useCallback, useRef, type KeyboardEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useRef, useState, type KeyboardEvent } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { MoreHorizontal, Pencil, Copy, Trash2, Loader2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -19,11 +21,22 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { DeleteServiceDialog } from './DeleteServiceDialog';
+import { useDuplicateService } from '@/hooks/use-services';
 import type { Service } from '@/lib/api/services';
 
 interface ServiceTableProps {
   services: Service[];
   isLoading?: boolean;
+  onServiceDeleted?: () => void;
 }
 
 const statusVariantMap = {
@@ -47,8 +60,45 @@ function formatDate(dateString: string): string {
   }
 }
 
-export function ServiceTable({ services, isLoading }: ServiceTableProps) {
+export function ServiceTable({
+  services,
+  isLoading,
+  onServiceDeleted,
+}: ServiceTableProps) {
+  const router = useRouter();
   const rowRefs = useRef<(HTMLTableRowElement | null)[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
+  const [duplicatingServiceId, setDuplicatingServiceId] = useState<
+    string | null
+  >(null);
+
+  const duplicateService = useDuplicateService();
+
+  const handleDeleteClick = useCallback((service: Service) => {
+    setServiceToDelete(service);
+    setDeleteDialogOpen(true);
+  }, []);
+
+  const handleDeleteSuccess = useCallback(() => {
+    setServiceToDelete(null);
+    onServiceDeleted?.();
+  }, [onServiceDeleted]);
+
+  const handleDuplicate = useCallback(
+    async (service: Service) => {
+      setDuplicatingServiceId(service.id);
+      try {
+        const duplicate = await duplicateService.mutateAsync(service.id);
+        // Navigate to the detail page for the new duplicate (DRAFT services are editable)
+        router.push(`/services/${duplicate.id}`);
+      } catch {
+        // Error is handled by React Query, but we could show a toast here
+        setDuplicatingServiceId(null);
+      }
+    },
+    [duplicateService, router]
+  );
 
   // Handle keyboard navigation between rows
   const handleKeyDown = useCallback(
@@ -98,54 +148,109 @@ export function ServiceTable({ services, isLoading }: ServiceTableProps) {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead>Last Modified</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {services.map((service, index) => (
-          <TableRow
-            key={service.id}
-            ref={(el) => {
-              rowRefs.current[index] = el;
-            }}
-            tabIndex={0}
-            onKeyDown={(e) => handleKeyDown(e, index)}
-            className="focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black"
-          >
-            <TableCell>
-              <Link
-                href={`/services/${service.id}`}
-                className="font-medium text-black hover:underline focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-              >
-                {service.name}
-              </Link>
-              {service.description && (
-                <p className="mt-1 text-sm text-black/60 line-clamp-1">
-                  {service.description}
-                </p>
-              )}
-            </TableCell>
-            <TableCell>
-              <Badge variant={statusVariantMap[service.status]}>
-                {statusLabelMap[service.status]}
-              </Badge>
-            </TableCell>
-            <TableCell className="text-black/70">
-              {service.category || '—'}
-            </TableCell>
-            <TableCell className="text-black/70">
-              {formatDate(service.updatedAt)}
-            </TableCell>
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Last Modified</TableHead>
+            <TableHead className="w-[80px]">Actions</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {services.map((service, index) => {
+            const isDraft = service.status === 'DRAFT';
+            return (
+              <TableRow
+                key={service.id}
+                ref={(el) => {
+                  rowRefs.current[index] = el;
+                }}
+                tabIndex={0}
+                onKeyDown={(e) => handleKeyDown(e, index)}
+                className="focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black"
+              >
+                <TableCell>
+                  <Link
+                    href={`/services/${service.id}`}
+                    className="font-medium text-black hover:underline focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                  >
+                    {service.name}
+                  </Link>
+                  {service.description && (
+                    <p className="mt-1 text-sm text-black/60 line-clamp-1">
+                      {service.description}
+                    </p>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={statusVariantMap[service.status]}>
+                    {statusLabelMap[service.status]}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-black/70">
+                  {service.category || '—'}
+                </TableCell>
+                <TableCell className="text-black/70">
+                  {formatDate(service.updatedAt)}
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        aria-label={`Actions for ${service.name}`}
+                      >
+                        {duplicatingServiceId === service.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <MoreHorizontal className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/services/${service.id}`}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDuplicate(service)}
+                        disabled={duplicatingServiceId === service.id}
+                      >
+                        <Copy className="mr-2 h-4 w-4" />
+                        Duplicate
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-red-600 focus:bg-red-50 focus:text-red-700"
+                        disabled={!isDraft}
+                        onClick={() => handleDeleteClick(service)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+
+      <DeleteServiceDialog
+        service={serviceToDelete}
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onSuccess={handleDeleteSuccess}
+      />
+    </>
   );
 }
 
@@ -158,6 +263,7 @@ function ServiceTableSkeleton() {
           <TableHead>Status</TableHead>
           <TableHead>Category</TableHead>
           <TableHead>Last Modified</TableHead>
+          <TableHead className="w-[80px]">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -175,6 +281,9 @@ function ServiceTableSkeleton() {
             </TableCell>
             <TableCell>
               <div className="h-5 w-20 animate-pulse bg-slate-100" />
+            </TableCell>
+            <TableCell>
+              <div className="h-8 w-8 animate-pulse rounded bg-slate-100" />
             </TableCell>
           </TableRow>
         ))}

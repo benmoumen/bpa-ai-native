@@ -7,6 +7,7 @@ import { AuthModule, JwtAuthGuard, RolesGuard } from './auth';
 import { PrismaModule } from './prisma';
 import { HealthModule } from './health';
 import { ServicesModule } from './services';
+import { RegistrationsModule } from './registrations';
 
 @Module({
   imports: [
@@ -23,6 +24,8 @@ import { ServicesModule } from './services';
     HealthModule,
     // Services module
     ServicesModule,
+    // Registrations module
+    RegistrationsModule,
   ],
   controllers: [AppController],
   providers: [

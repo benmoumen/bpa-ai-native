@@ -52,11 +52,11 @@ development_status:
   2-2-create-new-service-with-metadata: done
   2-3-service-list-with-search-filter: done
   2-4-edit-service-metadata: done
-  2-5-delete-draft-service: backlog
-  2-6-duplicate-existing-service: backlog
-  2-7-service-lifecycle-state-management: backlog
+  2-5-delete-draft-service: done
+  2-6-duplicate-existing-service: done
+  2-7-service-lifecycle-state-management: done
   2-8-service-template-gallery: backlog
-  2-9-registration-database-model-api: backlog
+  2-9-registration-database-model-api: done
   2-10-registration-crud-within-service: backlog
   2-11-document-requirements-costs-per-registration: backlog
   epic-2-retrospective: optional
