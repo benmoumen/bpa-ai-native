@@ -110,3 +110,36 @@ export async function getService(id: string): Promise<Service> {
   const result: ApiResponse<Service> = await response.json();
   return result.data;
 }
+
+export interface UpdateServiceInput {
+  name?: string;
+  description?: string;
+  category?: string;
+}
+
+/**
+ * Update an existing service
+ */
+export async function updateService(
+  id: string,
+  input: UpdateServiceInput
+): Promise<Service> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/services/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to update service' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  const result: ApiResponse<Service> = await response.json();
+  return result.data;
+}

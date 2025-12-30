@@ -1,5 +1,5 @@
 # Sprint Status Tracking
-# Generated: 2025-12-29
+# Generated: 2025-12-30
 # Project: bpa-ai-native
 # Tracking System: file-system
 # Story Location: _bmad-output/implementation-artifacts
@@ -28,6 +28,12 @@
 # - SM typically creates next story ONLY after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then Dev runs code-review (fresh context, ideally different LLM)
 
+generated: 2025-12-30
+project: bpa-ai-native
+project_key: bpa-ai-native
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
 development_status:
   # Epic 1: Project Foundation & Developer Experience (7 stories)
   epic-1: done
@@ -40,16 +46,19 @@ development_status:
   1-7-cicd-pipeline-setup: done
   epic-1-retrospective: done
 
-  # Epic 2: Service Lifecycle Management (8 stories)
+  # Epic 2: Service Lifecycle Management (11 stories)
   epic-2: in-progress
   2-1-service-database-model-api-foundation: done
   2-2-create-new-service-with-metadata: done
   2-3-service-list-with-search-filter: done
-  2-4-edit-service-metadata: backlog
+  2-4-edit-service-metadata: done
   2-5-delete-draft-service: backlog
   2-6-duplicate-existing-service: backlog
   2-7-service-lifecycle-state-management: backlog
   2-8-service-template-gallery: backlog
+  2-9-registration-database-model-api: backlog
+  2-10-registration-crud-within-service: backlog
+  2-11-document-requirements-costs-per-registration: backlog
   epic-2-retrospective: optional
 
   # Epic 3: Form Building & Configuration (10 stories)
@@ -61,67 +70,70 @@ development_status:
   3-5-configure-field-properties: backlog
   3-6-organize-fields-into-sections: backlog
   3-7-configure-conditional-visibility-rules: backlog
-  3-8-preview-form-rendering: backlog
+  3-8-form-preview-rendering: backlog
   3-9-link-fields-to-determinants: backlog
-  3-10-generate-json-schema: backlog
+  3-10-json-schema-generation: backlog
   epic-3-retrospective: optional
 
-  # Epic 4: Workflow Configuration (8 stories)
+  # Epic 4: Workflow Configuration (11 stories)
   epic-4: backlog
   4-1-workflow-database-model-api: backlog
   4-2-define-workflow-steps: backlog
-  4-3-configure-transitions: backlog
+  4-3-configure-workflow-transitions: backlog
   4-4-specify-step-actions: backlog
-  4-5-assign-forms-to-steps: backlog
-  4-6-linear-approval-chains: backlog
-  4-7-visual-workflow-diagram: backlog
+  4-5-assign-forms-to-workflow-steps: backlog
+  4-6-linear-approval-chain-configuration: backlog
+  4-7-workflow-diagram-preview: backlog
   4-8-workflow-validation: backlog
+  4-9-role-status-configuration-4-status-model: backlog
+  4-10-role-registration-binding: backlog
+  4-11-role-institution-assignment: backlog
   epic-4-retrospective: optional
 
   # Epic 5: Determinants & Business Rules (6 stories)
   epic-5: backlog
   5-1-determinant-database-model-api: backlog
-  5-2-define-determinants-from-fields: backlog
+  5-2-define-determinants-from-form-fields: backlog
   5-3-configure-calculation-formulas: backlog
   5-4-determinants-in-visibility-rules: backlog
   5-5-determinants-in-workflow-conditions: backlog
-  5-6-validate-determinant-references: backlog
+  5-6-reference-validation: backlog
   epic-5-retrospective: optional
 
   # Epic 6: AI-Powered Service Configuration (12 stories)
   epic-6: backlog
-  6-1-chat-interface-for-natural-language: backlog
-  6-2-ai-generates-service-config: backlog
-  6-3-structured-proposals: backlog
-  6-4-iterative-refinement-conversation: backlog
-  6-5-ai-suggests-form-fields: backlog
-  6-6-ai-suggests-workflow-structure: backlog
-  6-7-gap-detection-proactive-suggestions: backlog
-  6-8-streaming-responses: backlog
-  6-9-cancel-ai-generation: backlog
-  6-10-ai-vs-user-comparison: backlog
-  6-11-llm-fallback-groq-claude: backlog
-  6-12-cost-tracking: backlog
+  6-1-llm-integration-infrastructure: backlog
+  6-2-chat-interface-for-natural-language-input: backlog
+  6-3-ai-streaming-response-display: backlog
+  6-4-cancel-ai-generation: backlog
+  6-5-ai-generates-complete-service-configuration: backlog
+  6-6-structured-proposals-with-accept-review-modify: backlog
+  6-7-iterative-refinement-through-conversation: backlog
+  6-8-ai-suggests-form-fields: backlog
+  6-9-ai-suggests-workflow-structure: backlog
+  6-10-gap-detection-and-proactive-suggestions: backlog
+  6-11-infer-determinants-from-field-relationships: backlog
+  6-12-ai-vs-user-comparison: backlog
   epic-6-retrospective: optional
 
   # Epic 7: Preview & Publishing (8 stories)
   epic-7: backlog
-  7-1-preview-complete-journey: backlog
-  7-2-simulate-form-submission: backlog
+  7-1-complete-applicant-journey-preview: backlog
+  7-2-simulate-form-submission-with-test-data: backlog
   7-3-simulate-workflow-progression: backlog
   7-4-completeness-dashboard: backlog
-  7-5-validation-before-publish: backlog
+  7-5-validation-checks-before-publication: backlog
   7-6-publish-service: backlog
-  7-7-readiness-gate: backlog
+  7-7-publish-readiness-gate: backlog
   7-8-draft-published-separation: backlog
   epic-7-retrospective: optional
 
   # Epic 8: User & Access Management (4 stories)
   epic-8: backlog
-  8-1-rbac-enforcement: backlog
-  8-2-country-scoped-access: backlog
-  8-3-user-management-country-admins: backlog
-  8-4-cross-instance-unctad-support: backlog
+  8-1-role-based-access-control-implementation: backlog
+  8-2-country-scoped-access-control: backlog
+  8-3-user-management-for-country-admins: backlog
+  8-4-unctad-support-cross-instance-access: backlog
   epic-8-retrospective: optional
 
   # Epic 9: System Administration & Audit (6 stories)
@@ -137,16 +149,16 @@ development_status:
   # Epic 10: Demo & Live Collaboration (3 stories)
   epic-10: backlog
   10-1-demo-mode: backlog
-  10-2-live-config-changes: backlog
-  10-3-changes-isolated: backlog
+  10-2-live-configuration-changes: backlog
+  10-3-demo-changes-isolation: backlog
   epic-10-retrospective: optional
 
   # Epic 11: Reliability & Accessibility (6 stories)
   epic-11: backlog
   11-1-detailed-error-messages: backlog
-  11-2-auto-save-drafts: backlog
+  11-2-auto-save-draft-configurations: backlog
   11-3-keyboard-navigation: backlog
   11-4-change-impact-analysis: backlog
-  11-5-wcag-2-1-aa: backlog
+  11-5-wcag-21-aa-compliance: backlog
   11-6-browser-device-support: backlog
   epic-11-retrospective: optional

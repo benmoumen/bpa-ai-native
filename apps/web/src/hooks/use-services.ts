@@ -11,8 +11,10 @@ import {
   getServices,
   getService,
   createService,
+  updateService,
   type Service,
   type CreateServiceInput,
+  type UpdateServiceInput,
   type ApiResponse,
 } from '@/lib/api/services';
 
@@ -69,6 +71,22 @@ export function useCreateService() {
     onSuccess: () => {
       // Invalidate and refetch services list
       queryClient.invalidateQueries({ queryKey: serviceKeys.lists() });
+    },
+  });
+}
+
+/**
+ * Hook to update an existing service
+ */
+export function useUpdateService() {
+  const queryClient = useQueryClient();
+
+  return useMutation<Service, Error, { id: string; data: UpdateServiceInput }>({
+    mutationFn: ({ id, data }) => updateService(id, data),
+    onSuccess: (data) => {
+      // Invalidate and refetch services list and detail
+      queryClient.invalidateQueries({ queryKey: serviceKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: serviceKeys.detail(data.id) });
     },
   });
 }
