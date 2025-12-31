@@ -6,12 +6,13 @@
  * Displays and allows editing of form fields within a form.
  * Story 3.4: Add Form Fields
  * Story 3.5: Configure Field Properties
+ * Story 3.8: Form Preview Rendering
  */
 
 import { Suspense, use, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, FileText } from 'lucide-react';
+import { ArrowLeft, FileText, Eye, EyeOff } from 'lucide-react';
 
 import {
   AppShell,
@@ -24,10 +25,13 @@ import {
   FieldPropertiesPanel,
   SectionPropertiesPanel,
 } from '@/components/form-fields';
+import { FormPreview } from '@/components/form-preview';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useForm } from '@/hooks/use-forms';
 import { useService } from '@/hooks/use-services';
+import { useFormFields } from '@/hooks/use-form-fields';
+import { useFormSections } from '@/hooks/use-form-sections';
 import type { FormType, FormField, FormSection } from '@/lib/api/forms';
 
 const formTypeLabels: Record<FormType, string> = {
@@ -49,8 +53,11 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
   const router = useRouter();
   const { data: form, isLoading: formLoading, isError: formError, error: formErr } = useForm(formId);
   const { data: service, isLoading: serviceLoading } = useService(serviceId);
+  const { data: fieldsData, refetch: refetchFields } = useFormFields(formId, { isActive: true });
+  const { data: sectionsData, refetch: refetchSections } = useFormSections(formId, { isActive: true });
   const [selectedField, setSelectedField] = useState<FormField | null>(null);
   const [selectedSection, setSelectedSection] = useState<FormSection | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleFieldSelect = useCallback((field: FormField | null) => {
     setSelectedField(field);
@@ -70,6 +77,20 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
     setSelectedField(null);
     setSelectedSection(null);
   }, []);
+
+  const handleTogglePreview = useCallback(() => {
+    setShowPreview((prev) => !prev);
+    // Close properties panels when opening preview
+    if (!showPreview) {
+      setSelectedField(null);
+      setSelectedSection(null);
+    }
+  }, [showPreview]);
+
+  const handleRefreshPreview = useCallback(() => {
+    refetchFields();
+    refetchSections();
+  }, [refetchFields, refetchSections]);
 
   const isLoading = formLoading || serviceLoading;
 
@@ -101,11 +122,16 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
   const isEditable = service?.status === 'DRAFT';
 
   const hasPropertiesPanel = selectedField || selectedSection;
+  const hasRightPanel = hasPropertiesPanel || showPreview;
+
+  // Get fields and sections for preview
+  const fields = fieldsData?.data || [];
+  const sections = sectionsData?.data || [];
 
   return (
     <div className="flex min-h-screen bg-white">
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-200 ${hasPropertiesPanel ? 'mr-[400px]' : ''}`}>
+      <div className={`flex-1 transition-all duration-200 ${hasRightPanel ? (showPreview ? 'mr-[500px]' : 'mr-[400px]') : ''}`}>
         {/* Page Header */}
         <div className="border-b border-black/10 px-8 py-6">
           <div className="flex items-center justify-between">
@@ -125,12 +151,30 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
                 </p>
               )}
             </div>
-            <Button variant="outline" asChild>
-              <Link href={`/services/${serviceId}`}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Service
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={showPreview ? 'default' : 'outline'}
+                onClick={handleTogglePreview}
+              >
+                {showPreview ? (
+                  <>
+                    <EyeOff className="mr-2 h-4 w-4" />
+                    Hide Preview
+                  </>
+                ) : (
+                  <>
+                    <Eye className="mr-2 h-4 w-4" />
+                    Preview
+                  </>
+                )}
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href={`/services/${serviceId}`}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Service
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -157,7 +201,7 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
       </div>
 
       {/* Field Properties Panel - Slides in from right */}
-      {selectedField && isEditable && (
+      {selectedField && isEditable && !showPreview && (
         <div className="fixed right-0 top-0 h-full w-[400px] shadow-lg animate-in slide-in-from-right duration-200">
           <FieldPropertiesPanel
             field={selectedField}
@@ -168,12 +212,24 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
       )}
 
       {/* Section Properties Panel - Slides in from right */}
-      {selectedSection && isEditable && (
+      {selectedSection && isEditable && !showPreview && (
         <div className="fixed right-0 top-0 h-full w-[400px] shadow-lg animate-in slide-in-from-right duration-200">
           <SectionPropertiesPanel
             section={selectedSection}
             formId={formId}
             onClose={handleCloseProperties}
+          />
+        </div>
+      )}
+
+      {/* Form Preview Panel - Slides in from right */}
+      {showPreview && form && (
+        <div className="fixed right-0 top-0 h-full w-[500px] shadow-lg animate-in slide-in-from-right duration-200">
+          <FormPreview
+            form={form}
+            fields={fields}
+            sections={sections}
+            onRefresh={handleRefreshPreview}
           />
         </div>
       )}

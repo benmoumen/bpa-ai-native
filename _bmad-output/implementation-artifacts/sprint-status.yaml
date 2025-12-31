@@ -69,8 +69,8 @@ development_status:
   3-4-add-form-fields: done
   3-5-configure-field-properties: done
   3-6-organize-fields-into-sections: done
-  3-7-configure-conditional-visibility-rules: backlog
-  3-8-form-preview-rendering: backlog
+  3-7-configure-conditional-visibility-rules: done
+  3-8-form-preview-rendering: done
   3-9-link-fields-to-determinants: backlog
   3-10-json-schema-generation: backlog
   epic-3-retrospective: optional
