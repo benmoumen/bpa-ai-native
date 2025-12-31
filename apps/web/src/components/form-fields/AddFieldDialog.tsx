@@ -30,6 +30,8 @@ interface AddFieldDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Current max sortOrder in the field list, new field will be sortOrder + 1 */
   nextSortOrder?: number;
+  /** Optional section ID to assign the new field to */
+  sectionId?: string;
 }
 
 export function AddFieldDialog({
@@ -37,6 +39,7 @@ export function AddFieldDialog({
   open,
   onOpenChange,
   nextSortOrder = 0,
+  sectionId,
 }: AddFieldDialogProps) {
   const createFieldMutation = useCreateFormField(formId);
   const [error, setError] = useState<string | null>(null);
@@ -56,13 +59,14 @@ export function AddFieldDialog({
           sortOrder: nextSortOrder,
           required: false,
           properties: {},
+          sectionId,
         });
         onOpenChange(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to create field');
       }
     },
-    [createFieldMutation, nextSortOrder, onOpenChange]
+    [createFieldMutation, nextSortOrder, onOpenChange, sectionId]
   );
 
   const handleOpenChange = useCallback(

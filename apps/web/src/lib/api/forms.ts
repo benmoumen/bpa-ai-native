@@ -341,6 +341,166 @@ export async function deleteFormField(id: string): Promise<FormField> {
   return response.json();
 }
 
+
+// ============================================================================
+// Form Sections API
+// ============================================================================
+
+/**
+ * Form section entity
+ */
+export interface FormSection {
+  id: string;
+  formId: string;
+  parentSectionId: string | null;
+  name: string;
+  description: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  fieldCount?: number;
+  childSectionCount?: number;
+}
+
+export interface CreateFormSectionInput {
+  name: string;
+  description?: string;
+  parentSectionId?: string;
+  sortOrder?: number;
+}
+
+export interface UpdateFormSectionInput {
+  name?: string;
+  description?: string | null;
+  parentSectionId?: string | null;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+
+/**
+ * Get list of sections for a form
+ */
+export async function getFormSections(
+  formId: string,
+  params?: {
+    page?: number;
+    limit?: number;
+    isActive?: boolean;
+  }
+): Promise<ApiResponse<FormSection[]>> {
+  const searchParams = new URLSearchParams();
+  if (params?.page) searchParams.set('page', String(params.page));
+  if (params?.limit) searchParams.set('limit', String(params.limit));
+  if (params?.isActive !== undefined)
+    searchParams.set('isActive', String(params.isActive));
+
+  const queryString = searchParams.toString();
+  const url = `${API_BASE_URL}/api/v1/forms/${formId}/sections${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url, {
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to fetch form sections' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  return response.json();
+}
+
+/**
+ * Get a single form section by ID
+ */
+export async function getFormSection(id: string): Promise<FormSection> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/form-sections/${id}`, {
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to fetch form section' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  return response.json();
+}
+
+/**
+ * Create a new section within a form
+ */
+export async function createFormSection(
+  formId: string,
+  input: CreateFormSectionInput
+): Promise<FormSection> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/forms/${formId}/sections`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to create form section' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  return response.json();
+}
+
+/**
+ * Update an existing form section
+ */
+export async function updateFormSection(
+  id: string,
+  input: UpdateFormSectionInput
+): Promise<FormSection> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/form-sections/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to update form section' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  return response.json();
+}
+
+/**
+ * Soft delete a form section (sets isActive=false)
+ */
+export async function deleteFormSection(id: string): Promise<FormSection> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/form-sections/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to delete form section' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  return response.json();
+}
+
 // ============================================================================
 // Utility Functions
 // ============================================================================

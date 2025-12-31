@@ -19,12 +19,16 @@ import {
   Header,
   SkipLinks,
 } from '@/components';
-import { FieldList, FieldPropertiesPanel } from '@/components/form-fields';
+import {
+  SectionList,
+  FieldPropertiesPanel,
+  SectionPropertiesPanel,
+} from '@/components/form-fields';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useForm } from '@/hooks/use-forms';
 import { useService } from '@/hooks/use-services';
-import type { FormType, FormField } from '@/lib/api/forms';
+import type { FormType, FormField, FormSection } from '@/lib/api/forms';
 
 const formTypeLabels: Record<FormType, string> = {
   APPLICANT: 'Applicant Form',
@@ -46,13 +50,25 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
   const { data: form, isLoading: formLoading, isError: formError, error: formErr } = useForm(formId);
   const { data: service, isLoading: serviceLoading } = useService(serviceId);
   const [selectedField, setSelectedField] = useState<FormField | null>(null);
+  const [selectedSection, setSelectedSection] = useState<FormSection | null>(null);
 
   const handleFieldSelect = useCallback((field: FormField | null) => {
     setSelectedField(field);
+    if (field) {
+      setSelectedSection(null);
+    }
+  }, []);
+
+  const handleSectionSelect = useCallback((section: FormSection | null) => {
+    setSelectedSection(section);
+    if (section) {
+      setSelectedField(null);
+    }
   }, []);
 
   const handleCloseProperties = useCallback(() => {
     setSelectedField(null);
+    setSelectedSection(null);
   }, []);
 
   const isLoading = formLoading || serviceLoading;
@@ -84,10 +100,12 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
 
   const isEditable = service?.status === 'DRAFT';
 
+  const hasPropertiesPanel = selectedField || selectedSection;
+
   return (
     <div className="flex min-h-screen bg-white">
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-200 ${selectedField ? 'mr-[400px]' : ''}`}>
+      <div className={`flex-1 transition-all duration-200 ${hasPropertiesPanel ? 'mr-[400px]' : ''}`}>
         {/* Page Header */}
         <div className="border-b border-black/10 px-8 py-6">
           <div className="flex items-center justify-between">
@@ -127,20 +145,33 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
             </div>
           )}
 
-          <FieldList
+          <SectionList
             formId={formId}
             isEditable={isEditable}
             selectedFieldId={selectedField?.id}
+            selectedSectionId={selectedSection?.id}
             onFieldSelect={handleFieldSelect}
+            onSectionSelect={handleSectionSelect}
           />
         </div>
       </div>
 
-      {/* Properties Panel - Slides in from right */}
+      {/* Field Properties Panel - Slides in from right */}
       {selectedField && isEditable && (
         <div className="fixed right-0 top-0 h-full w-[400px] shadow-lg animate-in slide-in-from-right duration-200">
           <FieldPropertiesPanel
             field={selectedField}
+            formId={formId}
+            onClose={handleCloseProperties}
+          />
+        </div>
+      )}
+
+      {/* Section Properties Panel - Slides in from right */}
+      {selectedSection && isEditable && (
+        <div className="fixed right-0 top-0 h-full w-[400px] shadow-lg animate-in slide-in-from-right duration-200">
+          <SectionPropertiesPanel
+            section={selectedSection}
             formId={formId}
             onClose={handleCloseProperties}
           />
