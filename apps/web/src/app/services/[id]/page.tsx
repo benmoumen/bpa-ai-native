@@ -3,9 +3,10 @@
 /**
  * Service Detail Page
  *
- * Displays and allows editing of service metadata and registrations.
+ * Displays and allows editing of service metadata, registrations, and forms.
  * Story 2.4: Edit Service Metadata
  * Story 2.10: Registration CRUD within Service
+ * Story 3.2: Create Applicant Form
  */
 
 import { Suspense, use } from 'react';
@@ -22,6 +23,7 @@ import {
 } from '@/components';
 import { ServiceMetadataForm } from '@/components/services/ServiceMetadataForm';
 import { RegistrationList } from '@/components/registrations';
+import { FormList } from '@/components/forms';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useService } from '@/hooks/use-services';
@@ -130,6 +132,11 @@ function ServiceDetailContent({ serviceId }: ServiceDetailContentProps) {
         {/* Registrations Section */}
         <div className="mt-8 border-t border-black/10 pt-8">
           <RegistrationList serviceId={serviceId} isEditable={isEditable} />
+        </div>
+
+        {/* Forms Section */}
+        <div className="mt-8 border-t border-black/10 pt-8">
+          <FormList serviceId={serviceId} isEditable={isEditable} />
         </div>
       </div>
     </div>
