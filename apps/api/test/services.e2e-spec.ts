@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call */
 /**
  * Services API Integration Tests (E2E)
  *
@@ -69,23 +70,35 @@ describe('Services API (e2e)', () => {
 
   const mockPrismaService = {
     service: {
-      create: jest.fn().mockImplementation(({ data }) => {
-        const id = `service-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-        const now = new Date();
-        const service = {
-          id,
-          name: data.name,
-          description: data.description ?? null,
-          category: data.category ?? null,
-          status: data.status ?? ServiceStatus.DRAFT,
-          createdBy: data.createdBy,
-          createdAt: now,
-          updatedAt: now,
-        };
-        mockServices.set(id, service);
-        createdServiceIds.push(id);
-        return Promise.resolve(service);
-      }),
+      create: jest.fn().mockImplementation(
+        ({
+          data,
+        }: {
+          data: {
+            name: string;
+            description?: string | null;
+            category?: string | null;
+            status?: ServiceStatus;
+            createdBy: string;
+          };
+        }) => {
+          const id = `service-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+          const now = new Date();
+          const service = {
+            id,
+            name: data.name,
+            description: data.description ?? null,
+            category: data.category ?? null,
+            status: data.status ?? ServiceStatus.DRAFT,
+            createdBy: data.createdBy,
+            createdAt: now,
+            updatedAt: now,
+          };
+          mockServices.set(id, service);
+          createdServiceIds.push(id);
+          return Promise.resolve(service);
+        },
+      ),
       findMany: jest
         .fn()
         .mockImplementation(({ where, skip, take, orderBy }) => {

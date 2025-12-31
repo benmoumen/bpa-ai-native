@@ -51,7 +51,7 @@ export class UpdateFormFieldDto {
     message:
       'name must start with a letter and contain only letters, numbers, and underscores',
   })
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }: { value: string }) => value?.trim())
   name?: string;
 
   @ApiPropertyOptional({

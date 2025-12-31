@@ -12,7 +12,6 @@ import { TemplatesService } from './templates.service';
 
 describe('TemplatesController', () => {
   let controller: TemplatesController;
-  let templatesService: TemplatesService;
 
   // Mock template data
   const mockTemplate = {
@@ -47,7 +46,6 @@ describe('TemplatesController', () => {
     }).compile();
 
     controller = module.get<TemplatesController>(TemplatesController);
-    templatesService = module.get<TemplatesService>(TemplatesService);
 
     // Reset all mocks before each test
     jest.clearAllMocks();

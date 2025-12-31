@@ -10,8 +10,8 @@ export enum ServiceStatus {
 }
 
 export const Prisma = {
-  ServiceWhereInput: {} as any,
-  ServiceOrderByWithRelationInput: {} as any,
+  ServiceWhereInput: {} as Record<string, unknown>,
+  ServiceOrderByWithRelationInput: {} as Record<string, unknown>,
 };
 
 export interface Service {

@@ -49,7 +49,7 @@ export class CreateRegistrationDto {
   @Matches(/^[a-z0-9-]+$/, {
     message: 'key must contain only lowercase letters, numbers, and hyphens',
   })
-  @Transform(({ value }) => value?.toLowerCase().trim())
+  @Transform(({ value }: { value: string }) => value?.toLowerCase().trim())
   key?: string;
 
   @ApiPropertyOptional({

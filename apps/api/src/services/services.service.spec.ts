@@ -16,8 +16,6 @@ import { UpdateServiceDto } from './dto/update-service.dto';
 
 describe('ServicesService', () => {
   let service: ServicesService;
-  let prismaService: PrismaService;
-  let templatesService: TemplatesService;
 
   // Mock service data
   const mockService = {
@@ -89,8 +87,6 @@ describe('ServicesService', () => {
     }).compile();
 
     service = module.get<ServicesService>(ServicesService);
-    prismaService = module.get<PrismaService>(PrismaService);
-    templatesService = module.get<TemplatesService>(TemplatesService);
 
     // Reset all mocks before each test
     jest.clearAllMocks();
@@ -527,6 +523,7 @@ describe('ServicesService', () => {
       await service.duplicate('service-123', 'user-789');
 
       expect(mockPrismaService.service.create).toHaveBeenCalledWith({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           description: 'Detailed description',
           category: 'Finance',
@@ -553,6 +550,7 @@ describe('ServicesService', () => {
       await service.duplicate('service-123', 'user-789');
 
       expect(mockPrismaService.service.create).toHaveBeenCalledWith({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           description: null,
           category: null,
@@ -806,6 +804,7 @@ describe('ServicesService', () => {
       await service.createFromTemplate('template-123', 'user-789');
 
       expect(mockPrismaService.service.create).toHaveBeenCalledWith({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           description: null,
         }),
@@ -830,7 +829,9 @@ describe('ServicesService', () => {
       );
 
       expect(result.status).toBe(ServiceStatus.DRAFT);
+
       expect(mockPrismaService.service.create).toHaveBeenCalledWith({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           status: ServiceStatus.DRAFT,
         }),
@@ -840,8 +841,7 @@ describe('ServicesService', () => {
 
   describe('State Machine Integration', () => {
     it('should allow full lifecycle: DRAFT -> PUBLISHED -> ARCHIVED -> DRAFT', async () => {
-      // Start with DRAFT
-      const draftService = { ...mockService, status: ServiceStatus.DRAFT };
+      // Start with DRAFT (mockService already has DRAFT status)
       const publishedService = {
         ...mockService,
         status: ServiceStatus.PUBLISHED,

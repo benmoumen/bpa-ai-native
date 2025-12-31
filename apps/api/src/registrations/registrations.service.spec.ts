@@ -204,6 +204,7 @@ describe('RegistrationsService', () => {
       await service.create('service-123', dtoWithSortOrder, mockUserId);
 
       expect(mockPrismaService.registration.create).toHaveBeenCalledWith({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           sortOrder: 5,
         }),

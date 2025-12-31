@@ -352,7 +352,7 @@ Field-level conditional rules with polymorphic types:
 **Step 5: Final Verification**
 - Frank clicks Preview → sees **full applicant journey simulation**
 - Tests form fill → workflow simulation → certificate preview
-- **Publish Readiness Gate** appears: all checks pass2.1
+- **Publish Readiness Gate** appears: all checks pass2.1*
 - Frank publishes → service goes live
 - **Time: 45 minutes** (vs weeks in old BPA)
 

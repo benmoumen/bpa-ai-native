@@ -261,7 +261,7 @@ export class CreateCostDto {
     description: 'Fixed amount (required when type is FIXED)',
     example: 100.0,
   })
-  @ValidateIf((o) => o.type === CostTypeEnum.FIXED)
+  @ValidateIf((o: CreateCostDto) => o.type === CostTypeEnum.FIXED)
   @IsNotEmpty({ message: 'fixedAmount is required when type is FIXED' })
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
@@ -272,7 +272,7 @@ export class CreateCostDto {
     description: 'JSONata formula expression (required when type is FORMULA)',
     example: '$sum(items.price) * 1.1',
   })
-  @ValidateIf((o) => o.type === CostTypeEnum.FORMULA)
+  @ValidateIf((o: CreateCostDto) => o.type === CostTypeEnum.FORMULA)
   @IsNotEmpty({ message: 'formula is required when type is FORMULA' })
   @IsString()
   formula?: string;

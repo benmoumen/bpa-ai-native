@@ -246,6 +246,7 @@ describe('CostsService', () => {
       await service.create('reg-123', dtoWithoutCurrency, mockUserId);
 
       expect(mockPrismaService.cost.create).toHaveBeenCalledWith({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           currency: 'USD',
         }),

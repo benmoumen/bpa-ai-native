@@ -55,15 +55,6 @@ describe('FormSectionsService', () => {
     },
   };
 
-  const mockSectionWithForm = {
-    ...mockSection,
-    form: {
-      service: {
-        createdBy: mockUserId,
-      },
-    },
-  };
-
   const mockPrismaService = {
     form: {
       findUnique: jest.fn(),

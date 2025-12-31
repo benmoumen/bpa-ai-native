@@ -12,7 +12,6 @@ import { PrismaService } from '../prisma';
 
 describe('TemplatesService', () => {
   let service: TemplatesService;
-  let prismaService: PrismaService;
 
   // Mock template data
   const mockTemplate = {
@@ -49,7 +48,6 @@ describe('TemplatesService', () => {
     }).compile();
 
     service = module.get<TemplatesService>(TemplatesService);
-    prismaService = module.get<PrismaService>(PrismaService);
 
     // Reset all mocks before each test
     jest.clearAllMocks();

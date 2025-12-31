@@ -41,7 +41,7 @@ export class UpdateCostDto {
     description: 'Updated fixed amount',
     example: 150.0,
   })
-  @ValidateIf((o) => o.type === CostTypeEnum.FIXED)
+  @ValidateIf((o: UpdateCostDto) => o.type === CostTypeEnum.FIXED)
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   @Type(() => Number)
@@ -51,7 +51,7 @@ export class UpdateCostDto {
     description: 'Updated JSONata formula expression',
     example: '$sum(items.price) * 1.2',
   })
-  @ValidateIf((o) => o.type === CostTypeEnum.FORMULA)
+  @ValidateIf((o: UpdateCostDto) => o.type === CostTypeEnum.FORMULA)
   @IsString()
   formula?: string;
 

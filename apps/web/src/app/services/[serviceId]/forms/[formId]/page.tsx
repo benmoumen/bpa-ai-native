@@ -5,9 +5,10 @@
  *
  * Displays and allows editing of form fields within a form.
  * Story 3.4: Add Form Fields
+ * Story 3.5: Configure Field Properties
  */
 
-import { Suspense, use } from 'react';
+import { Suspense, use, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, FileText } from 'lucide-react';
@@ -18,12 +19,12 @@ import {
   Header,
   SkipLinks,
 } from '@/components';
-import { FieldList } from '@/components/form-fields';
+import { FieldList, FieldPropertiesPanel } from '@/components/form-fields';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useForm } from '@/hooks/use-forms';
 import { useService } from '@/hooks/use-services';
-import type { FormType } from '@/lib/api/forms';
+import type { FormType, FormField } from '@/lib/api/forms';
 
 const formTypeLabels: Record<FormType, string> = {
   APPLICANT: 'Applicant Form',
@@ -44,6 +45,15 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
   const router = useRouter();
   const { data: form, isLoading: formLoading, isError: formError, error: formErr } = useForm(formId);
   const { data: service, isLoading: serviceLoading } = useService(serviceId);
+  const [selectedField, setSelectedField] = useState<FormField | null>(null);
+
+  const handleFieldSelect = useCallback((field: FormField | null) => {
+    setSelectedField(field);
+  }, []);
+
+  const handleCloseProperties = useCallback(() => {
+    setSelectedField(null);
+  }, []);
 
   const isLoading = formLoading || serviceLoading;
 
@@ -75,48 +85,67 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
   const isEditable = service?.status === 'DRAFT';
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Page Header */}
-      <div className="border-b border-black/10 px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <FileText className="h-6 w-6 text-black/60" />
-              <h1 className="text-2xl font-medium tracking-tight text-black">
-                {form.name}
-              </h1>
-              <Badge variant={formTypeBadgeVariants[form.type]}>
-                {formTypeLabels[form.type]}
-              </Badge>
+    <div className="flex min-h-screen bg-white">
+      {/* Main Content */}
+      <div className={`flex-1 transition-all duration-200 ${selectedField ? 'mr-[400px]' : ''}`}>
+        {/* Page Header */}
+        <div className="border-b border-black/10 px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3">
+                <FileText className="h-6 w-6 text-black/60" />
+                <h1 className="text-2xl font-medium tracking-tight text-black">
+                  {form.name}
+                </h1>
+                <Badge variant={formTypeBadgeVariants[form.type]}>
+                  {formTypeLabels[form.type]}
+                </Badge>
+              </div>
+              {service && (
+                <p className="mt-2 text-sm text-black/60">
+                  Part of service: <span className="font-medium">{service.name}</span>
+                </p>
+              )}
             </div>
-            {service && (
-              <p className="mt-2 text-sm text-black/60">
-                Part of service: <span className="font-medium">{service.name}</span>
-              </p>
-            )}
+            <Button variant="outline" asChild>
+              <Link href={`/services/${serviceId}`}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Service
+              </Link>
+            </Button>
           </div>
-          <Button variant="outline" asChild>
-            <Link href={`/services/${serviceId}`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Service
-            </Link>
-          </Button>
+        </div>
+
+        {/* Content */}
+        <div className="px-8 py-6">
+          {!isEditable && (
+            <div className="mb-6 rounded-md bg-amber-50 border border-amber-200 p-4">
+              <p className="text-sm text-amber-800">
+                This form belongs to a <strong>{service?.status?.toLowerCase()}</strong> service
+                and cannot be edited.
+              </p>
+            </div>
+          )}
+
+          <FieldList
+            formId={formId}
+            isEditable={isEditable}
+            selectedFieldId={selectedField?.id}
+            onFieldSelect={handleFieldSelect}
+          />
         </div>
       </div>
 
-      {/* Content */}
-      <div className="px-8 py-6">
-        {!isEditable && (
-          <div className="mb-6 rounded-md bg-amber-50 border border-amber-200 p-4">
-            <p className="text-sm text-amber-800">
-              This form belongs to a <strong>{service?.status?.toLowerCase()}</strong> service
-              and cannot be edited.
-            </p>
-          </div>
-        )}
-
-        <FieldList formId={formId} isEditable={isEditable} />
-      </div>
+      {/* Properties Panel - Slides in from right */}
+      {selectedField && isEditable && (
+        <div className="fixed right-0 top-0 h-full w-[400px] shadow-lg animate-in slide-in-from-right duration-200">
+          <FieldPropertiesPanel
+            field={selectedField}
+            formId={formId}
+            onClose={handleCloseProperties}
+          />
+        </div>
+      )}
     </div>
   );
 }

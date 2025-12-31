@@ -174,6 +174,7 @@ describe('FormsService', () => {
       await service.create('service-123', dtoWithInactive, mockUserId);
 
       expect(mockPrismaService.form.create).toHaveBeenCalledWith({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           isActive: false,
         }),

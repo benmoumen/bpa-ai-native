@@ -67,7 +67,7 @@ development_status:
   3-2-create-applicant-form: done
   3-3-create-guide-form: done
   3-4-add-form-fields: done
-  3-5-configure-field-properties: backlog
+  3-5-configure-field-properties: done
   3-6-organize-fields-into-sections: backlog
   3-7-configure-conditional-visibility-rules: backlog
   3-8-form-preview-rendering: backlog

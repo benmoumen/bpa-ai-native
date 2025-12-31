@@ -4,12 +4,13 @@
  * FieldList Component
  *
  * Displays a list of form fields with type icons and labels.
- * Supports inline label editing, field deletion, and adding new fields.
+ * Supports inline label editing, field deletion, adding new fields,
+ * and field selection for property editing.
  * Swiss-style minimal design with black borders.
  */
 
 import { useCallback, useState } from 'react';
-import { MoreHorizontal, Pencil, Trash2, Plus, GripVertical } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Plus, GripVertical, Settings2 } from 'lucide-react';
 
 import {
   Table,
@@ -38,19 +39,38 @@ import type { FormField } from '@/lib/api/forms';
 import { labelToFieldName } from '@/lib/api/forms';
 import { getFieldTypeIcon, getFieldTypeLabel } from './FieldTypeSelector';
 import { AddFieldDialog } from './AddFieldDialog';
+import { cn } from '@/lib/utils';
 
 interface FieldListProps {
   formId: string;
   isEditable?: boolean;
+  /** Currently selected field ID */
+  selectedFieldId?: string | null;
+  /** Callback when a field is selected for property editing */
+  onFieldSelect?: (field: FormField | null) => void;
 }
 
-export function FieldList({ formId, isEditable = true }: FieldListProps) {
+export function FieldList({
+  formId,
+  isEditable = true,
+  selectedFieldId,
+  onFieldSelect,
+}: FieldListProps) {
   const { data, isLoading, isError, error } = useFormFields(formId);
   const updateFieldMutation = useUpdateFormField(formId);
   const deleteFieldMutation = useDeleteFormField(formId);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
   const [editingLabel, setEditingLabel] = useState('');
+
+  const handleFieldSelect = useCallback(
+    (field: FormField) => {
+      if (onFieldSelect) {
+        onFieldSelect(selectedFieldId === field.id ? null : field);
+      }
+    },
+    [onFieldSelect, selectedFieldId]
+  );
 
   const handleAddField = useCallback(() => {
     setAddDialogOpen(true);
@@ -172,11 +192,19 @@ export function FieldList({ formId, isEditable = true }: FieldListProps) {
             {sortedFields.map((field) => {
               const Icon = getFieldTypeIcon(field.type);
               const isEditing = editingFieldId === field.id;
+              const isSelected = selectedFieldId === field.id;
 
               return (
-                <TableRow key={field.id}>
+                <TableRow
+                  key={field.id}
+                  className={cn(
+                    'cursor-pointer transition-colors',
+                    isSelected && 'bg-black/5'
+                  )}
+                  onClick={() => isEditable && handleFieldSelect(field)}
+                >
                   {isEditable && (
-                    <TableCell className="w-[40px]">
+                    <TableCell className="w-[40px]" onClick={(e) => e.stopPropagation()}>
                       <GripVertical className="h-4 w-4 text-black/30 cursor-grab" />
                     </TableCell>
                   )}
@@ -189,23 +217,17 @@ export function FieldList({ formId, isEditable = true }: FieldListProps) {
                           onChange={(e) => setEditingLabel(e.target.value)}
                           onKeyDown={(e) => handleKeyDown(e, field.id)}
                           onBlur={() => handleSaveEdit(field.id)}
+                          onClick={(e) => e.stopPropagation()}
                           className="h-8 w-full max-w-xs"
                           autoFocus
                           aria-label="Edit field label"
                         />
                       ) : (
-                        <span
-                          className={isEditable ? 'cursor-pointer hover:underline' : ''}
-                          onClick={isEditable ? () => handleStartEdit(field) : undefined}
-                          role={isEditable ? 'button' : undefined}
-                          tabIndex={isEditable ? 0 : undefined}
-                          onKeyDown={
-                            isEditable
-                              ? (e) => e.key === 'Enter' && handleStartEdit(field)
-                              : undefined
-                          }
-                        >
+                        <span className="flex items-center gap-2">
                           {field.label}
+                          {isSelected && (
+                            <Settings2 className="h-3 w-3 text-black/40" />
+                          )}
                         </span>
                       )}
                     </div>
@@ -223,7 +245,7 @@ export function FieldList({ formId, isEditable = true }: FieldListProps) {
                     )}
                   </TableCell>
                   {isEditable && (
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -236,6 +258,10 @@ export function FieldList({ formId, isEditable = true }: FieldListProps) {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleFieldSelect(field)}>
+                            <Settings2 className="mr-2 h-4 w-4" />
+                            Configure Properties
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleStartEdit(field)}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit Label

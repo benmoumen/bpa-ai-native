@@ -8,10 +8,27 @@
     "build": "turbo build",
     "test": "turbo test",
     "lint": "turbo lint",
-    "clean": "turbo clean && rm -rf node_modules"
+    "clean": "turbo clean && rm -rf node_modules",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "turbo": "^2.3.0",
     "typescript": "^5.7.2"
+  },
+  "lint-staged": {
+    "apps/api/**/*.ts": [
+      "eslint --config apps/api/eslint.config.mjs --fix"
+    ],
+    "apps/web/**/*.{ts,tsx}": [
+      "eslint --config apps/web/eslint.config.mjs --fix"
+    ],
+    "packages/ui/**/*.{ts,tsx}": [
+      "eslint --config packages/ui/eslint.config.mjs --fix"
+    ],
+    "packages/config/**/*.{ts,tsx}": [
+      "eslint --config packages/config/eslint.config.js --fix"
+    ]
   }
 }
