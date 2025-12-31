@@ -13,7 +13,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma';
-import type { FormSection, Prisma } from '@bpa/db';
+import { type FormSection, Prisma } from '@bpa/db';
 import { CreateFormSectionDto } from './dto/create-form-section.dto';
 import { UpdateFormSectionDto } from './dto/update-form-section.dto';
 import { ListFormSectionsQueryDto } from './dto/list-form-sections-query.dto';
@@ -301,6 +301,12 @@ export class FormSectionsService {
     }
     if (dto.sortOrder !== undefined) {
       updateData.sortOrder = dto.sortOrder;
+    }
+    if (dto.visibilityRule !== undefined) {
+      updateData.visibilityRule =
+        dto.visibilityRule === null
+          ? Prisma.DbNull
+          : (dto.visibilityRule as unknown as Prisma.InputJsonValue);
     }
     if (dto.isActive !== undefined) {
       updateData.isActive = dto.isActive;

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import type { FormSection } from '@bpa/db';
+import type { FormSection, Prisma } from '@bpa/db';
 
 /**
  * DTO for form section API responses
@@ -22,6 +22,9 @@ export class FormSectionResponseDto {
 
   @ApiProperty({ description: 'Display order' })
   sortOrder!: number;
+
+  @ApiPropertyOptional({ description: 'Visibility rule configuration' })
+  visibilityRule?: Prisma.JsonValue | null;
 
   @ApiProperty({ description: 'Whether the section is active' })
   isActive!: boolean;
@@ -53,6 +56,7 @@ export class FormSectionResponseDto {
     dto.name = entity.name;
     dto.description = entity.description;
     dto.sortOrder = entity.sortOrder;
+    dto.visibilityRule = entity.visibilityRule;
     dto.isActive = entity.isActive;
     dto.createdAt = entity.createdAt;
     dto.updatedAt = entity.updatedAt;

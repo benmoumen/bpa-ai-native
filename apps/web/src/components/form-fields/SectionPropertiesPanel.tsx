@@ -15,8 +15,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useFormFields } from '@/hooks/use-form-fields';
 import { useUpdateFormSection } from '@/hooks/use-form-sections';
-import type { FormSection, UpdateFormSectionInput } from '@/lib/api/forms';
+import type { FormSection, UpdateFormSectionInput, VisibilityRule } from '@/lib/api/forms';
+import { VisibilityRuleBuilder } from './visibility';
 
 interface SectionPropertiesPanelProps {
   section: FormSection;
@@ -38,9 +40,16 @@ function SectionPropertiesPanelInner({
 }: SectionPropertiesPanelProps) {
   const updateSectionMutation = useUpdateFormSection(formId);
 
+  // Fetch all fields in the form for visibility condition builder
+  const { data: fieldsResponse } = useFormFields(formId, { isActive: true });
+  const allFields = fieldsResponse?.data || [];
+
   // Local state for form values - initialized from section props
   const [name, setName] = useState(section.name);
   const [description, setDescription] = useState(section.description || '');
+  const [visibilityRule, setVisibilityRule] = useState<VisibilityRule | null>(
+    section.visibilityRule
+  );
 
   // Track if form has unsaved changes
   const [hasChanges, setHasChanges] = useState(false);
@@ -55,10 +64,19 @@ function SectionPropertiesPanelInner({
     setHasChanges(true);
   }, []);
 
+  const handleVisibilityRuleChange = useCallback(
+    (rule: VisibilityRule | null) => {
+      setVisibilityRule(rule);
+      setHasChanges(true);
+    },
+    []
+  );
+
   const handleSave = useCallback(async () => {
     const data: UpdateFormSectionInput = {
       name: name.trim(),
       description: description.trim() || null,
+      visibilityRule: visibilityRule,
     };
 
     try {
@@ -67,7 +85,7 @@ function SectionPropertiesPanelInner({
     } catch {
       // Error handling - mutation will show error state
     }
-  }, [section.id, name, description, updateSectionMutation]);
+  }, [section.id, name, description, visibilityRule, updateSectionMutation]);
 
   return (
     <div className="flex h-full flex-col border-l border-black/10 bg-white">
@@ -141,6 +159,19 @@ function SectionPropertiesPanelInner({
               Collapse state is managed per-session and not persisted.
               Users can expand/collapse sections as needed.
             </p>
+          </div>
+
+          {/* Conditional Visibility */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-black/70 uppercase tracking-wide">
+              Conditional Visibility
+            </h4>
+            <VisibilityRuleBuilder
+              rule={visibilityRule}
+              fields={allFields}
+              onChange={handleVisibilityRuleChange}
+              disabled={updateSectionMutation.isPending}
+            />
           </div>
         </div>
       </div>

@@ -262,6 +262,7 @@ model FormSection {
   name            String   @db.VarChar(255)
   description     String?  @db.Text
   sortOrder       Int      @default(0) @map("sort_order")
+  visibilityRule  Json?    @map("visibility_rule") // Conditional visibility configuration
   isActive        Boolean  @default(true) @map("is_active")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
@@ -280,18 +281,19 @@ model FormSection {
 
 /// FormField model - represents a single field in a form
 model FormField {
-  id         String   @id @default(cuid())
-  formId     String   @map("form_id")
-  sectionId  String?  @map("section_id")
-  type       String   @db.VarChar(50) // JSON Forms field type (text, number, date, select, etc.)
-  label      String   @db.VarChar(255)
-  name       String   @db.VarChar(100) // Field identifier (used in form data)
-  required   Boolean  @default(false)
-  properties Json     @default("{}") // Type-specific properties (placeholder, min, max, options, etc.)
-  sortOrder  Int      @default(0) @map("sort_order")
-  isActive   Boolean  @default(true) @map("is_active")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(cuid())
+  formId         String   @map("form_id")
+  sectionId      String?  @map("section_id")
+  type           String   @db.VarChar(50) // JSON Forms field type (text, number, date, select, etc.)
+  label          String   @db.VarChar(255)
+  name           String   @db.VarChar(100) // Field identifier (used in form data)
+  required       Boolean  @default(false)
+  properties     Json     @default("{}") // Type-specific properties (placeholder, min, max, options, etc.)
+  visibilityRule Json?    @map("visibility_rule") // Conditional visibility configuration
+  sortOrder      Int      @default(0) @map("sort_order")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relations
   form    Form         @relation(fields: [formId], references: [id], onDelete: Cascade)

@@ -29,6 +29,9 @@ export class FormFieldResponseDto {
   @ApiProperty({ description: 'Type-specific properties' })
   properties!: Prisma.JsonValue;
 
+  @ApiPropertyOptional({ description: 'Visibility rule configuration' })
+  visibilityRule?: Prisma.JsonValue | null;
+
   @ApiProperty({ description: 'Display order' })
   sortOrder!: number;
 
@@ -54,6 +57,7 @@ export class FormFieldResponseDto {
     dto.name = entity.name;
     dto.required = entity.required;
     dto.properties = entity.properties;
+    dto.visibilityRule = entity.visibilityRule;
     dto.sortOrder = entity.sortOrder;
     dto.isActive = entity.isActive;
     dto.createdAt = entity.createdAt;

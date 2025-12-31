@@ -16,8 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useUpdateFormField } from '@/hooks/use-form-fields';
-import type { FormField, UpdateFormFieldInput } from '@/lib/api/forms';
+import { useFormFields, useUpdateFormField } from '@/hooks/use-form-fields';
+import type { FormField, UpdateFormFieldInput, VisibilityRule } from '@/lib/api/forms';
 import { labelToFieldName } from '@/lib/api/forms';
 import { getFieldTypeLabel } from './FieldTypeSelector';
 import { TextFieldProperties } from './TextFieldProperties';
@@ -25,6 +25,7 @@ import { NumberFieldProperties } from './NumberFieldProperties';
 import { SelectFieldProperties } from './SelectFieldProperties';
 import { DateFieldProperties } from './DateFieldProperties';
 import { FileFieldProperties } from './FileFieldProperties';
+import { VisibilityRuleBuilder } from './visibility';
 
 interface FieldPropertiesPanelProps {
   field: FormField;
@@ -46,6 +47,10 @@ function FieldPropertiesPanelInner({
 }: FieldPropertiesPanelProps) {
   const updateFieldMutation = useUpdateFormField(formId);
 
+  // Fetch all fields in the form for visibility condition builder
+  const { data: fieldsResponse } = useFormFields(formId, { isActive: true });
+  const allFields = fieldsResponse?.data || [];
+
   // Local state for form values - initialized from field props
   // State resets when field.id changes due to key prop on wrapper
   const [label, setLabel] = useState(field.label);
@@ -59,6 +64,9 @@ function FieldPropertiesPanelInner({
   );
   const [properties, setProperties] = useState<Record<string, unknown>>(
     field.properties || {}
+  );
+  const [visibilityRule, setVisibilityRule] = useState<VisibilityRule | null>(
+    field.visibilityRule
   );
 
   // Track if name is linked to label (auto-generated)
@@ -109,6 +117,14 @@ function FieldPropertiesPanelInner({
     []
   );
 
+  const handleVisibilityRuleChange = useCallback(
+    (rule: VisibilityRule | null) => {
+      setVisibilityRule(rule);
+      setHasChanges(true);
+    },
+    []
+  );
+
   const toggleNameLink = useCallback(() => {
     if (!isNameLinked) {
       // Re-link: sync name to label
@@ -128,6 +144,7 @@ function FieldPropertiesPanelInner({
         placeholder: placeholder.trim() || undefined,
         helpText: helpText.trim() || undefined,
       },
+      visibilityRule: visibilityRule,
     };
 
     // Remove undefined values from properties
@@ -151,6 +168,7 @@ function FieldPropertiesPanelInner({
     placeholder,
     helpText,
     properties,
+    visibilityRule,
     updateFieldMutation,
   ]);
 
@@ -350,6 +368,20 @@ function FieldPropertiesPanelInner({
               {renderTypeProperties()}
             </div>
           )}
+
+          {/* Conditional Visibility */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-black/70 uppercase tracking-wide">
+              Conditional Visibility
+            </h4>
+            <VisibilityRuleBuilder
+              rule={visibilityRule}
+              fields={allFields}
+              excludeFieldName={field.name}
+              onChange={handleVisibilityRuleChange}
+              disabled={updateFieldMutation.isPending}
+            />
+          </div>
         </div>
       </div>
 

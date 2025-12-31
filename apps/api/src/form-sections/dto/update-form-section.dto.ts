@@ -7,8 +7,11 @@ import {
   IsInt,
   Min,
   IsUUID,
+  ValidateNested,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { VisibilityRuleDto } from '../../form-fields/dto/update-form-field.dto';
 
 /**
  * DTO for updating an existing form section
@@ -51,6 +54,19 @@ export class UpdateFormSectionDto {
   @IsInt()
   @Min(0)
   sortOrder?: number;
+
+  @ApiPropertyOptional({
+    description: 'Visibility rule configuration',
+    example: {
+      mode: 'conditional',
+      conditions: [{ fieldName: 'country', operator: 'equals', value: 'US' }],
+      logic: 'AND',
+    },
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => VisibilityRuleDto)
+  visibilityRule?: VisibilityRuleDto | null;
 
   @ApiPropertyOptional({
     description: 'Whether the section is active',

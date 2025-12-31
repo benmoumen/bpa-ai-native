@@ -14,7 +14,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma';
-import type { FormField, Prisma } from '@bpa/db';
+import { type FormField, Prisma } from '@bpa/db';
 import { CreateFormFieldDto } from './dto/create-form-field.dto';
 import { UpdateFormFieldDto } from './dto/update-form-field.dto';
 import { ListFormFieldsQueryDto } from './dto/list-form-fields-query.dto';
@@ -318,6 +318,12 @@ export class FormFieldsService {
     }
     if (dto.properties !== undefined) {
       updateData.properties = dto.properties as Prisma.InputJsonValue;
+    }
+    if (dto.visibilityRule !== undefined) {
+      updateData.visibilityRule =
+        dto.visibilityRule === null
+          ? Prisma.DbNull
+          : (dto.visibilityRule as unknown as Prisma.InputJsonValue);
     }
     if (dto.sortOrder !== undefined) {
       updateData.sortOrder = dto.sortOrder;

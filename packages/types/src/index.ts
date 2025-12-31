@@ -515,6 +515,8 @@ export interface FormSection {
   description?: string | null;
   /** Display order within the form or parent section */
   sortOrder: number;
+  /** Conditional visibility configuration */
+  visibilityRule?: VisibilityRule | null;
   /** Whether the section is active */
   isActive: boolean;
   /** Creation timestamp */
@@ -549,6 +551,8 @@ export interface UpdateFormSectionInput {
   parentSectionId?: string | null;
   /** Updated display order */
   sortOrder?: number;
+  /** Updated visibility rule */
+  visibilityRule?: VisibilityRule | null;
   /** Updated active status */
   isActive?: boolean;
 }
@@ -597,6 +601,8 @@ export interface FormField {
   required: boolean;
   /** Type-specific properties (placeholder, min, max, options, etc.) */
   properties: Record<string, unknown>;
+  /** Conditional visibility configuration */
+  visibilityRule?: VisibilityRule | null;
   /** Display order within the form or section */
   sortOrder: number;
   /** Whether the field is active */
@@ -643,6 +649,8 @@ export interface UpdateFormFieldInput {
   required?: boolean;
   /** Updated properties */
   properties?: Record<string, unknown>;
+  /** Updated visibility rule */
+  visibilityRule?: VisibilityRule | null;
   /** Updated display order */
   sortOrder?: number;
   /** Updated active status */
@@ -671,4 +679,52 @@ export interface ListFormFieldsQuery {
   sortBy?: 'name' | 'label' | 'type' | 'sortOrder' | 'createdAt' | 'updatedAt';
   /** Sort order */
   sortOrder?: 'asc' | 'desc';
+}
+
+// =============================================================================
+// Visibility Rule Types
+// =============================================================================
+
+/**
+ * Visibility mode - determines whether a field/section is always visible or conditional
+ */
+export type VisibilityMode = 'always' | 'conditional';
+
+/**
+ * Visibility operators for conditional logic
+ */
+export type VisibilityOperator =
+  | 'equals'
+  | 'not_equals'
+  | 'contains'
+  | 'not_contains'
+  | 'greater_than'
+  | 'less_than'
+  | 'greater_or_equal'
+  | 'less_or_equal'
+  | 'is_empty'
+  | 'is_not_empty';
+
+/**
+ * Single visibility condition - compares a source field against a value
+ */
+export interface VisibilityCondition {
+  /** Name of the field to check (must exist in the same form) */
+  fieldName: string;
+  /** Comparison operator */
+  operator: VisibilityOperator;
+  /** Value to compare against (optional for is_empty/is_not_empty) */
+  value?: string | number | boolean;
+}
+
+/**
+ * Visibility rule - defines when a field or section should be visible
+ */
+export interface VisibilityRule {
+  /** Visibility mode: always visible or conditional */
+  mode: VisibilityMode;
+  /** Array of conditions (used when mode is 'conditional') */
+  conditions?: VisibilityCondition[];
+  /** Logical operator to combine conditions (default: 'AND') */
+  logic?: 'AND' | 'OR';
 }

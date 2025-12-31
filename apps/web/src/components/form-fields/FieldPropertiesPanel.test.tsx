@@ -65,9 +65,11 @@ const mockNumberField = {
 };
 
 const mockUseUpdateFormField = vi.fn();
+const mockUseFormFields = vi.fn();
 
 vi.mock('@/hooks/use-form-fields', () => ({
   useUpdateFormField: () => mockUseUpdateFormField(),
+  useFormFields: () => mockUseFormFields(),
 }));
 
 // Wrapper with QueryClient
@@ -98,6 +100,13 @@ describe('FieldPropertiesPanel', () => {
       isPending: false,
       isError: false,
       error: null,
+    });
+
+    // Mock useFormFields to return empty fields array for visibility rules
+    mockUseFormFields.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
     });
   });
 

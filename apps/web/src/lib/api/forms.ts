@@ -10,6 +10,54 @@ import type { ApiError, ApiResponse } from './services';
 
 export type FormType = 'APPLICANT' | 'GUIDE';
 
+// ============================================================================
+// Visibility Rule Types
+// ============================================================================
+
+/**
+ * Visibility mode - determines whether a field/section is always visible or conditional
+ */
+export type VisibilityMode = 'always' | 'conditional';
+
+/**
+ * Visibility operators for conditional logic
+ */
+export type VisibilityOperator =
+  | 'equals'
+  | 'not_equals'
+  | 'contains'
+  | 'not_contains'
+  | 'greater_than'
+  | 'less_than'
+  | 'greater_or_equal'
+  | 'less_or_equal'
+  | 'is_empty'
+  | 'is_not_empty';
+
+/**
+ * Single visibility condition - compares a source field against a value
+ */
+export interface VisibilityCondition {
+  /** Name of the field to check (must exist in the same form) */
+  fieldName: string;
+  /** Comparison operator */
+  operator: VisibilityOperator;
+  /** Value to compare against (optional for is_empty/is_not_empty) */
+  value?: string | number | boolean;
+}
+
+/**
+ * Visibility rule - defines when a field or section should be visible
+ */
+export interface VisibilityRule {
+  /** Visibility mode: always visible or conditional */
+  mode: VisibilityMode;
+  /** Array of conditions (used when mode is 'conditional') */
+  conditions?: VisibilityCondition[];
+  /** Logical operator to combine conditions (default: 'AND') */
+  logic?: 'AND' | 'OR';
+}
+
 export interface Form {
   id: string;
   serviceId: string;
@@ -192,6 +240,7 @@ export interface FormField {
   name: string;
   required: boolean;
   properties: Record<string, unknown>;
+  visibilityRule: VisibilityRule | null;
   sortOrder: number;
   isActive: boolean;
   createdAt: string;
@@ -215,6 +264,7 @@ export interface UpdateFormFieldInput {
   sectionId?: string | null;
   required?: boolean;
   properties?: Record<string, unknown>;
+  visibilityRule?: VisibilityRule | null;
   sortOrder?: number;
 }
 
@@ -356,6 +406,7 @@ export interface FormSection {
   name: string;
   description: string | null;
   sortOrder: number;
+  visibilityRule: VisibilityRule | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -375,6 +426,7 @@ export interface UpdateFormSectionInput {
   description?: string | null;
   parentSectionId?: string | null;
   sortOrder?: number;
+  visibilityRule?: VisibilityRule | null;
   isActive?: boolean;
 }
 
