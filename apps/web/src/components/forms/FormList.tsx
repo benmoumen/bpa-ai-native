@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { MoreHorizontal, Pencil, Trash2, Plus, FileText } from 'lucide-react';
 
 import {
@@ -48,10 +49,18 @@ const formTypeBadgeVariants: Record<FormType, 'default' | 'secondary'> = {
 };
 
 export function FormList({ serviceId, isEditable = true }: FormListProps) {
+  const router = useRouter();
   const { data, isLoading, isError, error } = useForms(serviceId);
   const deleteFormMutation = useDeleteForm(serviceId);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [formTypeToCreate, setFormTypeToCreate] = useState<FormType>('APPLICANT');
+
+  const handleEditForm = useCallback(
+    (formId: string) => {
+      router.push(`/services/${serviceId}/forms/${formId}`);
+    },
+    [router, serviceId]
+  );
 
   const handleAddApplicantForm = useCallback(() => {
     setFormTypeToCreate('APPLICANT');
@@ -139,7 +148,11 @@ export function FormList({ serviceId, isEditable = true }: FormListProps) {
           </TableHeader>
           <TableBody>
             {forms.map((form) => (
-              <TableRow key={form.id}>
+              <TableRow
+                key={form.id}
+                className="cursor-pointer hover:bg-black/5"
+                onClick={() => handleEditForm(form.id)}
+              >
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-black/40" />
@@ -167,24 +180,28 @@ export function FormList({ serviceId, isEditable = true }: FormListProps) {
                           size="icon"
                           className="h-8 w-8"
                           aria-label={`Actions for ${form.name}`}
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => {
-                            // TODO: Navigate to form editor (future story)
-                            console.log('Edit form:', form.id);
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditForm(form.id);
                           }}
                         >
                           <Pencil className="mr-2 h-4 w-4" />
-                          Edit
+                          Edit Fields
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-red-600 focus:bg-red-50 focus:text-red-700"
-                          onClick={() => handleDelete(form)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(form);
+                          }}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete

@@ -415,11 +415,7 @@ describe('FormFieldsService', () => {
       );
 
       await expect(
-        service.update(
-          'field-123',
-          { sectionId: 'other-section' },
-          mockUserId,
-        ),
+        service.update('field-123', { sectionId: 'other-section' }, mockUserId),
       ).rejects.toThrow(BadRequestException);
     });
   });

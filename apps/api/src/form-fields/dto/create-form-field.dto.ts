@@ -73,8 +73,13 @@ export class CreateFormFieldDto {
   required?: boolean;
 
   @ApiPropertyOptional({
-    description: 'Type-specific properties (placeholder, min, max, options, etc.)',
-    example: { placeholder: 'Enter your full name', minLength: 2, maxLength: 100 },
+    description:
+      'Type-specific properties (placeholder, min, max, options, etc.)',
+    example: {
+      placeholder: 'Enter your full name',
+      minLength: 2,
+      maxLength: 100,
+    },
     default: {},
   })
   @IsOptional()

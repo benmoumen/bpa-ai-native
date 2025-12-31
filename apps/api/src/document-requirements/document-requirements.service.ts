@@ -203,7 +203,10 @@ export class DocumentRequirementsService {
     }
 
     // If registrationId is provided, verify the document requirement belongs to it
-    if (registrationId && documentRequirement.registrationId !== registrationId) {
+    if (
+      registrationId &&
+      documentRequirement.registrationId !== registrationId
+    ) {
       throw new NotFoundException(
         `Document requirement with ID "${id}" not found in registration "${registrationId}"`,
       );

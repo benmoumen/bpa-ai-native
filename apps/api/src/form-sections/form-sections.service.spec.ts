@@ -387,7 +387,9 @@ describe('FormSectionsService', () => {
           service: { createdBy: mockUserId },
         },
       });
-      mockPrismaService.formSection.update.mockResolvedValue(deactivatedSection);
+      mockPrismaService.formSection.update.mockResolvedValue(
+        deactivatedSection,
+      );
 
       const result = await service.remove('section-123', mockUserId);
 

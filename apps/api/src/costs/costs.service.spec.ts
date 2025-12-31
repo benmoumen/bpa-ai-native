@@ -484,12 +484,12 @@ describe('CostsService', () => {
         mockCostWithRegistration,
       );
 
-      await expect(
-        service.update('cost-123', dto, mockUserId),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        service.update('cost-123', dto, mockUserId),
-      ).rejects.toThrow(/Invalid JSONata formula syntax/);
+      await expect(service.update('cost-123', dto, mockUserId)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.update('cost-123', dto, mockUserId)).rejects.toThrow(
+        /Invalid JSONata formula syntax/,
+      );
     });
   });
 

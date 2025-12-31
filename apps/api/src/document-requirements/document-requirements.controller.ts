@@ -124,8 +124,10 @@ export class DocumentRequirementsController {
     @Param('registrationId', ParseUUIDPipe) registrationId: string,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<DocumentRequirementResponseDto> {
-    const documentRequirement =
-      await this.documentRequirementsService.findOne(id, registrationId);
+    const documentRequirement = await this.documentRequirementsService.findOne(
+      id,
+      registrationId,
+    );
     return DocumentRequirementResponseDto.fromEntity(documentRequirement);
   }
 
