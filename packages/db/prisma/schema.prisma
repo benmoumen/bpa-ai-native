@@ -36,6 +36,12 @@ enum CostType {
   FORMULA // Calculated using JSONata expression
 }
 
+/// FormType enum - defines the purpose of a form
+enum FormType {
+  APPLICANT // Citizen-facing data collection form
+  GUIDE     // Operator/staff workflow form
+}
+
 // =============================================================================
 // User & Authentication Models
 // =============================================================================
@@ -86,6 +92,7 @@ model Service {
   // Relations
   creator       User           @relation(fields: [createdBy], references: [id], onDelete: Restrict)
   registrations Registration[]
+  forms         Form[]
 
   // Indexes for common query patterns (NFR4: service list < 1s)
   @@index([status])
@@ -218,4 +225,82 @@ model Cost {
   @@index([registrationId])
   @@index([isActive])
   @@map("costs")
+}
+
+// =============================================================================
+// Form Models
+// =============================================================================
+
+/// Form model - represents a data collection form within a service
+model Form {
+  id        String   @id @default(cuid())
+  serviceId String   @map("service_id")
+  type      FormType
+  name      String   @db.VarChar(255)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  service  Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  sections FormSection[]
+  fields   FormField[]
+
+  // Each service can have multiple forms, but unique names per service
+  @@unique([serviceId, name])
+  @@index([serviceId])
+  @@index([type])
+  @@index([isActive])
+  @@map("forms")
+}
+
+/// FormSection model - organizes form fields into groups with optional nesting
+model FormSection {
+  id              String   @id @default(cuid())
+  formId          String   @map("form_id")
+  parentSectionId String?  @map("parent_section_id")
+  name            String   @db.VarChar(255)
+  description     String?  @db.Text
+  sortOrder       Int      @default(0) @map("sort_order")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  form          Form          @relation(fields: [formId], references: [id], onDelete: Cascade)
+  parentSection FormSection?  @relation("SectionNesting", fields: [parentSectionId], references: [id], onDelete: Cascade)
+  childSections FormSection[] @relation("SectionNesting")
+  fields        FormField[]
+
+  @@index([formId])
+  @@index([parentSectionId])
+  @@index([isActive])
+  @@map("form_sections")
+}
+
+/// FormField model - represents a single field in a form
+model FormField {
+  id         String   @id @default(cuid())
+  formId     String   @map("form_id")
+  sectionId  String?  @map("section_id")
+  type       String   @db.VarChar(50) // JSON Forms field type (text, number, date, select, etc.)
+  label      String   @db.VarChar(255)
+  name       String   @db.VarChar(100) // Field identifier (used in form data)
+  required   Boolean  @default(false)
+  properties Json     @default("{}") // Type-specific properties (placeholder, min, max, options, etc.)
+  sortOrder  Int      @default(0) @map("sort_order")
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  form    Form         @relation(fields: [formId], references: [id], onDelete: Cascade)
+  section FormSection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+
+  // Field name must be unique within a form
+  @@unique([formId, name])
+  @@index([formId])
+  @@index([sectionId])
+  @@index([isActive])
+  @@map("form_fields")
 }

@@ -423,3 +423,252 @@ export interface ListCostsQuery {
   /** Sort order */
   sortOrder?: 'asc' | 'desc';
 }
+
+// =============================================================================
+// Form Types
+// =============================================================================
+
+/**
+ * Form type - defines the purpose of a form
+ */
+export type FormType = 'APPLICANT' | 'GUIDE';
+
+/**
+ * Form entity - represents a data collection form within a service
+ */
+export interface Form {
+  /** Unique form ID */
+  id: string;
+  /** Parent service ID */
+  serviceId: string;
+  /** Form type (APPLICANT or GUIDE) */
+  type: FormType;
+  /** Form name (max 255 chars) */
+  name: string;
+  /** Whether the form is active */
+  isActive: boolean;
+  /** Creation timestamp */
+  createdAt: Date;
+  /** Last update timestamp */
+  updatedAt: Date;
+}
+
+/**
+ * DTO for creating a new form
+ */
+export interface CreateFormInput {
+  /** Form name (required, max 255 chars) */
+  name: string;
+  /** Form type (required) */
+  type: FormType;
+  /** Whether the form is active (default: true) */
+  isActive?: boolean;
+}
+
+/**
+ * DTO for updating an existing form
+ */
+export interface UpdateFormInput {
+  /** Updated name */
+  name?: string;
+  /** Updated type */
+  type?: FormType;
+  /** Updated active status */
+  isActive?: boolean;
+}
+
+/**
+ * Form list query parameters
+ */
+export interface ListFormsQuery {
+  /** Page number (1-indexed) */
+  page?: number;
+  /** Items per page */
+  limit?: number;
+  /** Filter by active status */
+  isActive?: boolean;
+  /** Filter by form type */
+  type?: FormType;
+  /** Sort by field */
+  sortBy?: 'name' | 'type' | 'createdAt' | 'updatedAt';
+  /** Sort order */
+  sortOrder?: 'asc' | 'desc';
+}
+
+// =============================================================================
+// Form Section Types
+// =============================================================================
+
+/**
+ * FormSection entity - organizes form fields into groups with optional nesting
+ */
+export interface FormSection {
+  /** Unique section ID */
+  id: string;
+  /** Parent form ID */
+  formId: string;
+  /** Parent section ID for nested sections */
+  parentSectionId?: string | null;
+  /** Section name (max 255 chars) */
+  name: string;
+  /** Section description */
+  description?: string | null;
+  /** Display order within the form or parent section */
+  sortOrder: number;
+  /** Whether the section is active */
+  isActive: boolean;
+  /** Creation timestamp */
+  createdAt: Date;
+  /** Last update timestamp */
+  updatedAt: Date;
+}
+
+/**
+ * DTO for creating a new form section
+ */
+export interface CreateFormSectionInput {
+  /** Section name (required, max 255 chars) */
+  name: string;
+  /** Section description (optional) */
+  description?: string;
+  /** Parent section ID for nested sections (optional) */
+  parentSectionId?: string;
+  /** Display order (default: 0) */
+  sortOrder?: number;
+}
+
+/**
+ * DTO for updating an existing form section
+ */
+export interface UpdateFormSectionInput {
+  /** Updated name */
+  name?: string;
+  /** Updated description */
+  description?: string;
+  /** Updated parent section ID */
+  parentSectionId?: string | null;
+  /** Updated display order */
+  sortOrder?: number;
+  /** Updated active status */
+  isActive?: boolean;
+}
+
+/**
+ * Form section list query parameters
+ */
+export interface ListFormSectionsQuery {
+  /** Page number (1-indexed) */
+  page?: number;
+  /** Items per page */
+  limit?: number;
+  /** Filter by active status */
+  isActive?: boolean;
+  /** Filter by parent section ID */
+  parentSectionId?: string;
+  /** Get only top-level sections */
+  topLevelOnly?: boolean;
+  /** Sort by field */
+  sortBy?: 'name' | 'sortOrder' | 'createdAt' | 'updatedAt';
+  /** Sort order */
+  sortOrder?: 'asc' | 'desc';
+}
+
+// =============================================================================
+// Form Field Types
+// =============================================================================
+
+/**
+ * FormField entity - represents a single field in a form
+ */
+export interface FormField {
+  /** Unique field ID */
+  id: string;
+  /** Parent form ID */
+  formId: string;
+  /** Section ID the field belongs to */
+  sectionId?: string | null;
+  /** Field type (JSON Forms type: text, number, date, select, etc.) */
+  type: string;
+  /** Field label displayed to users */
+  label: string;
+  /** Field identifier used in form data */
+  name: string;
+  /** Whether the field is required */
+  required: boolean;
+  /** Type-specific properties (placeholder, min, max, options, etc.) */
+  properties: Record<string, unknown>;
+  /** Display order within the form or section */
+  sortOrder: number;
+  /** Whether the field is active */
+  isActive: boolean;
+  /** Creation timestamp */
+  createdAt: Date;
+  /** Last update timestamp */
+  updatedAt: Date;
+}
+
+/**
+ * DTO for creating a new form field
+ */
+export interface CreateFormFieldInput {
+  /** Field type (required) */
+  type: string;
+  /** Field label (required, max 255 chars) */
+  label: string;
+  /** Field identifier (required, max 100 chars) */
+  name: string;
+  /** Section ID to assign the field to (optional) */
+  sectionId?: string;
+  /** Whether the field is required (default: false) */
+  required?: boolean;
+  /** Type-specific properties (default: {}) */
+  properties?: Record<string, unknown>;
+  /** Display order (default: 0) */
+  sortOrder?: number;
+}
+
+/**
+ * DTO for updating an existing form field
+ */
+export interface UpdateFormFieldInput {
+  /** Updated type */
+  type?: string;
+  /** Updated label */
+  label?: string;
+  /** Updated name */
+  name?: string;
+  /** Updated section ID */
+  sectionId?: string | null;
+  /** Updated required status */
+  required?: boolean;
+  /** Updated properties */
+  properties?: Record<string, unknown>;
+  /** Updated display order */
+  sortOrder?: number;
+  /** Updated active status */
+  isActive?: boolean;
+}
+
+/**
+ * Form field list query parameters
+ */
+export interface ListFormFieldsQuery {
+  /** Page number (1-indexed) */
+  page?: number;
+  /** Items per page */
+  limit?: number;
+  /** Filter by active status */
+  isActive?: boolean;
+  /** Filter by section ID */
+  sectionId?: string;
+  /** Get only fields without a section */
+  noSection?: boolean;
+  /** Filter by field type */
+  type?: string;
+  /** Filter by required status */
+  required?: boolean;
+  /** Sort by field */
+  sortBy?: 'name' | 'label' | 'type' | 'sortOrder' | 'createdAt' | 'updatedAt';
+  /** Sort order */
+  sortOrder?: 'asc' | 'desc';
+}

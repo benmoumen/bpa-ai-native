@@ -29,6 +29,9 @@ export type { ServiceTemplateModel as ServiceTemplate } from './generated/prisma
 export type { RequirementModel as Requirement } from './generated/prisma/models/Requirement.js';
 export type { DocumentRequirementModel as DocumentRequirement } from './generated/prisma/models/DocumentRequirement.js';
 export type { CostModel as Cost } from './generated/prisma/models/Cost.js';
+export type { FormModel as Form } from './generated/prisma/models/Form.js';
+export type { FormSectionModel as FormSection } from './generated/prisma/models/FormSection.js';
+export type { FormFieldModel as FormField } from './generated/prisma/models/FormField.js';
 
 // Re-export enums if any
 export * from './generated/prisma/enums.js';

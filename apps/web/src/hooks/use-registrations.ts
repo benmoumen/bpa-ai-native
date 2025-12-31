@@ -18,8 +18,8 @@ import {
   type Registration,
   type CreateRegistrationInput,
   type UpdateRegistrationInput,
-  type ApiResponse,
 } from '@/lib/api/registrations';
+import type { ApiResponse } from '@/lib/api/services';
 
 export interface RegistrationsQueryParams {
   page?: number;

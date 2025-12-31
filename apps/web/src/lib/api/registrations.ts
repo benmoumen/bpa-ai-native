@@ -6,6 +6,8 @@
  * (e.g., Business License, Import Permit, Export Certificate).
  */
 
+import type { ApiError, ApiResponse } from './services';
+
 export interface Registration {
   id: string;
   serviceId: string;
@@ -32,24 +34,6 @@ export interface UpdateRegistrationInput {
   description?: string;
   sortOrder?: number;
   // Note: key cannot be updated after creation
-}
-
-export interface ApiResponse<T> {
-  data: T;
-  meta?: {
-    page?: number;
-    perPage?: number;
-    total?: number;
-    hasNext?: boolean;
-  };
-}
-
-export interface ApiError {
-  error: {
-    code: string;
-    message: string;
-    details?: unknown;
-  };
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';

@@ -12,6 +12,9 @@ import { TemplatesModule } from './templates';
 import { RequirementsModule } from './requirements';
 import { DocumentRequirementsModule } from './document-requirements';
 import { CostsModule } from './costs';
+import { FormsModule } from './forms';
+import { FormSectionsModule } from './form-sections';
+import { FormFieldsModule } from './form-fields';
 
 @Module({
   imports: [
@@ -38,6 +41,12 @@ import { CostsModule } from './costs';
     DocumentRequirementsModule,
     // Costs module (registration costs)
     CostsModule,
+    // Forms module
+    FormsModule,
+    // Form Sections module
+    FormSectionsModule,
+    // Form Fields module
+    FormFieldsModule,
   ],
   controllers: [AppController],
   providers: [
