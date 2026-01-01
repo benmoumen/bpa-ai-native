@@ -36,6 +36,8 @@
 # - Added spike stories (4-0, 6-0) for domain research before complex epics
 # - Reordered MVP path: Epic 4 → Epic 6-core → Epic 7 → Epic 6-advanced
 # - Epic 4 stories prioritized: 4-1 to 4-6 and 4-9 are MVP critical
+# - ADR Implementation: Phase 1 (schema foundation) before Epic 6
+# - ADRs 002-004 documented, implementation strategy: Phased MVP (Option B)
 
 generated: 2025-12-30
 updated: 2026-01-01
@@ -120,6 +122,18 @@ development_status:
   5-5-determinants-in-workflow-conditions: merged-to-4-5a
   5-6-reference-validation: deferred-phase2
   epic-5-retrospective: skipped
+
+  # ADR Implementation: Schema & Architecture Evolution
+  # STRATEGY: Phased MVP (Option B) - see adr-impact-analysis-2026-01-01.md
+  # DEPENDENCY: Phase 1 must complete before Epic 6
+  # Phase 1: Schema foundation (enums + fields, no breaking changes)
+  # Phase 2: ApplicationElement + EntityRequirement (post Epic 6)
+  # Phase 3: Full migration + UI (post-MVP)
+  adr-implementation: in-progress
+  adr-p1-schema-foundation: ready-for-dev      # 5 enums, 5 new fields (3-5 pts)
+  adr-p2-application-element: backlog          # ApplicationElement + ElementRelation (Phase 2)
+  adr-p3-shared-entities: backlog              # DataEntityType + EntityRequirement (Phase 2)
+  adr-p4-full-migration: backlog               # Rename + UI + deprecation (Phase 3)
 
   # Epic 6: AI Agent for Service Configuration (13 stories)
   # ARCHITECTURE: Vercel AI SDK (revised from CopilotKit)
