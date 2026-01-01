@@ -61,7 +61,7 @@ The platform uses a fixed left sidebar navigation with the following hierarchy:
   - Processing (roles)
 
 [Footer Navigation]
-  - GDB (Global Database)
+  - GDB (Generic Database Builder)
   - User level indicator
   - User profile/avatar
 ```
@@ -104,13 +104,13 @@ Settings Tabs:
 
 ### Navigation Patterns Observed
 
-| Pattern | Usage | Effectiveness |
-|---------|-------|---------------|
-| Left sidebar | Primary navigation | Good - always visible |
-| Horizontal tabs | Section switching | Mixed - can be overwhelming |
-| Breadcrumbs | Location awareness | Good - clear hierarchy |
-| Modals | Editing content | Poor - context loss |
-| Dropdown menus | Secondary actions | Good - reduces clutter |
+| Pattern         | Usage              | Effectiveness               |
+| --------------- | ------------------ | --------------------------- |
+| Left sidebar    | Primary navigation | Good - always visible       |
+| Horizontal tabs | Section switching  | Mixed - can be overwhelming |
+| Breadcrumbs     | Location awareness | Good - clear hierarchy      |
+| Modals          | Editing content    | Poor - context loss         |
+| Dropdown menus  | Secondary actions  | Good - reduces clutter      |
 
 ---
 
@@ -189,61 +189,61 @@ Settings Tabs:
 
 ### Navigation Components
 
-| Component | Description | Location |
-|-----------|-------------|----------|
-| **Sidebar** | Fixed left navigation, 200px width, dark hover states | Global |
-| **Breadcrumb** | Chevron-separated path, clickable segments | Header |
-| **Horizontal Tabs** | Pill-style or underlined tabs, blue active state | Content areas |
-| **Dropdown Menu** | Chevron indicator, hover/click reveal | Headers, actions |
+| Component           | Description                                           | Location         |
+| ------------------- | ----------------------------------------------------- | ---------------- |
+| **Sidebar**         | Fixed left navigation, 200px width, dark hover states | Global           |
+| **Breadcrumb**      | Chevron-separated path, clickable segments            | Header           |
+| **Horizontal Tabs** | Pill-style or underlined tabs, blue active state      | Content areas    |
+| **Dropdown Menu**   | Chevron indicator, hover/click reveal                 | Headers, actions |
 
 ### Form Components
 
-| Component | Description | Location |
-|-----------|-------------|----------|
-| **Text Input** | Full-width, rounded corners, subtle border | Forms, search |
-| **Select/Dropdown** | Custom styled, chevron indicator | Forms, filters |
-| **Toggle Switch** | iOS-style, blue active state | Settings, lists |
-| **Checkbox** | Square, checkmark fill | Forms |
-| **Radio Group** | Circular, filled dot selection | Forms |
-| **Textarea** | Multi-line, resizable | Forms |
-| **File Upload** | Drag zone + browse button | Documents |
+| Component           | Description                                | Location        |
+| ------------------- | ------------------------------------------ | --------------- |
+| **Text Input**      | Full-width, rounded corners, subtle border | Forms, search   |
+| **Select/Dropdown** | Custom styled, chevron indicator           | Forms, filters  |
+| **Toggle Switch**   | iOS-style, blue active state               | Settings, lists |
+| **Checkbox**        | Square, checkmark fill                     | Forms           |
+| **Radio Group**     | Circular, filled dot selection             | Forms           |
+| **Textarea**        | Multi-line, resizable                      | Forms           |
+| **File Upload**     | Drag zone + browse button                  | Documents       |
 
 ### Display Components
 
-| Component | Description | Location |
-|-----------|-------------|----------|
-| **Table** | Striped rows, hover highlight, action icons | Lists |
-| **Card** | White background, subtle shadow, rounded | Dashboards |
-| **Badge** | Colored pill, uppercase text | Status indicators |
-| **Icon Button** | Square, icon-only, hover highlight | Table actions |
-| **Tree View** | Expandable nodes, caret indicators | Bot config, settings |
+| Component       | Description                                 | Location             |
+| --------------- | ------------------------------------------- | -------------------- |
+| **Table**       | Striped rows, hover highlight, action icons | Lists                |
+| **Card**        | White background, subtle shadow, rounded    | Dashboards           |
+| **Badge**       | Colored pill, uppercase text                | Status indicators    |
+| **Icon Button** | Square, icon-only, hover highlight          | Table actions        |
+| **Tree View**   | Expandable nodes, caret indicators          | Bot config, settings |
 
 ### Feedback Components
 
-| Component | Description | Location |
-|-----------|-------------|----------|
-| **Modal** | Centered, overlay, header/body/footer | Edit forms |
-| **Toast** | Bottom-right, auto-dismiss | Notifications |
-| **Tooltip** | Dark background, arrow pointer | Icon hints |
-| **Loading Spinner** | Circular, blue color | Async operations |
+| Component           | Description                           | Location         |
+| ------------------- | ------------------------------------- | ---------------- |
+| **Modal**           | Centered, overlay, header/body/footer | Edit forms       |
+| **Toast**           | Bottom-right, auto-dismiss            | Notifications    |
+| **Tooltip**         | Dark background, arrow pointer        | Icon hints       |
+| **Loading Spinner** | Circular, blue color                  | Async operations |
 
 ### Action Components
 
-| Component | Description | Location |
-|-----------|-------------|----------|
-| **Primary Button** | Blue fill, white text, rounded | CTAs |
-| **Secondary Button** | White fill, blue border/text | Alternative actions |
-| **Ghost Button** | Transparent, blue text | Tertiary actions |
-| **Icon Actions** | Edit, delete, duplicate icons in rows | Tables |
+| Component            | Description                           | Location            |
+| -------------------- | ------------------------------------- | ------------------- |
+| **Primary Button**   | Blue fill, white text, rounded        | CTAs                |
+| **Secondary Button** | White fill, blue border/text          | Alternative actions |
+| **Ghost Button**     | Transparent, blue text                | Tertiary actions    |
+| **Icon Actions**     | Edit, delete, duplicate icons in rows | Tables              |
 
 ### Form Builder Components
 
-| Component | Description | Location |
-|-----------|-------------|----------|
-| **Block Container** | Collapsible section with header | Form canvas |
-| **Drag Handle** | Six-dot grip icon | Block/component reorder |
-| **Add Button** | "+" icon with text, dashed border | New block/component |
-| **Component Wrapper** | Hover overlay with action icons | Form canvas |
+| Component             | Description                       | Location                |
+| --------------------- | --------------------------------- | ----------------------- |
+| **Block Container**   | Collapsible section with header   | Form canvas             |
+| **Drag Handle**       | Six-dot grip icon                 | Block/component reorder |
+| **Add Button**        | "+" icon with text, dashed border | New block/component     |
+| **Component Wrapper** | Hover overlay with action icons   | Form canvas             |
 
 ---
 
@@ -299,6 +299,7 @@ Button Height:     36px or 40px
 **Layout**: Master list with grouped sections
 
 **Key Elements**:
+
 - Search bar with filter options
 - "Add service" primary button
 - Grouped service cards by category (e.g., "Licenses and Certificates")
@@ -306,12 +307,14 @@ Button Height:     36px or 40px
 - Service cards show: name, status badge, action menu
 
 **Observations**:
+
 - Good use of grouping for organization
 - Status badges provide quick visual feedback
 - Search is prominent and accessible
 - Card-based layout feels modern
 
 **Issues**:
+
 - Groups take up vertical space even when collapsed
 - No way to view all services in a flat list
 - Filter options are hidden behind dropdown
@@ -325,6 +328,7 @@ Button Height:     36px or 40px
 **Layout**: Tab-based with form canvas
 
 **Key Elements**:
+
 - Horizontal tabs: Guide, Form, Documents, Payments
 - Sub-tabs within Form: Description, Form, Status
 - Form canvas with drag-and-drop blocks
@@ -333,11 +337,13 @@ Button Height:     36px or 40px
 - "Add block" button at bottom
 
 **Observations**:
+
 - Hierarchical form structure is clear
 - Drag-and-drop provides flexibility
 - Block collapse/expand helps manage complexity
 
 **Issues**:
+
 - Two levels of tabs can be confusing
 - No preview of live form
 - Component editing requires modal popup
@@ -352,20 +358,24 @@ Button Height:     36px or 40px
 **Layout**: Multi-tab modal dialog
 
 **Key Elements**:
+
 - Tabs: Basic, Effects (Determinants), etc.
 - Form inputs for component properties
 - Toggle switches for boolean options
 - Cancel/Save buttons in header
 
 **Modal Tabs Observed**:
+
 - **Basic**: Label, placeholder, required toggle, key, type
 - **Effects**: Determinant mappings (show/hide/enable/disable/clear)
 
 **Observations**:
+
 - Logical grouping of related settings
 - Toggle switches are intuitive
 
 **Issues**:
+
 - Modal blocks view of form canvas
 - Can't see component in context while editing
 - Determinants UI is not intuitive
@@ -380,16 +390,19 @@ Button Height:     36px or 40px
 **Layout**: List of document requirements
 
 **Key Elements**:
+
 - Document requirement cards
 - File upload zones (drag or click)
 - Document metadata fields
 - Toggle for required/optional
 
 **Observations**:
+
 - Clear visual distinction for upload areas
 - Drag-and-drop is intuitive
 
 **Issues**:
+
 - Limited document categorization
 - No preview of uploaded files inline
 - Configuration options spread across multiple clicks
@@ -403,16 +416,19 @@ Button Height:     36px or 40px
 **Layout**: Master list > Detail tabs
 
 **Key Elements**:
+
 - Registration cards with toggle switches
 - Detail view with horizontal tabs
 - Tabs: Documents, Fees, Institution
 - Each tab has configurable items
 
 **Observations**:
+
 - Toggle switches for quick enable/disable
 - Tabbed organization keeps sections focused
 
 **Issues**:
+
 - Many clicks to configure a registration fully
 - Relationship between service and registration unclear
 - Fees configuration is buried
@@ -426,16 +442,19 @@ Button Height:     36px or 40px
 **Layout**: Master list > Detail tabs
 
 **Key Elements**:
+
 - Role cards (Reviewer, Approver, etc.)
 - Role detail view with tabs
 - Form tab with role-specific form builder
 - Permissions/actions configuration
 
 **Observations**:
+
 - Clear role names and descriptions
 - Form builder reused consistently
 
 **Issues**:
+
 - Role permissions are complex to understand
 - Workflow order not visually represented
 - No visual workflow diagram
@@ -449,16 +468,19 @@ Button Height:     36px or 40px
 **Layout**: Dense toggle grid
 
 **Key Elements**:
+
 - Massive list of toggle switches
 - Grouped by category
 - Some groups collapsed by default
 - Each toggle has label + optional help text
 
 **Observations**:
+
 - Comprehensive control over UI elements
 - Grouping helps find related settings
 
 **Issues**:
+
 - Overwhelming number of options
 - No search within settings
 - Hard to understand impact of each toggle
@@ -473,15 +495,18 @@ Button Height:     36px or 40px
 **Layout**: Categorized settings panels
 
 **Key Elements**:
+
 - Collapsible category panels
 - Radio groups, checkboxes, text inputs
 - Save button for each section
 
 **Observations**:
+
 - Better organized than toggles page
 - Collapsible sections reduce overwhelm
 
 **Issues**:
+
 - Still very dense
 - Terms like "archivation" unclear
 - No documentation inline
@@ -497,25 +522,30 @@ Button Height:     36px or 40px
 **Tabs Observed**:
 
 #### Instance General
+
 - Logo upload
 - Instance name configuration
 - Basic metadata
 
 #### Display System
+
 - Font selection
 - Color scheme options
 - UI customization
 
 #### Supported Datasources
+
 - GDB table with toggles
 - Columns: Source, Status, Usage count, URL
 - Enable/disable datasources
 
 **Observations**:
+
 - Clean separation of concerns
 - Table view for datasources is appropriate
 
 **Issues**:
+
 - Global vs service settings boundary unclear
 - Some settings have wide-reaching effects
 - No change preview
@@ -529,6 +559,7 @@ Button Height:     36px or 40px
 **Layout**: Dual-panel mapping interface
 
 **Key Elements**:
+
 - Tabs: Bots, External Links
 - Bot type cards (e.g., CVF Mapping)
 - Tree view panels for source/target mapping
@@ -536,11 +567,13 @@ Button Height:     36px or 40px
 - Categories: FORM, DOCUMENT, SENDPAGE, ROLE, CERT, REGISTRATION, CONSTANT, TAG, System variables
 
 **Observations**:
+
 - Dual-panel approach is intuitive for mapping
 - Tree views allow drilling into complex structures
 - Visual connector aids understanding
 
 **Issues**:
+
 - No way to see existing mappings at a glance
 - Tree can become very deep
 - No search within trees
@@ -555,15 +588,18 @@ Button Height:     36px or 40px
 **Layout**: Determinant-to-effect mapping table
 
 **Key Elements**:
+
 - Dropdown to select determinant
 - Effect type radio: Show, Hide, Enable, Disable, Clear
 - Add/remove determinant mappings
 
 **Observations**:
+
 - Logical connection between determinants and effects
 - Multiple effects per component supported
 
 **Issues**:
+
 - Determinants managed separately, accessed here by reference
 - No visual preview of conditional logic
 - Complex conditions hard to understand
@@ -692,6 +728,7 @@ Button Height:     36px or 40px
 **Current**: Users manually drag components and configure each property
 
 **Proposed**:
+
 - Natural language form description
 - AI generates initial form structure
 - Users refine via conversation
@@ -706,6 +743,7 @@ Button Height:     36px or 40px
 **Current**: Users hunt through tabs and modals for settings
 
 **Proposed**:
+
 - Persistent AI chat panel
 - Context-aware suggestions
 - "How do I make this field show only when..."
@@ -720,6 +758,7 @@ Button Height:     36px or 40px
 **Current**: Roles and processing hidden in separate sections
 
 **Proposed**:
+
 - Visual workflow canvas
 - Drag roles onto timeline
 - AI suggests common workflow patterns
@@ -734,6 +773,7 @@ Button Height:     36px or 40px
 **Current**: Hundreds of toggles with unclear impact
 
 **Proposed**:
+
 - AI recommends settings based on service type
 - "Set up like a standard license application"
 - Show only relevant options
@@ -748,6 +788,7 @@ Button Height:     36px or 40px
 **Current**: Must publish to see form as end-user
 
 **Proposed**:
+
 - Split-screen preview while editing
 - Test mode for determinants
 - Device preview (mobile, desktop)
@@ -762,6 +803,7 @@ Button Height:     36px or 40px
 **Current**: Deep nesting, many clicks to reach destinations
 
 **Proposed**:
+
 - Flatter hierarchy
 - Command palette (Cmd+K) for quick access
 - AI understands "go to document requirements"
@@ -776,6 +818,7 @@ Button Height:     36px or 40px
 **Current**: Technical determinant configuration in hidden modal
 
 **Proposed**:
+
 - Visual condition builder
 - Natural language: "Show if country is USA"
 - AI suggests conditions based on field type
@@ -790,6 +833,7 @@ Button Height:     36px or 40px
 **Current**: Settings scattered across service and global levels
 
 **Proposed**:
+
 - Single settings panel with search
 - AI finds relevant setting: "Where do I change colors?"
 - Grouped by task, not location
@@ -804,6 +848,7 @@ Button Height:     36px or 40px
 **Current**: Users configure everything from scratch
 
 **Proposed**:
+
 - AI-powered templates: "License application", "Permit renewal"
 - Smart defaults based on service type
 - Learn from existing services
@@ -818,6 +863,7 @@ Button Height:     36px or 40px
 **Current**: Functional but dated UI
 
 **Proposed**:
+
 - Clean, minimal design
 - More whitespace
 - Consistent component library

@@ -890,3 +890,112 @@ CREATE TRIGGER entities_audit
 
 ---
 
+## Domain Implementation Rules
+
+These rules govern how BPA domain entities should be implemented. They derive from the legacy BPA system patterns documented in `_bmad-output/analysis/bpa-api-mental-model-analysis.md`.
+
+### Non-Negotiable Rules
+
+1. **Never change 4-Status codes** — They're hardcoded in legacy systems
+   ```
+   PENDING=0, PASSED=1, RETURNED=2, REJECTED=3
+   ```
+
+2. **Keep Service/Registration separation** — Fundamental to the domain model
+   - Service = Configuration container (owns forms, roles, bots, determinants)
+   - Registration = Authorization container (what applicants apply for)
+
+3. **Use contract-based BOT mapping** — NOT type-based implementations
+   - Bots use InputMapping (form → request) and OutputMapping (response → form)
+   - Enables plug & play: AI agents, payment processors, legacy APIs all use same contract
+
+4. **Localize all user-facing strings** — name, shortName, description
+   - Follow legacy translation listener architecture
+   - Store localized strings in separate translation system
+
+5. **Implement full audit trail** — every change tracked with user/timestamp
+   - `createdAt`, `updatedAt`, `createdBy` on all entities
+   - Consider Prisma middleware or triggers for automatic tracking
+
+### Data Storage Strategy
+
+**USE JSON FOR: Configuration Expressions**
+
+| Data Type | Reason | Field Example |
+|-----------|--------|---------------|
+| Form schemas | JSON Schema standard (JSON Forms requires it) | `Form.schema` |
+| Visibility rules | Dynamic expressions evaluated at runtime | `FormField.visibilityRule` |
+| Condition expressions | JSON Rules Engine evaluates these | `Role.conditions` |
+| Field-specific properties | Type-varies (min, max, options, etc.) | `FormField.properties` |
+| Template configs | Nested snapshot structures | `ServiceTemplate.config` |
+
+**USE RELATIONAL TABLES FOR: Entity Relationships**
+
+| Data Type | Reason | Table Example |
+|-----------|--------|---------------|
+| Bot field mappings | Queryable, need FK validation, indexed | `BotMapping` |
+| Role-Registration bindings | Join table with referential integrity | `RoleRegistration` |
+| Role-Institution assignments | Join table with constraints | `RoleInstitution` |
+| Document requirements | Template + link pattern | `DocumentRequirement` |
+| Costs | Queryable, aggregatable | `Cost` |
+
+**Rationale**: This follows Architecture "Pattern 3: JSON as Schema Carrier" AND "Pattern 5: Cross-Cutting Relationships via Join Tables" — these patterns coexist:
+
+- **Expressions** (conditions, visibility) → JSON (flexible, evaluated at runtime)
+- **Relationships** (mappings, bindings) → Relational (queryable, validated, FK constraints)
+
+### What NOT to Reinvent
+
+| Pattern | Status | Notes |
+|---------|--------|-------|
+| 4-Status Model | Use as-is | Universal workflow grammar |
+| Service/Registration separation | Keep distinction | Core domain model |
+| Role inheritance (User/Bot) | Proven pattern | Use discriminator `roleType` |
+| Contract-based BOT I/O | Enables extensibility | Already relational in our schema |
+| Status destination routing | Proven pattern | `WorkflowTransition` model |
+
+### What TO Transform
+
+| Legacy | AI-Native | Notes |
+|--------|-----------|-------|
+| Formio forms | JSON Forms + LLM generation | Conversational interface |
+| Field-based determinants | Natural language conditions | LLM-evaluable |
+| Fixed role sequences | Dynamic context routing | AI-powered decisions |
+| Static catalogs | AI-augmented lookups | Dynamic classification |
+
+### Field Reference Consistency
+
+When fields are referenced in expressions (formulas, conditions, visibility rules), we use a **hybrid data-first approach**:
+
+1. **Stable Field IDs**: Each `FormField` has an immutable `fieldId` (like legacy `$id`)
+2. **Reference Registry**: `field_references` table auto-populated by database triggers
+3. **FK Constraint**: Delete blocked at database level (`ON DELETE RESTRICT`)
+4. **Expression Validation**: Triggers validate references exist on save
+
+**Expression syntax**: `$field.f_abc123` (not mutable field names)
+
+**Conceptual Model (Compilation Analogy)**:
+
+| Compiler Concept | Our System | When |
+|------------------|------------|------|
+| Symbol → Address | `name` → `fieldId` | Expression authored |
+| Symbol Table | `field_references` | Triggers sync on save |
+| Compile Error | `INVALID_FIELD_REFS` | Save with bad reference |
+| Linker Error | `FIELD_IN_USE` | Delete referenced field |
+
+This enables IDE-like tooling: Find All References, Safe Rename, Safe Delete.
+
+See [ADR-001: Field Reference Consistency](./adrs/001-field-reference-consistency.md) for full details.
+
+---
+
+## Architecture Decision Records
+
+Significant technical decisions are documented in `_bmad-output/adrs/`:
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [001](./adrs/001-field-reference-consistency.md) | Field Reference Consistency Strategy | Accepted |
+
+---
+

@@ -75,6 +75,18 @@ Conditional logic varies by field type:
 3. Field-based determinants → Natural language conditions
 4. Static catalogs → AI-augmented lookups
 
+### Field Reference Consistency (ADR-001)
+
+Fields referenced in expressions use **stable `fieldId`** (not mutable names):
+- Syntax: `$field.f_abc123` in JSONata/conditions
+- Database triggers auto-track references in `field_references` table
+- FK constraint blocks delete if field is referenced
+- See `_bmad-output/adrs/001-field-reference-consistency.md`
+
+### Architecture Decision Records
+
+Major technical decisions are documented in `_bmad-output/adrs/`. Check these before making architectural changes.
+
 ## Legacy BPA Reference (CONSULT BEFORE INVENTING)
 
 When implementing features that exist in legacy BPA, **check the source first**:

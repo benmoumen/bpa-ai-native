@@ -470,6 +470,10 @@ model BotMapping {
 3. **Contract-based BOT I/O**: Input/Output mappings, not type-based implementations
 4. **Service owns everything**: Roles, Forms, Bots, Registrations all belong to Service
 5. **Audit trail required**: `createdAt`, `updatedAt` on all entities
+6. **Data storage strategy** (JSON vs Relational):
+   - **USE JSON FOR**: Configuration expressions (conditions, visibility rules, form schemas, field properties)
+   - **USE RELATIONAL FOR**: Entity relationships (bot mappings, role-registration bindings, role-institution assignments)
+   - See `_bmad-output/project-context.md` → "Domain Implementation Rules" for full details
 
 ### What NOT to Reinvent
 
