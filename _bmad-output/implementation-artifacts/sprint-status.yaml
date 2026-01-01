@@ -89,20 +89,20 @@ development_status:
   # NOTE: 4-0 is a research spike, 4-5a is merged from Epic 5
   # MVP CRITICAL: 4-0, 4-1, 4-2, 4-3, 4-4, 4-5, 4-6, 4-9
   # DEFERRABLE: 4-7, 4-8, 4-10, 4-11
-  epic-4: backlog
-  4-0-workflow-domain-research-spike: backlog  # NEW: Research spike
+  epic-4: in-progress
+  4-0-workflow-domain-research-spike: done # Research spike complete
   4-1-workflow-database-model-api: backlog
   4-2-define-workflow-steps: backlog
   4-3-configure-workflow-transitions: backlog
   4-4-specify-step-actions: backlog
   4-5-assign-forms-to-workflow-steps: backlog
-  4-5a-determinants-in-workflow-conditions: backlog  # MERGED from Epic 5-5
+  4-5a-determinants-in-workflow-conditions: backlog # MERGED from Epic 5-5
   4-6-linear-approval-chain-configuration: backlog
-  4-7-workflow-diagram-preview: backlog  # Deferrable
-  4-8-workflow-validation: backlog  # Deferrable
-  4-9-role-status-configuration-4-status-model: backlog  # MVP Critical
-  4-10-role-registration-binding: backlog  # Deferrable
-  4-11-role-institution-assignment: backlog  # Deferrable (Phase 2)
+  4-7-workflow-diagram-preview: backlog # Deferrable
+  4-8-workflow-validation: backlog # Deferrable
+  4-9-role-status-configuration-4-status-model: backlog # MVP Critical
+  4-10-role-registration-binding: backlog # Deferrable
+  4-11-role-institution-assignment: backlog # Deferrable (Phase 2)
   epic-4-retrospective: optional
 
   # Epic 5: Determinants & Business Rules - SUPERSEDED
@@ -113,10 +113,10 @@ development_status:
   # 5-5: Merged into Epic 4 as 4-5a
   # 5-6: Deferred (not enough complexity to need validation yet)
   epic-5: superseded
-  5-1-determinant-database-model-api: done  # Completed in 3-9
-  5-2-define-determinants-from-form-fields: done  # Completed in 3-9
-  5-3-configure-calculation-formulas: deferred-phase2  # JSONata formulas
-  5-4-determinants-in-visibility-rules: done  # Completed in 3-7
+  5-1-determinant-database-model-api: done # Completed in 3-9
+  5-2-define-determinants-from-form-fields: done # Completed in 3-9
+  5-3-configure-calculation-formulas: deferred-phase2 # JSONata formulas
+  5-4-determinants-in-visibility-rules: done # Completed in 3-7
   5-5-determinants-in-workflow-conditions: merged-to-4-5a
   5-6-reference-validation: deferred-phase2
   epic-5-retrospective: skipped
@@ -126,7 +126,7 @@ development_status:
   # CORE (MVP): 6-0, 6-1, 6-2, 6-3, 6-4, 6-5, 6-6, 6-7
   # ADVANCED (Post-MVP): 6-8, 6-9, 6-10, 6-11, 6-12
   epic-6: backlog
-  6-0-llm-prompt-engineering-spike: backlog  # NEW: Research spike
+  6-0-llm-prompt-engineering-spike: backlog # NEW: Research spike
   6-1-llm-integration-infrastructure: backlog
   6-2-chat-interface-for-natural-language-input: backlog
   6-3-ai-streaming-response-display: backlog
@@ -134,11 +134,11 @@ development_status:
   6-5-ai-generates-complete-service-configuration: backlog
   6-6-structured-proposals-with-accept-review-modify: backlog
   6-7-iterative-refinement-through-conversation: backlog
-  6-8-ai-suggests-form-fields: backlog  # Advanced
-  6-9-ai-suggests-workflow-structure: backlog  # Advanced
-  6-10-gap-detection-and-proactive-suggestions: backlog  # Advanced
-  6-11-infer-determinants-from-field-relationships: backlog  # Advanced
-  6-12-ai-vs-user-comparison: backlog  # Advanced
+  6-8-ai-suggests-form-fields: backlog # Advanced
+  6-9-ai-suggests-workflow-structure: backlog # Advanced
+  6-10-gap-detection-and-proactive-suggestions: backlog # Advanced
+  6-11-infer-determinants-from-field-relationships: backlog # Advanced
+  6-12-ai-vs-user-comparison: backlog # Advanced
   epic-6-retrospective: optional
 
   # Epic 7: Preview & Publishing (8 stories)

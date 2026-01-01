@@ -28,7 +28,7 @@ stories:
   mvp_critical:
     - id: "4-0"
       title: "Workflow Domain Research Spike"
-      status: in-progress
+      status: done
       focus: "Research"
       deliverables: "Spike output, schema design"
     - id: "4-1"
