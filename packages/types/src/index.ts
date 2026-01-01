@@ -883,8 +883,9 @@ export interface GeneratedUiSchema {
 
 /**
  * Visibility rule condition for JSON Rules Engine
+ * Named differently to avoid conflict with form VisibilityCondition
  */
-export interface VisibilityCondition {
+export interface RuleEngineCondition {
   fact: string;
   operator: string;
   value: unknown;
@@ -895,8 +896,8 @@ export interface VisibilityCondition {
  */
 export interface JsonRulesEngineRule {
   conditions: {
-    all?: VisibilityCondition[];
-    any?: VisibilityCondition[];
+    all?: RuleEngineCondition[];
+    any?: RuleEngineCondition[];
   };
   event: {
     type: 'visible' | 'hidden';
