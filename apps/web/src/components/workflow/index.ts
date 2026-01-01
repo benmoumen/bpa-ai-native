@@ -7,6 +7,7 @@
  * Story 4-4: Specify Step Actions
  * Story 4-7: Workflow Diagram Preview
  * Story 4-8: Workflow Validation
+ * Story 4-10: Role-Registration Binding
  */
 
 export { RolesList } from './RolesList';
@@ -18,3 +19,4 @@ export { EditStatusDialog } from './EditStatusDialog';
 export { RoleNode } from './RoleNode';
 export { WorkflowDiagram } from './WorkflowDiagram';
 export { ValidationPanel } from './ValidationPanel';
+export { RegistrationBindingPanel } from './RegistrationBindingPanel';

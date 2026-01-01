@@ -162,7 +162,44 @@ export class WorkflowValidationService {
       }
     }
 
+    // Check for unbound registrations (registrations with no roles bound)
+    const unboundIssues = await this.checkUnboundRegistrations(serviceId);
+    issues.push(...unboundIssues);
+
     return ValidationResultDto.fromIssues(issues);
+  }
+
+  /**
+   * Check for registrations that have no roles bound to them
+   */
+  private async checkUnboundRegistrations(
+    serviceId: string,
+  ): Promise<ValidationIssueDto[]> {
+    const issues: ValidationIssueDto[] = [];
+
+    // Get all registrations in the service
+    const registrations = await this.prisma.registration.findMany({
+      where: { serviceId },
+      include: {
+        roles: {
+          select: { id: true },
+        },
+      },
+    });
+
+    for (const registration of registrations) {
+      if (registration.roles.length === 0) {
+        issues.push({
+          code: ValidationIssueCode.UNBOUND_REGISTRATION,
+          severity: ValidationSeverity.WARNING,
+          message: `Registration "${registration.name}" has no processing roles.`,
+          registrationId: registration.id,
+          registrationName: registration.name,
+        });
+      }
+    }
+
+    return issues;
   }
 
   /**

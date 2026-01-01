@@ -234,6 +234,7 @@ model Registration {
   service              Service               @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   documentRequirements DocumentRequirement[]
   costs                Cost[]
+  roles                RoleRegistration[]
 
   // Compound unique: key must be unique within each service
   @@unique([serviceId, key])
@@ -458,10 +459,11 @@ model Role {
   timeoutMinutes       Int?         @map("timeout_minutes")
 
   // Relations
-  service              Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  form                 Form?        @relation(fields: [formId], references: [id], onDelete: SetNull)
+  service              Service            @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  form                 Form?              @relation(fields: [formId], references: [id], onDelete: SetNull)
   statuses             RoleStatus[]
   incomingTransitions  WorkflowTransition[] @relation("TransitionTarget")
+  registrations        RoleRegistration[]
 
   @@unique([serviceId, name])
   @@index([serviceId])
@@ -470,6 +472,25 @@ model Role {
   @@index([isActive])
   @@index([actorType])
   @@map("roles")
+}
+
+/// RoleRegistration - N:N binding between Role and Registration
+/// Enables multi-registration workflows where roles process specific registration types
+model RoleRegistration {
+  id                String   @id @default(cuid())
+  roleId            String   @map("role_id")
+  registrationId    String   @map("registration_id")
+  finalResultIssued Boolean  @default(false) @map("final_result_issued")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  role         Role         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, registrationId])
+  @@index([roleId])
+  @@index([registrationId])
+  @@map("role_registrations")
 }
 
 /// RoleStatus - workflow outcome options (4-Status Model)

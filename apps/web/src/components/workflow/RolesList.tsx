@@ -56,6 +56,7 @@ import type { Form } from '@/lib/api/forms';
 import { CreateRoleDialog } from './CreateRoleDialog';
 import { StepActionsPanel } from './StepActionsPanel';
 import { LinearChainWizard } from './LinearChainWizard';
+import { RegistrationBindingPanel } from './RegistrationBindingPanel';
 
 interface RolesListProps {
   serviceId: string;
@@ -395,11 +396,18 @@ export function RolesList({ serviceId, isEditable = true }: RolesListProps) {
               {isExpanded && (
                 <TableRow>
                   <TableCell colSpan={isEditable ? 6 : 5} className="bg-slate-50 p-4">
-                    <StepActionsPanel
-                      role={role}
-                      serviceId={serviceId}
-                      isEditable={isEditable}
-                    />
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <StepActionsPanel
+                        role={role}
+                        serviceId={serviceId}
+                        isEditable={isEditable}
+                      />
+                      <RegistrationBindingPanel
+                        serviceId={serviceId}
+                        roleId={role.id}
+                        roleName={role.name}
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               )}

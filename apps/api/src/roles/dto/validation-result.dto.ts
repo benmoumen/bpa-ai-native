@@ -19,6 +19,7 @@ export enum ValidationIssueCode {
   UNREACHABLE_ROLE = 'UNREACHABLE_ROLE',
   NO_TRANSITIONS = 'NO_TRANSITIONS',
   NO_ROLES = 'NO_ROLES',
+  UNBOUND_REGISTRATION = 'UNBOUND_REGISTRATION',
 }
 
 /**
@@ -49,6 +50,16 @@ export class ValidationIssueDto {
     description: 'Name of the affected role, if applicable',
   })
   roleName?: string;
+
+  @ApiPropertyOptional({
+    description: 'ID of the affected registration, if applicable',
+  })
+  registrationId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Name of the affected registration, if applicable',
+  })
+  registrationName?: string;
 }
 
 /**

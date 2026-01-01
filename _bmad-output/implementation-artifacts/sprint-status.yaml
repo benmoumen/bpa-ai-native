@@ -103,7 +103,7 @@ development_status:
   4-7-workflow-diagram-preview: done # Deferrable - React Flow visualization
   4-8-workflow-validation: done # Deferrable
   4-9-role-status-configuration-4-status-model: done
-  4-10-role-registration-binding: backlog # Deferrable
+  4-10-role-registration-binding: done # Deferrable
   4-11-role-institution-assignment: backlog # Deferrable (Phase 2)
   epic-4-retrospective: done
 
