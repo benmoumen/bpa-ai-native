@@ -10,7 +10,7 @@
 import NextAuth from 'next-auth';
 import Keycloak from 'next-auth/providers/keycloak';
 import Credentials from 'next-auth/providers/credentials';
-import type { NextAuthConfig, Provider } from 'next-auth';
+import type { NextAuthConfig } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 
 // Check if Keycloak is configured
@@ -123,7 +123,7 @@ const devCredentialsProvider =
 /**
  * Build providers array based on configuration
  */
-const providers: Provider[] = [];
+const providers: NextAuthConfig['providers'] = [];
 if (keycloakProvider) providers.push(keycloakProvider);
 if (devCredentialsProvider) providers.push(devCredentialsProvider);
 

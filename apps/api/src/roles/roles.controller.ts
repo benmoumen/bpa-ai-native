@@ -17,7 +17,12 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { RolesService } from './roles.service';
-import { CreateRoleDto, UpdateRoleDto, RoleResponseDto } from './dto';
+import {
+  CreateRoleDto,
+  UpdateRoleDto,
+  RoleResponseDto,
+  WorkflowGraphDto,
+} from './dto';
 
 @ApiTags('roles')
 @ApiBearerAuth()
@@ -65,6 +70,20 @@ export class RolesController {
     @Param('serviceId') serviceId: string,
   ): Promise<RoleResponseDto | null> {
     return this.rolesService.findStartRole(serviceId);
+  }
+
+  @Get('workflow-graph')
+  @ApiOperation({ summary: 'Get workflow graph data for visualization' })
+  @ApiParam({ name: 'serviceId', description: 'Service ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Workflow graph with nodes and edges for React Flow',
+    type: WorkflowGraphDto,
+  })
+  getWorkflowGraph(
+    @Param('serviceId') serviceId: string,
+  ): Promise<WorkflowGraphDto> {
+    return this.rolesService.getWorkflowGraph(serviceId);
   }
 
   @Get(':id')

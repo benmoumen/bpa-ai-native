@@ -100,7 +100,7 @@ development_status:
   4-5-assign-forms-to-workflow-steps: done
   4-5a-determinants-in-workflow-conditions: done # MERGED from Epic 5-5
   4-6-linear-approval-chain-configuration: done
-  4-7-workflow-diagram-preview: backlog # Deferrable
+  4-7-workflow-diagram-preview: done # Deferrable - React Flow visualization
   4-8-workflow-validation: backlog # Deferrable
   4-9-role-status-configuration-4-status-model: done
   4-10-role-registration-binding: backlog # Deferrable

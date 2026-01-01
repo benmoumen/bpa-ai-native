@@ -5,6 +5,7 @@
  * Story 4-2: Define Workflow Steps
  * Story 4-3: Configure Workflow Transitions
  * Story 4-4: Specify Step Actions
+ * Story 4-7: Workflow Diagram Preview
  */
 
 export { RolesList } from './RolesList';
@@ -13,3 +14,5 @@ export { TransitionsList } from './TransitionsList';
 export { CreateTransitionDialog } from './CreateTransitionDialog';
 export { StepActionsPanel } from './StepActionsPanel';
 export { EditStatusDialog } from './EditStatusDialog';
+export { RoleNode } from './RoleNode';
+export { WorkflowDiagram } from './WorkflowDiagram';

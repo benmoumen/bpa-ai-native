@@ -1,7 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@bpa/db';
+import { Prisma, RoleStatusCode } from '@bpa/db';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateRoleDto, UpdateRoleDto, RoleResponseDto } from './dto';
+import {
+  CreateRoleDto,
+  UpdateRoleDto,
+  RoleResponseDto,
+  WorkflowGraphDto,
+  WorkflowNodeDto,
+  WorkflowEdgeDto,
+} from './dto';
 
 @Injectable()
 export class RolesService {
@@ -144,5 +151,136 @@ export class RolesService {
     });
 
     return RoleResponseDto.fromEntity(updated);
+  }
+
+  /**
+   * Get workflow graph data for React Flow visualization
+   */
+  async getWorkflowGraph(serviceId: string): Promise<WorkflowGraphDto> {
+    // Fetch all roles with their statuses and transitions
+    const roles = await this.prisma.role.findMany({
+      where: { serviceId, isActive: true },
+      include: {
+        form: { select: { name: true } },
+        statuses: {
+          include: {
+            transitions: {
+              include: {
+                toRole: { select: { id: true } },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    // Build nodes with auto-layout positions (dagre-style left-to-right)
+    const nodes: WorkflowNodeDto[] = [];
+    const edges: WorkflowEdgeDto[] = [];
+
+    // Simple layout: arrange in grid, start role first
+    const sortedRoles = [...roles].sort((a, b) => {
+      if (a.isStartRole) return -1;
+      if (b.isStartRole) return 1;
+      return a.sortOrder - b.sortOrder;
+    });
+
+    const nodeWidth = 200;
+    const nodeHeight = 100;
+    const horizontalGap = 150;
+    const verticalGap = 100;
+    const nodesPerRow = 4;
+
+    sortedRoles.forEach((role, index) => {
+      const row = Math.floor(index / nodesPerRow);
+      const col = index % nodesPerRow;
+
+      nodes.push({
+        id: role.id,
+        type: 'roleNode',
+        data: {
+          name: role.name,
+          roleType: role.roleType as 'USER' | 'BOT',
+          actorType:
+            (role.actorType as 'APPLICANT' | 'OPERATOR' | 'SYSTEM') ||
+            'OPERATOR',
+          formName: role.form?.name,
+          statuses: role.statuses.map((s) => ({
+            id: s.id,
+            code: s.code,
+            name: s.name,
+          })),
+          isStartRole: role.isStartRole,
+        },
+        position: {
+          x: col * (nodeWidth + horizontalGap),
+          y: row * (nodeHeight + verticalGap),
+        },
+      });
+
+      // Build edges from transitions
+      for (const status of role.statuses) {
+        // Skip PENDING status as it doesn't create transitions
+        if (status.code === RoleStatusCode.PENDING) continue;
+
+        for (const transition of status.transitions) {
+          const conditionSummary = this.summarizeConditions(
+            transition.conditions,
+          );
+
+          edges.push({
+            id: transition.id,
+            source: role.id,
+            target: transition.toRoleId,
+            label: status.code,
+            data: {
+              statusCode: status.code,
+              conditionSummary,
+            },
+          });
+        }
+      }
+    });
+
+    return { nodes, edges };
+  }
+
+  /**
+   * Summarize conditions JSON into human-readable string
+   */
+  private summarizeConditions(
+    conditions: Prisma.JsonValue,
+  ): string | undefined {
+    if (!conditions || typeof conditions !== 'object') {
+      return undefined;
+    }
+
+    const cond = conditions as Record<string, unknown>;
+
+    // Handle common condition patterns
+    if (
+      cond.determinantId &&
+      typeof cond.determinantId === 'string' &&
+      cond.value !== undefined
+    ) {
+      const valueStr =
+        typeof cond.value === 'string' || typeof cond.value === 'number'
+          ? String(cond.value)
+          : JSON.stringify(cond.value);
+      return `When ${cond.determinantId} = ${valueStr}`;
+    }
+
+    if (cond.expression && typeof cond.expression === 'string') {
+      // Truncate long expressions
+      const expr = cond.expression;
+      return expr.length > 30 ? `${expr.slice(0, 30)}...` : expr;
+    }
+
+    if (Array.isArray(cond.conditions) && cond.conditions.length > 0) {
+      return `${cond.conditions.length} conditions`;
+    }
+
+    return 'Conditional';
   }
 }

@@ -24,7 +24,7 @@ import {
 import { ServiceMetadataForm } from '@/components/services/ServiceMetadataForm';
 import { RegistrationList } from '@/components/registrations';
 import { FormList } from '@/components/forms';
-import { RolesList, TransitionsList } from '@/components/workflow';
+import { RolesList, TransitionsList, WorkflowDiagram } from '@/components/workflow';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useService } from '@/hooks/use-services';
@@ -148,6 +148,17 @@ function ServiceDetailContent({ serviceId }: ServiceDetailContentProps) {
         {/* Workflow Transitions Section */}
         <div className="mt-8 border-t border-black/10 pt-8">
           <TransitionsList serviceId={serviceId} isEditable={isEditable} />
+        </div>
+
+        {/* Workflow Diagram Section */}
+        <div className="mt-8 border-t border-black/10 pt-8">
+          <div className="mb-4">
+            <h2 className="text-lg font-medium text-black">Workflow Diagram</h2>
+            <p className="text-sm text-black/60">
+              Visual representation of workflow roles and transitions
+            </p>
+          </div>
+          <WorkflowDiagram serviceId={serviceId} />
         </div>
       </div>
     </div>

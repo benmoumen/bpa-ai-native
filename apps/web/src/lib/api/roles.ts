@@ -213,3 +213,62 @@ export async function setStartRole(
   const result: ApiResponse<Role> = await response.json();
   return result.data;
 }
+
+// ============================================================================
+// Workflow Graph Types (Story 4-7)
+// ============================================================================
+
+export type ActorType = 'APPLICANT' | 'OPERATOR' | 'SYSTEM';
+
+export interface WorkflowNodeData extends Record<string, unknown> {
+  name: string;
+  roleType: RoleType;
+  actorType: ActorType;
+  formName?: string;
+  statuses: { id: string; code: string; name: string }[];
+  isStartRole: boolean;
+}
+
+export interface WorkflowNode {
+  id: string;
+  type: string;
+  data: WorkflowNodeData;
+  position: { x: number; y: number };
+}
+
+export interface WorkflowEdgeData extends Record<string, unknown> {
+  statusCode: 'PASSED' | 'RETURNED' | 'REJECTED';
+  conditionSummary?: string;
+}
+
+export interface WorkflowEdge {
+  id: string;
+  source: string;
+  target: string;
+  label: string;
+  data: WorkflowEdgeData;
+}
+
+export interface WorkflowGraph {
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+}
+
+/**
+ * Get workflow graph data for visualization
+ */
+export async function getWorkflowGraph(serviceId: string): Promise<WorkflowGraph> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/services/${serviceId}/roles/workflow-graph`,
+    {
+      credentials: 'include',
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch workflow graph');
+  }
+
+  const result: ApiResponse<WorkflowGraph> = await response.json();
+  return result.data;
+}

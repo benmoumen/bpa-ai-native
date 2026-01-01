@@ -16,9 +16,11 @@ import {
   deleteRole,
   getStartRole,
   setStartRole,
+  getWorkflowGraph,
   type Role,
   type CreateRoleInput,
   type UpdateRoleInput,
+  type WorkflowGraph,
 } from '@/lib/api/roles';
 import { ApiResponse } from '@/lib/api/services';
 
@@ -33,6 +35,8 @@ export const roleKeys = {
   detail: (id: string) => [...roleKeys.details(), id] as const,
   startRole: (serviceId: string) =>
     [...roleKeys.all, 'start', serviceId] as const,
+  workflowGraph: (serviceId: string) =>
+    [...roleKeys.all, 'workflow-graph', serviceId] as const,
 };
 
 /**
@@ -150,5 +154,17 @@ export function useReorderRole(serviceId: string) {
       // Invalidate roles list to reflect new order
       queryClient.invalidateQueries({ queryKey: roleKeys.list(serviceId) });
     },
+  });
+}
+
+/**
+ * Hook to fetch workflow graph data for visualization
+ * Story 4-7: Workflow Diagram Preview
+ */
+export function useWorkflowGraph(serviceId: string) {
+  return useQuery<WorkflowGraph, Error>({
+    queryKey: roleKeys.workflowGraph(serviceId),
+    queryFn: () => getWorkflowGraph(serviceId),
+    enabled: !!serviceId,
   });
 }
