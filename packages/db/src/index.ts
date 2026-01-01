@@ -33,6 +33,9 @@ export type { FormModel as Form } from './generated/prisma/models/Form.js';
 export type { FormSectionModel as FormSection } from './generated/prisma/models/FormSection.js';
 export type { FormFieldModel as FormField } from './generated/prisma/models/FormField.js';
 export type { DeterminantModel as Determinant } from './generated/prisma/models/Determinant.js';
+export type { RoleModel as Role } from './generated/prisma/models/Role.js';
+export type { RoleStatusModel as RoleStatus } from './generated/prisma/models/RoleStatus.js';
+export type { WorkflowTransitionModel as WorkflowTransition } from './generated/prisma/models/WorkflowTransition.js';
 
 // Re-export enums if any
 export * from './generated/prisma/enums.js';

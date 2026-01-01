@@ -50,6 +50,21 @@ enum FormType {
   GUIDE     // Operator/staff workflow form
 }
 
+/// RoleType - discriminator for Role polymorphism
+enum RoleType {
+  USER // Human decision point (operator/approver)
+  BOT  // Automated processing (integrations)
+}
+
+/// RoleStatusCode - 4-Status Model (FIXED, non-negotiable)
+/// These codes map to legacy BPA: PENDING=0, PASSED=1, RETURNED=2, REJECTED=3
+enum RoleStatusCode {
+  PENDING  // 0 - Waiting for decision
+  PASSED   // 1 - Approved, moves forward
+  RETURNED // 2 - Sent back for fixes (can retry)
+  REJECTED // 3 - Permanently rejected (terminal)
+}
+
 // =============================================================================
 // User & Authentication Models
 // =============================================================================
@@ -102,6 +117,7 @@ model Service {
   registrations Registration[]
   forms         Form[]
   determinants  Determinant[]
+  roles         Role[]
 
   // Indexes for common query patterns (NFR4: service list < 1s)
   @@index([status])
@@ -254,6 +270,7 @@ model Form {
   service  Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   sections FormSection[]
   fields   FormField[]
+  roles    Role[]
 
   // Each service can have multiple forms, but unique names per service
   @@unique([serviceId, name])
@@ -347,4 +364,89 @@ model Determinant {
   @@index([sourceFieldId])
   @@index([isActive])
   @@map("determinants")
+}
+
+// =============================================================================
+// Workflow Models
+// =============================================================================
+
+/// Role - workflow step (polymorphic via roleType)
+/// Represents a processing point in the workflow - either human (USER) or automated (BOT)
+model Role {
+  id                   String       @id @default(cuid())
+  serviceId            String       @map("service_id")
+  roleType             RoleType     @map("role_type")
+  name                 String       @db.VarChar(255)
+  shortName            String?      @map("short_name") @db.VarChar(50)
+  description          String?      @db.Text
+  isStartRole          Boolean      @default(false) @map("is_start_role")
+  sortOrder            Int          @default(100) @map("sort_order")
+  isActive             Boolean      @default(true) @map("is_active")
+  conditions           Json?        // Determinant-based activation conditions
+  createdAt            DateTime     @default(now()) @map("created_at")
+  updatedAt            DateTime     @updatedAt @map("updated_at")
+
+  // UserRole-specific fields (nullable, applies only when roleType = USER)
+  formId               String?      @map("form_id")
+
+  // BotRole-specific fields (nullable, applies only when roleType = BOT)
+  retryEnabled         Boolean?     @default(false) @map("retry_enabled")
+  retryIntervalMinutes Int?         @map("retry_interval_minutes")
+  timeoutMinutes       Int?         @map("timeout_minutes")
+
+  // Relations
+  service              Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  form                 Form?        @relation(fields: [formId], references: [id], onDelete: SetNull)
+  statuses             RoleStatus[]
+  incomingTransitions  WorkflowTransition[] @relation("TransitionTarget")
+
+  @@unique([serviceId, name])
+  @@index([serviceId])
+  @@index([roleType])
+  @@index([sortOrder])
+  @@index([isActive])
+  @@map("roles")
+}
+
+/// RoleStatus - workflow outcome options (4-Status Model)
+/// Each role has 1-4 status options representing possible decisions
+model RoleStatus {
+  id          String             @id @default(cuid())
+  roleId      String             @map("role_id")
+  code        RoleStatusCode
+  name        String             @db.VarChar(100)
+  isDefault   Boolean            @default(false) @map("is_default")
+  sortOrder   Int                @default(0) @map("sort_order")
+  conditions  Json?              // When to show this status option
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  // Relations
+  role        Role               @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  transitions WorkflowTransition[] @relation("FromStatus")
+
+  @@index([roleId])
+  @@index([code])
+  @@map("role_statuses")
+}
+
+/// WorkflowTransition - routing from status outcome to next role
+/// Defines where the workflow goes after a role produces a status
+model WorkflowTransition {
+  id           String     @id @default(cuid())
+  fromStatusId String     @map("from_status_id")
+  toRoleId     String     @map("to_role_id")
+  sortOrder    Int        @default(0) @map("sort_order")
+  conditions   Json?      // Conditional routing
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  fromStatus   RoleStatus @relation("FromStatus", fields: [fromStatusId], references: [id], onDelete: Cascade)
+  toRole       Role       @relation("TransitionTarget", fields: [toRoleId], references: [id], onDelete: Cascade)
+
+  @@unique([fromStatusId, toRoleId])
+  @@index([fromStatusId])
+  @@index([toRoleId])
+  @@map("workflow_transitions")
 }

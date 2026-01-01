@@ -16,6 +16,9 @@ import { FormsModule } from './forms';
 import { FormSectionsModule } from './form-sections';
 import { FormFieldsModule } from './form-fields';
 import { DeterminantsModule } from './determinants';
+import { RolesModule } from './roles';
+import { RoleStatusesModule } from './role-statuses';
+import { TransitionsModule } from './transitions';
 
 @Module({
   imports: [
@@ -50,6 +53,10 @@ import { DeterminantsModule } from './determinants';
     FormFieldsModule,
     // Determinants module
     DeterminantsModule,
+    // Workflow modules (Epic 4)
+    RolesModule,
+    RoleStatusesModule,
+    TransitionsModule,
   ],
   controllers: [AppController],
   providers: [
