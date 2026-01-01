@@ -167,7 +167,7 @@ Task(subagent_type="general-purpose", prompt="
 ### Step 3.5: Quality Gate (Subagent)
 
 ```
-Task(subagent_type="general-purpose", model="haiku", prompt="
+Task(subagent_type="general-purpose", prompt="
   Run these commands and report results:
   1. pnpm test
   2. pnpm lint
@@ -202,7 +202,7 @@ Update status → `done`. Proceed to next story.
 ### Step 4.1: Final Verification (Subagent)
 
 ```
-Task(subagent_type="general-purpose", model="haiku", prompt="
+Task(subagent_type="general-purpose", prompt="
   Run full verification:
   1. pnpm test
   2. pnpm build
@@ -235,11 +235,13 @@ Task(subagent_type="general-purpose", model="haiku", prompt="
 | /retrospective | Interactive reflection |
 
 ### Subagent Delegation (Context Preservation)
-| Operation | Subagent | Model |
-|-----------|----------|-------|
-| Research | Explore | default |
-| Code review | general-purpose | default |
-| Test/Build/Lint | general-purpose | haiku |
+| Operation | Subagent |
+|-----------|----------|
+| Research | Explore |
+| Code review | general-purpose |
+| Test/Build/Lint | general-purpose |
+
+All subagents use Opus 4.5 (default model).
 
 ---
 
