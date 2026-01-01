@@ -4,3 +4,4 @@ export * from './role-response.dto';
 export * from './workflow-graph.dto';
 export * from './validation-result.dto';
 export * from './role-registration.dto';
+export * from './role-institution.dto';

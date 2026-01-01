@@ -19,6 +19,7 @@ import { DeterminantsModule } from './determinants';
 import { RolesModule } from './roles';
 import { RoleStatusesModule } from './role-statuses';
 import { TransitionsModule } from './transitions';
+import { InstitutionsModule } from './institutions/institutions.module';
 
 @Module({
   imports: [
@@ -57,6 +58,8 @@ import { TransitionsModule } from './transitions';
     RolesModule,
     RoleStatusesModule,
     TransitionsModule,
+    // Institutions module (global organization registry)
+    InstitutionsModule,
   ],
   controllers: [AppController],
   providers: [

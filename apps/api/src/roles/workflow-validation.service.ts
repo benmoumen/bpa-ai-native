@@ -166,6 +166,10 @@ export class WorkflowValidationService {
     const unboundIssues = await this.checkUnboundRegistrations(serviceId);
     issues.push(...unboundIssues);
 
+    // Check for UserRoles without institution assignments
+    const unassignedIssues = await this.checkUnassignedInstitutions(serviceId);
+    issues.push(...unassignedIssues);
+
     return ValidationResultDto.fromIssues(issues);
   }
 
@@ -195,6 +199,40 @@ export class WorkflowValidationService {
           message: `Registration "${registration.name}" has no processing roles.`,
           registrationId: registration.id,
           registrationName: registration.name,
+        });
+      }
+    }
+
+    return issues;
+  }
+
+  /**
+   * Check for UserRoles that have no institutions assigned
+   * (BotRoles don't need institution assignments)
+   */
+  private async checkUnassignedInstitutions(
+    serviceId: string,
+  ): Promise<ValidationIssueDto[]> {
+    const issues: ValidationIssueDto[] = [];
+
+    // Get all USER roles in the service (BOT roles don't need institutions)
+    const userRoles = await this.prisma.role.findMany({
+      where: { serviceId, isActive: true, roleType: 'USER' },
+      include: {
+        institutions: {
+          select: { id: true },
+        },
+      },
+    });
+
+    for (const role of userRoles) {
+      if (role.institutions.length === 0) {
+        issues.push({
+          code: ValidationIssueCode.UNASSIGNED_INSTITUTION,
+          severity: ValidationSeverity.ERROR,
+          message: `Role "${role.name}" requires institution assignment for publishing.`,
+          roleId: role.id,
+          roleName: role.name,
         });
       }
     }

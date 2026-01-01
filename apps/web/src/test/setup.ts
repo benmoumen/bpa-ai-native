@@ -1,6 +1,13 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+// Ensure global React is set for act environment
+declare global {
+   
+  var IS_REACT_ACT_ENVIRONMENT: boolean;
+}
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 // Mock window.matchMedia for Radix UI components
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

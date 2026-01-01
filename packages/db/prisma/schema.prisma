@@ -464,6 +464,7 @@ model Role {
   statuses             RoleStatus[]
   incomingTransitions  WorkflowTransition[] @relation("TransitionTarget")
   registrations        RoleRegistration[]
+  institutions         RoleInstitution[]
 
   @@unique([serviceId, name])
   @@index([serviceId])
@@ -491,6 +492,42 @@ model RoleRegistration {
   @@index([roleId])
   @@index([registrationId])
   @@map("role_registrations")
+}
+
+/// Institution - organizational entity that can be assigned to workflow roles
+/// Represents government agencies, ministries, or other organizations
+model Institution {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(255)
+  code      String   @unique @db.VarChar(50)
+  country   String?  @db.VarChar(10)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  roles RoleInstitution[]
+
+  @@index([country])
+  @@index([isActive])
+  @@map("institutions")
+}
+
+/// RoleInstitution - N:N binding between Role and Institution
+/// Enables multi-institution workflows where operators from assigned institutions can process
+model RoleInstitution {
+  id            String   @id @default(cuid())
+  roleId        String   @map("role_id")
+  institutionId String   @map("institution_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  role        Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, institutionId])
+  @@index([roleId])
+  @@index([institutionId])
+  @@map("role_institutions")
 }
 
 /// RoleStatus - workflow outcome options (4-Status Model)

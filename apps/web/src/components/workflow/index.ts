@@ -8,6 +8,7 @@
  * Story 4-7: Workflow Diagram Preview
  * Story 4-8: Workflow Validation
  * Story 4-10: Role-Registration Binding
+ * Story 4-11: Role-Institution Assignment
  */
 
 export { RolesList } from './RolesList';
@@ -20,3 +21,4 @@ export { RoleNode } from './RoleNode';
 export { WorkflowDiagram } from './WorkflowDiagram';
 export { ValidationPanel } from './ValidationPanel';
 export { RegistrationBindingPanel } from './RegistrationBindingPanel';
+export { InstitutionAssignmentPanel } from './InstitutionAssignmentPanel';
