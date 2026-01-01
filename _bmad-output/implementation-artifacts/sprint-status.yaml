@@ -89,7 +89,7 @@ development_status:
   # NOTE: 4-0 is a research spike, 4-5a is merged from Epic 5
   # MVP CRITICAL: 4-0, 4-1, 4-2, 4-3, 4-4, 4-5, 4-6, 4-9
   # DEFERRABLE: 4-7, 4-8, 4-10, 4-11
-  epic-4: in-progress
+  epic-4: done
   4-0-workflow-domain-research-spike: done # Research spike complete
   4-1-workflow-database-model-api: done
   4-2-define-workflow-steps: done
@@ -103,7 +103,7 @@ development_status:
   4-9-role-status-configuration-4-status-model: done
   4-10-role-registration-binding: backlog # Deferrable
   4-11-role-institution-assignment: backlog # Deferrable (Phase 2)
-  epic-4-retrospective: optional
+  epic-4-retrospective: done
 
   # Epic 5: Determinants & Business Rules - SUPERSEDED
   # Rationale: Core functionality implemented in Epic 3 (3.7, 3.9)
