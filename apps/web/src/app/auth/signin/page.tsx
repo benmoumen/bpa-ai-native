@@ -16,18 +16,19 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const callbackUrl = params.callbackUrl || '/dashboard';
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-50 overflow-y-auto">
+      <div className="w-full max-w-[28rem] space-y-8 p-8 bg-white rounded-lg shadow-md my-8 mx-4">
+        <div className="w-full">
+          <h2 className="text-center text-3xl font-bold text-gray-900">
             BPA Service Designer
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-600">
             Sign in with your organization credentials
           </p>
         </div>
 
         <form
+          className="mt-8 space-y-6"
           action={async () => {
             'use server';
             await signIn('keycloak', { redirectTo: callbackUrl });
@@ -41,7 +42,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           </button>
         </form>
 
-        <div className="text-center text-xs text-gray-500">
+        <div className="text-center text-xs text-gray-500 mt-6">
           <p>Secure authentication via OAuth 2.0 + PKCE</p>
         </div>
       </div>
