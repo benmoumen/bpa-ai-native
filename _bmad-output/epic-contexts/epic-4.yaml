@@ -1,0 +1,130 @@
+# Epic 4 Context File
+# Auto-generated from epic-4-execution-plan.md
+# Used by /epic command
+
+epic: 4
+name: Workflow Configuration
+description: |
+  Configure workflow steps, transitions, approval chains, and the 4-Status Model.
+  Implements the core workflow engine that powers service processing in BPA.
+status: in-progress
+
+spike:
+  required: true
+  story_id: "4-0"
+  title: "Workflow Domain Research Spike"
+  research_targets:
+    - "../BPA-backend/src/main/java/org/unctad/ereg/bpa/model/role/"
+    - "../BPA-backend/src/main/java/org/unctad/ereg/bpa/model/workflow/"
+    - "_bmad-output/analysis/bpa-api-mental-model-analysis.md"
+  focus:
+    - RoleStatusType and RoleType enums
+    - 4-Status Model (PENDING, PASSED, RETURNED, REJECTED)
+    - BOT Contract Architecture (InputMapping, OutputMapping)
+    - Workflow step patterns
+  output: "_bmad-output/implementation-artifacts/4-0-spike-findings.md"
+
+stories:
+  mvp_critical:
+    - id: "4-0"
+      title: "Workflow Domain Research Spike"
+      status: in-progress
+      focus: "Research"
+      deliverables: "Spike output, schema design"
+    - id: "4-1"
+      title: "Workflow Database Model API"
+      status: backlog
+      focus: "Database"
+      deliverables: "Workflow, Step, Transition Prisma models"
+    - id: "4-2"
+      title: "Define Workflow Steps"
+      status: backlog
+      focus: "Steps"
+      deliverables: "Step CRUD API, step ordering"
+    - id: "4-3"
+      title: "Configure Workflow Transitions"
+      status: backlog
+      focus: "Transitions"
+      deliverables: "Transition rules, conditions"
+    - id: "4-4"
+      title: "Specify Step Actions"
+      status: backlog
+      focus: "Actions"
+      deliverables: "Step actions, BOT integration points"
+    - id: "4-5"
+      title: "Assign Forms to Workflow Steps"
+      status: backlog
+      focus: "Forms"
+      deliverables: "Form-to-step assignment"
+    - id: "4-5a"
+      title: "Determinants in Workflow Conditions"
+      status: backlog
+      focus: "Determinants"
+      deliverables: "Conditional workflow routing"
+      note: "Merged from Epic 5-5"
+    - id: "4-6"
+      title: "Linear Approval Chain Configuration"
+      status: backlog
+      focus: "Chains"
+      deliverables: "Linear approval configuration UI"
+    - id: "4-9"
+      title: "Role Status Configuration (4-Status Model)"
+      status: backlog
+      focus: "4-Status"
+      deliverables: "Role status CRUD, status model implementation"
+
+  deferrable:
+    - id: "4-7"
+      title: "Workflow Diagram Preview"
+      status: backlog
+      reason: "Nice-to-have visualization"
+    - id: "4-8"
+      title: "Workflow Validation"
+      status: backlog
+      reason: "Can validate manually initially"
+    - id: "4-10"
+      title: "Role Registration Binding"
+      status: backlog
+      reason: "Advanced feature"
+    - id: "4-11"
+      title: "Role Institution Assignment"
+      status: backlog
+      reason: "Phase 2 feature"
+
+constraints:
+  - "4-Status Model codes are FIXED: PENDING=0, PASSED=1, RETURNED=2, REJECTED=3"
+  - "Role hierarchy: UserRole (human) and BotRole (automated) must both be supported"
+  - "BOT uses contract-based I/O: InputMapping (form→request) and OutputMapping (response→form)"
+  - "Workflow steps are sequential within a role, parallel across roles"
+  - "Each role produces exactly one of the 4 statuses as outcome"
+
+prerequisites:
+  - epic: 1
+    name: "Project Foundation"
+    required_status: done
+  - epic: 2
+    name: "Service Lifecycle Management"
+    required_status: done
+  - epic: 3
+    name: "Form Building & Configuration"
+    required_status: done
+
+knowledge_sources:
+  domain_model: "_bmad-output/analysis/bpa-api-mental-model-analysis.md"
+  architecture: "_bmad-output/architecture.md"
+  legacy_enums: "../BPA-backend/src/main/java/org/unctad/ereg/bpa/model/"
+  api_swagger: "https://bpa.dev.els.eregistrations.org/bparest/bpa/v2016/06/v3/api-docs"
+
+technical_notes:
+  prisma_models:
+    - Workflow (id, serviceId, name, description, isActive)
+    - WorkflowStep (id, workflowId, name, order, roleType, formId?)
+    - WorkflowTransition (id, fromStepId, toStepId, condition?)
+    - Role (id, name, type: USER|BOT, institutionId?)
+    - RoleStatus (id, roleId, code: 0|1|2|3, name, isDefault)
+  api_modules:
+    - WorkflowModule (CRUD for workflows)
+    - WorkflowStepsModule (CRUD for steps)
+    - WorkflowTransitionsModule (CRUD for transitions)
+    - RolesModule (CRUD for roles)
+    - RoleStatusModule (4-Status management)
