@@ -97,10 +97,10 @@ development_status:
   4-4-specify-step-actions: done
   4-5-assign-forms-to-workflow-steps: done
   4-5a-determinants-in-workflow-conditions: done # MERGED from Epic 5-5
-  4-6-linear-approval-chain-configuration: backlog
+  4-6-linear-approval-chain-configuration: done
   4-7-workflow-diagram-preview: backlog # Deferrable
   4-8-workflow-validation: backlog # Deferrable
-  4-9-role-status-configuration-4-status-model: backlog # MVP Critical
+  4-9-role-status-configuration-4-status-model: done
   4-10-role-registration-binding: backlog # Deferrable
   4-11-role-institution-assignment: backlog # Deferrable (Phase 2)
   epic-4-retrospective: optional
