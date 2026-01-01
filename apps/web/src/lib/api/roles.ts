@@ -272,3 +272,54 @@ export async function getWorkflowGraph(serviceId: string): Promise<WorkflowGraph
   const result: ApiResponse<WorkflowGraph> = await response.json();
   return result.data;
 }
+
+// ============================================================================
+// Workflow Validation Types (Story 4-8)
+// ============================================================================
+
+export type ValidationSeverity = 'ERROR' | 'WARNING';
+
+export type ValidationIssueCode =
+  | 'NO_START_ROLE'
+  | 'MULTIPLE_START_ROLES'
+  | 'NO_END_ROLE'
+  | 'ORPHAN_ROLE'
+  | 'UNREACHABLE_ROLE'
+  | 'NO_TRANSITIONS'
+  | 'NO_ROLES';
+
+export interface ValidationIssue {
+  code: ValidationIssueCode;
+  severity: ValidationSeverity;
+  message: string;
+  roleId?: string;
+  roleName?: string;
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  issues: ValidationIssue[];
+  validatedAt: string;
+  errorCount: number;
+  warningCount: number;
+}
+
+/**
+ * Validate workflow configuration for a service
+ */
+export async function validateWorkflow(serviceId: string): Promise<ValidationResult> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/services/${serviceId}/roles/validate`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to validate workflow');
+  }
+
+  const result: ApiResponse<ValidationResult> = await response.json();
+  return result.data;
+}

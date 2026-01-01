@@ -17,18 +17,23 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { RolesService } from './roles.service';
+import { WorkflowValidationService } from './workflow-validation.service';
 import {
   CreateRoleDto,
   UpdateRoleDto,
   RoleResponseDto,
   WorkflowGraphDto,
+  ValidationResultDto,
 } from './dto';
 
 @ApiTags('roles')
 @ApiBearerAuth()
 @Controller('services/:serviceId/roles')
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) {}
+  constructor(
+    private readonly rolesService: RolesService,
+    private readonly validationService: WorkflowValidationService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new role for a service' })
@@ -84,6 +89,21 @@ export class RolesController {
     @Param('serviceId') serviceId: string,
   ): Promise<WorkflowGraphDto> {
     return this.rolesService.getWorkflowGraph(serviceId);
+  }
+
+  @Post('validate')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Validate workflow configuration' })
+  @ApiParam({ name: 'serviceId', description: 'Service ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Validation result with issues if any',
+    type: ValidationResultDto,
+  })
+  validateWorkflow(
+    @Param('serviceId') serviceId: string,
+  ): Promise<ValidationResultDto> {
+    return this.validationService.validateWorkflow(serviceId);
   }
 
   @Get(':id')

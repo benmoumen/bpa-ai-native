@@ -24,7 +24,7 @@ import {
 import { ServiceMetadataForm } from '@/components/services/ServiceMetadataForm';
 import { RegistrationList } from '@/components/registrations';
 import { FormList } from '@/components/forms';
-import { RolesList, TransitionsList, WorkflowDiagram } from '@/components/workflow';
+import { RolesList, TransitionsList, WorkflowDiagram, ValidationPanel } from '@/components/workflow';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useService } from '@/hooks/use-services';
@@ -159,6 +159,11 @@ function ServiceDetailContent({ serviceId }: ServiceDetailContentProps) {
             </p>
           </div>
           <WorkflowDiagram serviceId={serviceId} />
+        </div>
+
+        {/* Workflow Validation Section */}
+        <div className="mt-8 border-t border-black/10 pt-8">
+          <ValidationPanel serviceId={serviceId} />
         </div>
       </div>
     </div>

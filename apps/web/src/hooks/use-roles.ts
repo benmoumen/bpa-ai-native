@@ -17,10 +17,12 @@ import {
   getStartRole,
   setStartRole,
   getWorkflowGraph,
+  validateWorkflow,
   type Role,
   type CreateRoleInput,
   type UpdateRoleInput,
   type WorkflowGraph,
+  type ValidationResult,
 } from '@/lib/api/roles';
 import { ApiResponse } from '@/lib/api/services';
 
@@ -37,6 +39,8 @@ export const roleKeys = {
     [...roleKeys.all, 'start', serviceId] as const,
   workflowGraph: (serviceId: string) =>
     [...roleKeys.all, 'workflow-graph', serviceId] as const,
+  validation: (serviceId: string) =>
+    [...roleKeys.all, 'validation', serviceId] as const,
 };
 
 /**
@@ -166,5 +170,33 @@ export function useWorkflowGraph(serviceId: string) {
     queryKey: roleKeys.workflowGraph(serviceId),
     queryFn: () => getWorkflowGraph(serviceId),
     enabled: !!serviceId,
+  });
+}
+
+/**
+ * Hook to validate workflow configuration
+ * Story 4-8: Workflow Validation
+ */
+export function useWorkflowValidation(serviceId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<ValidationResult, Error, void>({
+    mutationFn: () => validateWorkflow(serviceId),
+    onSuccess: (data) => {
+      // Cache the validation result
+      queryClient.setQueryData(roleKeys.validation(serviceId), data);
+    },
+  });
+}
+
+/**
+ * Hook to get cached validation result
+ * Story 4-8: Workflow Validation
+ */
+export function useValidationResult(serviceId: string) {
+  return useQuery<ValidationResult | undefined, Error>({
+    queryKey: roleKeys.validation(serviceId),
+    queryFn: () => Promise.resolve(undefined),
+    enabled: false, // Only use cached data, don't auto-fetch
   });
 }
