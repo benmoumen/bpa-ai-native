@@ -24,6 +24,7 @@ import {
 import { ServiceMetadataForm } from '@/components/services/ServiceMetadataForm';
 import { RegistrationList } from '@/components/registrations';
 import { FormList } from '@/components/forms';
+import { RolesList, TransitionsList } from '@/components/workflow';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useService } from '@/hooks/use-services';
@@ -137,6 +138,16 @@ function ServiceDetailContent({ serviceId }: ServiceDetailContentProps) {
         {/* Forms Section */}
         <div className="mt-8 border-t border-black/10 pt-8">
           <FormList serviceId={serviceId} isEditable={isEditable} />
+        </div>
+
+        {/* Workflow Steps Section */}
+        <div className="mt-8 border-t border-black/10 pt-8">
+          <RolesList serviceId={serviceId} isEditable={isEditable} />
+        </div>
+
+        {/* Workflow Transitions Section */}
+        <div className="mt-8 border-t border-black/10 pt-8">
+          <TransitionsList serviceId={serviceId} isEditable={isEditable} />
         </div>
       </div>
     </div>
