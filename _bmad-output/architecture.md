@@ -444,92 +444,207 @@ Does it need interactivity?
            └─ No → "use cache" + Server Component
 ```
 
-#### AI Chat UI: CopilotKit
+#### AI Agent Architecture: Vercel AI SDK
 
-**Decision:** Adopt CopilotKit as the AI chat interface framework.
+**Decision:** Adopt Vercel AI SDK as the foundation for an intelligent AI agent system.
 
-| Criterion | CopilotKit | Custom SSE | Decision |
-|-----------|------------|------------|----------|
-| Groq Integration | Native support | Manual implementation | CopilotKit |
-| Streaming UI | Built-in components | Build from scratch | CopilotKit |
-| Context Hooks | useCopilotReadable | Custom context provider | CopilotKit |
-| Action Triggers | useCopilotAction | Manual event handlers | CopilotKit |
-| Generative UI | useCoAgentStateRender | Not available | CopilotKit |
-| Bundle Size | ~45KB | ~15KB custom | Acceptable |
-| Maintenance | Active community | Internal team | CopilotKit |
+| Criterion | CopilotKit | Vercel AI SDK | Decision |
+|-----------|------------|---------------|----------|
+| Action limits | 30 max (cloud tier) | Unlimited | **Vercel** |
+| Dynamic tool generation | Manual registration | OpenAPI → Tools | **Vercel** |
+| Agent loop control | Abstracted | Full control | **Vercel** |
+| Self-healing capability | DIY | Full control | **Vercel** |
+| License | MIT + cloud paywall | Apache 2.0 | **Vercel** |
+| UI components | Built-in | Build/use helpers | CopilotKit |
+| Effort | 2-3 weeks | 4-5 weeks | CopilotKit |
 
-**Rationale:** CopilotKit provides production-ready AI chat components with native Groq support, reducing Epic 6 implementation effort by ~40%. The framework handles SSE streaming, context management, and generative UI patterns out of the box.
+**Rationale:** BPA requires an engineer-like AI agent that dynamically interacts with the entire API surface, enforces constraints, and self-heals from errors. CopilotKit's 30-action limit and abstracted control are insufficient. The additional 2-week investment yields 10x flexibility and eliminates vendor lock-in.
 
-**Component Integration:**
+**Architecture Overview:**
 
-| CopilotKit Component | Purpose | Integration Point |
-|---------------------|---------|-------------------|
-| `CopilotSidebar` | Main AI chat interface | Left panel in split-screen layout |
-| `CopilotPopup` | Inline field-level AI help | Form field context menus |
-| `useCopilotReadable` | Share form state with AI | Form config, service metadata |
-| `useCopilotAction` | AI-triggered form updates | Apply AI suggestions to forms |
-| `useCoAgentStateRender` | Generative UI rendering | Live preview updates |
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              AI Agent Core                               │
+│  Vercel AI SDK: generateText(), streamText(), tool()                    │
+│  - Full control over reasoning loop                                      │
+│  - Multi-step reasoning (maxSteps: 10)                                   │
+│  - Streaming responses                                                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│                         Dynamic Tool Registry                            │
+│  OpenAPI Spec → Zod Schemas → Tool Functions (auto-generated)           │
+│  - No manual action registration                                         │
+│  - Add API endpoint = agent knows about it                              │
+├─────────────────────────────────────────────────────────────────────────┤
+│                           Context Layer                                  │
+│  UI State (Zustand) + Backend Events (WebSocket) + Service Snapshot     │
+├─────────────────────────────────────────────────────────────────────────┤
+│                         Constraint Engine                                │
+│  YAML rules: permissions, confirmations, cost guards, scope limits      │
+├─────────────────────────────────────────────────────────────────────────┤
+│                        Self-Healing Layer                                │
+│  Error classification → Recovery strategies → Graceful escalation       │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
-**Configuration:**
+**Key Components:**
+
+| Component | Purpose | Location |
+|-----------|---------|----------|
+| Agent Core | Orchestrates AI interactions | `packages/ai-agent/src/runtime/` |
+| Tool Generator | OpenAPI → Zod → Tools | `packages/ai-agent/src/tools/generator.ts` |
+| Tool Registry | Dynamic tool registration | `packages/ai-agent/src/tools/registry.ts` |
+| Context Provider | UI + backend state | `packages/ai-agent/src/context/` |
+| Constraint Engine | Rule enforcement | `packages/ai-agent/src/constraints/` |
+| Self-Healing | Error recovery | `packages/ai-agent/src/healing/` |
+| Observability | Audit + cost tracking | `packages/ai-agent/src/observability/` |
+
+**Dynamic Tool Generation Pattern:**
 
 ```typescript
-// app/providers.tsx
-import { CopilotKit } from "@copilotkit/react-core";
+// packages/ai-agent/src/tools/generator.ts
+import { tool } from "ai";
+import { z } from "zod";
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export async function generateToolsFromOpenAPI(specUrl: string) {
+  const spec = await fetch(specUrl).then(r => r.json());
+  const tools: Record<string, any> = {};
+
+  for (const [path, pathItem] of Object.entries(spec.paths || {})) {
+    for (const [method, operation] of Object.entries(pathItem || {})) {
+      const toolName = operation.operationId;
+      tools[toolName] = tool({
+        description: operation.summary,
+        parameters: schemaToZod(operation.requestBody, operation.parameters),
+        execute: createExecutor(method, path),
+      });
+    }
+  }
+  return tools;
+}
+```
+
+**Constraint Engine (YAML Rules):**
+
+```yaml
+# packages/ai-agent/src/constraints/rules.yaml
+rules:
+  - name: confirm_destructive
+    condition: "tool.metadata.mutates && tool.name.match(/delete|remove/)"
+    action: require_confirmation
+    message: "This will permanently delete data. Are you sure?"
+
+  - name: check_service_ownership
+    condition: "tool.metadata.scope === 'service'"
+    action: check_permission
+    permission: "service:write:{serviceId}"
+
+  - name: llm_cost_limit
+    condition: "context.sessionCost > 1.00"
+    action: block
+    message: "Cost limit reached ($1.00). Please start a new session."
+```
+
+**Self-Healing Error Classification:**
+
+```typescript
+// packages/ai-agent/src/healing/classifier.ts
+export function classifyError(error: any): ClassifiedError {
+  if (error.status === 429) {
+    return { category: "retryable", canAutoHeal: true,
+             strategy: { type: "retry", delay: error.retryAfter } };
+  }
+  if (error.status === 409) {
+    return { category: "conflict", canAutoHeal: true,
+             strategy: { type: "refresh_and_retry" } };
+  }
+  if (error.status === 400) {
+    return { category: "user_fixable", canAutoHeal: false,
+             guidance: `Validation error: ${error.message}` };
+  }
+  return { category: "fatal", canAutoHeal: false };
+}
+```
+
+**Agent Runtime Configuration:**
+
+```typescript
+// packages/ai-agent/src/runtime/agent.ts
+import { streamText } from "ai";
+import { groq } from "@ai-sdk/groq";
+
+export class BPAAgent {
+  async chat(userMessage: string) {
+    const context = await getContextSnapshot(this.config.serviceId);
+    const tools = await getConstrainedTools(this.config);
+
+    return streamText({
+      model: groq("llama-3.3-70b-versatile"),
+      system: buildSystemPrompt(context),
+      messages: this.messages,
+      tools,
+      maxSteps: 10, // Multi-step reasoning
+      onStepFinish: async (step) => {
+        for (const call of step.toolCalls || []) {
+          if (call.result?.error) {
+            await this.handleToolError(call);
+          }
+        }
+      },
+    });
+  }
+}
+```
+
+**UI Components:**
+
+```typescript
+// apps/web/src/components/AIAgent/ChatPanel.tsx
+import { useChat } from "ai/react";
+
+export function AIAgentChat({ serviceId }: { serviceId: string }) {
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+    api: `/api/agent/${serviceId}/chat`,
+  });
+
   return (
-    <CopilotKit
-      runtimeUrl="/api/copilotkit"
-      transcribeAudioUrl="/api/copilotkit/transcribe"
-    >
-      {children}
-    </CopilotKit>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto">
+        {messages.map((m) => <MessageBubble key={m.id} message={m} />)}
+      </div>
+      <form onSubmit={handleSubmit}>
+        <input value={input} onChange={handleInputChange} disabled={isLoading} />
+      </form>
+    </div>
   );
 }
-
-// app/api/copilotkit/route.ts
-import { CopilotRuntime, GroqAdapter } from "@copilotkit/runtime";
-
-export async function POST(req: Request) {
-  const copilotKit = new CopilotRuntime();
-  const groqAdapter = new GroqAdapter({ model: "llama-3.3-70b-versatile" });
-
-  return copilotKit.streamHttpServerResponse(req, res, groqAdapter);
-}
 ```
 
-**Context Sharing Pattern:**
+**Backend Event Integration:**
 
 ```typescript
-// components/FormBuilder.tsx
-import { useCopilotReadable, useCopilotAction } from "@copilotkit/react-core";
-
-function FormBuilder({ serviceId }: { serviceId: string }) {
-  const { data: formConfig } = useFormConfig(serviceId);
-
-  // Share current form state with AI
-  useCopilotReadable({
-    description: "Current form configuration",
-    value: formConfig,
-  });
-
-  // Allow AI to add fields
-  useCopilotAction({
-    name: "addFormField",
-    description: "Add a new field to the form",
-    parameters: [
-      { name: "fieldType", type: "string", enum: ["text", "number", "date", "select"] },
-      { name: "label", type: "string" },
-      { name: "required", type: "boolean" },
-    ],
-    handler: async ({ fieldType, label, required }) => {
-      await addField({ serviceId, fieldType, label, required });
-    },
-  });
-
-  return <FormEditor config={formConfig} />;
+// packages/ai-agent/src/context/events.ts
+export function useBackendEventStream(serviceId: string) {
+  useEffect(() => {
+    const ws = new WebSocket(`/api/v1/events?serviceId=${serviceId}`);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      switch (data.type) {
+        case "validation": store.setErrors(data.errors); break;
+        case "workflow_update": store.setWorkflow(data.workflow); break;
+        case "health_check": store.setBackendHealth(data.healthy); break;
+      }
+    };
+    return () => ws.close();
+  }, [serviceId]);
 }
 ```
+
+**Full specification:** See `_bmad-output/architecture-ai-agent.md` for complete implementation details including:
+- Tool generator implementation
+- Constraint engine with YAML rules
+- Self-healing strategies
+- Observability (audit logs, cost tracking)
+- Testing patterns
 
 ### Infrastructure & Deployment
 
@@ -616,10 +731,12 @@ jobs:
 | Decision | Affects |
 |----------|---------|
 | Redis caching | Session management, LLM response cache, rate limiting |
-| REST + OpenAPI | NestJS modules, API documentation, client generation |
-| Zustand + TanStack Query | All frontend components, data flow |
+| REST + OpenAPI | NestJS modules, API documentation, **AI Agent tool generation** |
+| Zustand + TanStack Query | All frontend components, data flow, **AI Agent context** |
 | Docker deployment | CI/CD, local development, production hosting |
 | Git sync | Audit compliance, service portability, version history |
+| Vercel AI SDK | AI Agent runtime, streaming, tool calling |
+| Constraint Engine | AI Agent actions, permission enforcement, confirmation gates |
 
 ## Implementation Patterns & Consistency Rules
 
@@ -1033,7 +1150,7 @@ function ServiceList() {
 | **Service Management (8 FRs)** | `apps/api/src/modules/services/` | `apps/web/src/app/(dashboard)/services/` |
 | **Form Configuration (9 FRs)** | `apps/api/src/modules/forms/` | `apps/web/src/components/features/forms/` |
 | **Workflow Configuration (7 FRs)** | `apps/api/src/modules/workflows/` | `apps/web/src/components/features/workflows/` |
-| **AI-Powered Assistance (9 FRs)** | `apps/api/src/modules/ai/` | `apps/web/src/app/api/ai/` |
+| **AI-Powered Assistance (9 FRs)** | `packages/ai-agent/` | `apps/web/src/components/features/ai-agent/` |
 | **Determinants & Rules (5 FRs)** | `apps/api/src/modules/determinants/` | `packages/expressions/` |
 | **Preview & Publishing (8 FRs)** | `apps/api/src/modules/preview/` | `apps/web/src/app/(dashboard)/preview/` |
 | **User & Access (5 FRs)** | `apps/api/src/modules/auth/` | `apps/web/src/app/(auth)/` |
@@ -1118,9 +1235,15 @@ bpa-ai-native/
 │   │       │   │       └── audit/
 │   │       │   │           └── page.tsx
 │   │       │   └── api/
-│   │       │       └── ai/
-│   │       │           └── generate/
-│   │       │               └── route.ts      # SSE streaming endpoint
+│   │       │       ├── ai/
+│   │       │       │   └── generate/
+│   │       │       │       └── route.ts      # Legacy SSE endpoint
+│   │       │       └── agent/
+│   │       │           ├── [serviceId]/
+│   │       │           │   └── chat/
+│   │       │           │       └── route.ts  # Agent chat endpoint
+│   │       │           └── confirm/
+│   │       │               └── route.ts      # Confirmation handler
 │   │       ├── components/
 │   │       │   ├── ui/
 │   │       │   │   ├── Button.tsx
@@ -1156,11 +1279,12 @@ bpa-ai-native/
 │   │       │       │   ├── StepNode.tsx
 │   │       │       │   ├── TransitionEditor.tsx
 │   │       │       │   └── index.ts
-│   │       │       ├── ai/
-│   │       │       │   ├── ChatPanel.tsx
-│   │       │       │   ├── ChatMessage.tsx
-│   │       │       │   ├── StreamingIndicator.tsx
-│   │       │       │   ├── ProposalCard.tsx
+│   │       │       ├── ai-agent/
+│   │       │       │   ├── ChatPanel.tsx         # Main chat interface
+│   │       │       │   ├── MessageBubble.tsx     # Message display
+│   │       │       │   ├── ConfirmationCard.tsx  # Action confirmations
+│   │       │       │   ├── StatusBar.tsx         # Backend health + errors
+│   │       │       │   ├── InlineHelper.tsx      # Field-level assistance
 │   │       │       │   └── index.ts
 │   │       │       ├── determinants/
 │   │       │       │   ├── FormulaEditor.tsx
@@ -1341,18 +1465,44 @@ bpa-ai-native/
 │   │   └── tailwind/
 │   │       └── index.ts
 │   │
-│   └── expressions/                  # JSONata + JSON Rules Engine
+│   ├── expressions/                  # JSONata + JSON Rules Engine
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   └── src/
+│   │       ├── index.ts
+│   │       ├── jsonata/
+│   │       │   ├── compiler.ts
+│   │       │   ├── sandbox.ts
+│   │       │   └── cache.ts
+│   │       └── rules/
+│   │           ├── engine.ts
+│   │           └── validators.ts
+│   │
+│   └── ai-agent/                     # AI Agent (Vercel AI SDK)
 │       ├── package.json
 │       ├── tsconfig.json
 │       └── src/
 │           ├── index.ts
-│           ├── jsonata/
-│           │   ├── compiler.ts
-│           │   ├── sandbox.ts
-│           │   └── cache.ts
-│           └── rules/
-│               ├── engine.ts
-│               └── validators.ts
+│           ├── runtime/
+│           │   ├── agent.ts          # BPAAgent class
+│           │   └── stream.ts         # Streaming handler
+│           ├── tools/
+│           │   ├── generator.ts      # OpenAPI → Tools
+│           │   ├── registry.ts       # Tool registry
+│           │   └── custom.ts         # Custom tools
+│           ├── context/
+│           │   ├── provider.ts       # Context store (Zustand)
+│           │   └── events.ts         # Backend WebSocket
+│           ├── constraints/
+│           │   ├── rules.yaml        # Constraint definitions
+│           │   ├── engine.ts         # Constraint evaluator
+│           │   └── confirmation.ts   # Confirmation handler
+│           ├── healing/
+│           │   ├── classifier.ts     # Error classification
+│           │   └── handler.ts        # Healing logic
+│           └── observability/
+│               ├── audit.ts          # Action audit log
+│               └── cost.ts           # LLM cost tracking
 │
 ├── docs/
 │   ├── api/
@@ -1400,15 +1550,19 @@ bpa-ai-native/
 
 **Internal Communication:**
 - `apps/web` → `apps/api`: REST API calls via TanStack Query
+- `apps/web` → `packages/ai-agent`: Agent runtime + tools
 - `apps/api` → `packages/db`: Prisma client imports
 - `apps/api` → `packages/expressions`: JSONata/Rules Engine evaluation
+- `apps/api` → `packages/ai-agent`: Tool execution, constraint validation
 - `apps/*` → `packages/types`: Shared type imports
 
 **External Integrations:**
 - Keycloak: OAuth2 + PKCE flow, JWT validation
-- LiteLLM: Groq primary, Claude fallback
+- Groq (via @ai-sdk/groq): Primary LLM for agent reasoning
+- LiteLLM: Fallback gateway for Claude
 - Git: Background sync for service configuration audit
 - Redis: Session storage, LLM response cache
+- WebSocket: Backend event stream for agent context
 
 **Data Flow:**
 ```

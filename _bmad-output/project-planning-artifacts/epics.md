@@ -2066,284 +2066,304 @@ So that broken references don't cause runtime errors.
 
 ---
 
-## Epic 6: AI-Powered Service Configuration
+## Epic 6: AI Agent for Service Configuration
 
-**Goal:** Service Designers can describe services in natural language and receive AI-generated configurations.
+**Goal:** An intelligent AI Agent operates as a "junior engineer" - understanding backend state, executing multi-step operations, respecting constraints, and auto-healing when possible.
+
+**Architecture:** Vercel AI SDK (revised from CopilotKit)
+**Detailed Spec:** See `_bmad-output/implementation-artifacts/epic-6-ai-agent-stories.md`
 
 **FRs Covered:** FR25, FR26, FR27, FR28, FR29, FR30, FR31, FR32, FR33, FR63, FR64
 **NFRs Addressed:** NFR1 (AI < 10s), NFR2 (streaming < 1s), NFR28-29 (LLM fallback), NFR32-33 (cost efficiency)
 
 ---
 
-### Story 6.1: LLM Integration Infrastructure
+### Story 6.0: AI Agent Architecture Spike
 
 As a **Developer**,
-I want LLM integration with Groq (primary) and Claude (fallback) via LiteLLM gateway,
-So that AI features have reliable, cost-effective language model access.
+I want to validate the Vercel AI SDK architecture with a minimal E2E implementation,
+So that we confirm the approach before full build-out.
 
 **Acceptance Criteria:**
 
-**Given** the API module for AI exists
-**When** the developer inspects `apps/api/src/ai`
-**Then** the following components are configured:
-  - LiteLLM gateway client
-  - Groq as primary provider
-  - Claude as fallback provider
-  - Redis cache for LLM responses
+**Given** Vercel AI SDK with Groq adapter
+**When** integrated into the Next.js app
+**Then** streaming responses work with `streamText()`
+**And** a single tool (createService) executes successfully
 
-**Given** a request is made to the LLM
-**When** Groq is available
-**Then** Groq handles the request (NFR32: cost < $1 per service)
-**And** response is cached in Redis
-
-**Given** Groq is unavailable or times out
-**When** the request fails after 30 seconds (NFR29)
-**Then** the system automatically falls back to Claude (NFR28)
-**And** fallback is logged for monitoring
-
-**Given** both providers fail
-**When** the request cannot be completed
-**Then** a graceful error message is returned
-**And** no partial data is exposed
+**Given** the spike implementation
+**When** tested end-to-end
+**Then** tool → API → Database flow is validated
+**And** learnings are documented for remaining stories
 
 ---
 
-### Story 6.2: Chat Interface for Natural Language Input
+### Story 6.1: AI Agent Core Runtime
 
-As a **Service Designer**,
-I want a chat interface to describe services in natural language,
-So that I can configure services conversationally without technical knowledge.
+As a **Developer**,
+I want a BPAAgent class with multi-step reasoning capability,
+So that the AI can chain multiple tool calls to complete complex tasks.
 
 **Acceptance Criteria:**
 
-**Given** the Service Designer is creating or editing a service
-**When** they open the AI Assistant panel
-**Then** a chat interface is displayed with:
-  - Message input area
-  - Conversation history
-  - "New conversation" option
+**Given** `packages/ai-agent` exists
+**When** the developer inspects `src/runtime/agent.ts`
+**Then** BPAAgent class implements:
+  - `chat()` method with streaming response
+  - System prompt with service context injection
+  - Multi-step reasoning (`maxSteps: 10`)
+  - Step completion hooks for error handling
 
-**Given** the chat interface is open
-**When** the Service Designer types a message
-**Then** character count is displayed
-**And** send button is enabled when content exists
+**Given** Groq is unavailable
+**When** the request fails
+**Then** LiteLLM fallback to Claude is triggered (NFR28)
+**And** fallback is logged for monitoring
+
+---
+
+### Story 6.1a: Dynamic Tool Registry
+
+As a **Developer**,
+I want tools auto-generated from OpenAPI specification,
+So that the AI agent always has access to current API capabilities.
+
+**Acceptance Criteria:**
+
+**Given** the OpenAPI spec at `/api/v1/openapi.json`
+**When** the tool generator processes it
+**Then** Vercel AI SDK tools are created for all endpoints:
+  - Parameters converted to Zod schemas
+  - Tool metadata includes: mutates, scope, requiresConfirmation
+  - HTTP executor handles auth and error responses
+
+**Given** the OpenAPI spec changes
+**When** tools are regenerated
+**Then** new endpoints are available immediately
+**And** removed endpoints no longer appear
+
+---
+
+### Story 6.1b: Constraint Engine
+
+As a **Developer**,
+I want a YAML-based rule engine for action constraints,
+So that destructive or expensive operations require confirmation.
+
+**Acceptance Criteria:**
+
+**Given** `src/constraints/rules.yaml` exists
+**When** a tool is about to execute
+**Then** the constraint engine evaluates applicable rules:
+  - `require_confirmation`: Pause for user approval
+  - `block`: Prevent execution entirely
+  - `warn`: Allow but show warning
+  - `transform`: Modify parameters before execution
+
+**Given** the rules file is updated
+**When** the application is restarted
+**Then** new rules take effect
+**And** rule changes are logged
+
+**Default Rules (MVP):**
+- Confirm: delete, remove, publish operations
+- Block: Session cost > $1.00
+- Warn: Bulk modifications (> 5 items)
+
+---
+
+### Story 6.1c: Self-Healing Layer
+
+As a **Developer**,
+I want error classification and automatic recovery,
+So that transient failures are handled without user intervention.
+
+**Acceptance Criteria:**
+
+**Given** a tool execution fails
+**When** the error is classified
+**Then** one of four categories is assigned:
+  - `retryable`: Rate limits (429), temporary failures (503)
+  - `conflict`: Optimistic lock failures (409)
+  - `user_fixable`: Validation errors (400, 422)
+  - `fatal`: Auth errors (401, 403), server errors (500)
+
+**Given** a retryable error occurs
+**When** auto-heal is enabled
+**Then** exponential backoff retry is executed
+**And** success/failure is logged
+
+**Given** a conflict error occurs
+**When** auto-heal executes
+**Then** context is refreshed and operation retried
+**And** user is informed of the recovery
+
+---
+
+### Story 6.1d: Backend Event Stream
+
+As a **Developer**,
+I want real-time backend state awareness via WebSocket,
+So that the AI agent knows when entities change.
+
+**Acceptance Criteria:**
+
+**Given** a WebSocket connection to `/ws/events`
+**When** an entity is created/updated/deleted
+**Then** the event is received with:
+  - Entity type and ID
+  - Change type (create, update, delete)
+  - Timestamp
+
+**Given** events are received
+**When** the context store (Zustand) is updated
+**Then** the AI agent has current state
+**And** stale data issues are prevented
+
+**Given** the WebSocket disconnects
+**When** reconnection is attempted
+**Then** exponential backoff is used
+**And** missed events are reconciled
+
+---
+
+### Story 6.1e: Observability Layer
+
+As a **Developer**,
+I want audit logging and LLM cost tracking,
+So that usage is monitored and costs are controlled.
+
+**Acceptance Criteria:**
+
+**Given** a tool is executed
+**When** the action completes
+**Then** an audit log entry is created:
+  - Tool name and parameters
+  - Result (success/error)
+  - Duration (ms)
+  - User ID and session
+
+**Given** LLM tokens are consumed
+**When** a request completes
+**Then** token usage is logged
+**And** session cost is calculated (NFR32: < $1/service)
+
+**Given** the cost dashboard is accessed
+**When** the operator views metrics
+**Then** cost per service is visible
+**And** usage trends are displayed
+
+---
+
+### Story 6.2: Chat Interface Foundation
+
+As a **Service Designer**,
+I want a chat sidebar to interact with the AI Agent,
+So that I can request and review changes conversationally.
+
+**Acceptance Criteria:**
+
+**Given** the service builder is open
+**When** the chat sidebar is displayed
+**Then** it includes:
+  - Message input area with send button
+  - Streaming response display
+  - Message history with user/agent distinction
 
 **Given** a message is sent
-**When** the AI processes the request
+**When** the AI processes it
 **Then** a typing indicator is shown
 **And** the first token appears within 1 second (NFR2)
 
-**Given** the conversation has history
-**When** the Service Designer scrolls
-**Then** previous messages are visible
-**And** context is maintained across the conversation
+**Given** the AI calls a tool
+**When** it modifies the service
+**Then** the change is reflected in the UI immediately
+**And** the agent confirms the action in chat
 
 ---
 
-### Story 6.3: AI Streaming Response Display
+### Story 6.3: Confirmation Flow UI
 
 As a **Service Designer**,
-I want to see AI responses streaming in real-time,
-So that I know the system is working and can read results as they generate.
+I want to confirm constrained actions before execution,
+So that destructive changes require my explicit approval.
 
 **Acceptance Criteria:**
 
-**Given** an AI request is processing
-**When** tokens are generated
-**Then** text appears progressively in the chat (FR63)
-**And** streaming uses SSE (Server-Sent Events)
+**Given** the AI attempts a constrained action
+**When** confirmation is required
+**Then** a dialog is displayed:
+  - Action description
+  - Preview of changes
+  - Accept/Reject buttons
 
-**Given** streaming is in progress
-**When** the Service Designer observes the response
-**Then** text renders smoothly without flicker
-**And** markdown formatting is applied progressively
+**Given** I accept the confirmation
+**When** the action executes
+**Then** the service is updated
+**And** the agent confirms success in chat
 
-**Given** the complete response is received
-**When** streaming ends
-**Then** the response is finalized
-**And** action buttons appear (accept, modify, etc.)
-
-**Given** streaming takes more than 10 seconds total
-**When** the response completes
-**Then** total time is logged for performance monitoring (NFR1)
+**Given** confirmation is not provided within 60 seconds
+**When** the timeout expires
+**Then** the action is cancelled
+**And** the agent reports the timeout
 
 ---
 
-### Story 6.4: Cancel AI Generation
+### Story 6.4: Service Generation Flow
 
 As a **Service Designer**,
-I want to cancel an in-progress AI generation,
-So that I can stop unwanted responses and save time.
+I want to describe a service in natural language and receive complete configuration,
+So that I can quickly create working services.
 
 **Acceptance Criteria:**
 
-**Given** an AI request is streaming
-**When** the Service Designer clicks "Cancel"
-**Then** the SSE connection is aborted (FR64)
-**And** partial response is discarded
-
-**Given** generation is cancelled
-**When** the UI updates
-**Then** a "Cancelled" indicator is shown
-**And** the Service Designer can send a new message
-
-**Given** the cancel signal is sent
-**When** the server receives it
-**Then** LLM request is terminated
-**And** no additional tokens are charged
-
----
-
-### Story 6.5: AI Generates Complete Service Configuration
-
-As a **Service Designer**,
-I want AI to generate complete service configuration from my description,
-So that I can quickly create a working service skeleton.
-
-**Acceptance Criteria:**
-
-**Given** the Service Designer describes a service (e.g., "business registration with company details, director information, and two-step approval")
-**When** the AI processes the description
-**Then** a complete configuration is generated including:
-  - Service metadata (name, description, category)
-  - Applicant form with relevant fields
+**Given** I describe a service (e.g., "business registration with two-step approval")
+**When** the AI processes my description
+**Then** a complete configuration is generated:
+  - Service metadata (name, description)
+  - Form fields appropriate for the service type
   - Workflow steps matching the approval chain
-  - Basic determinants where applicable
 
-**Given** generation completes within 10 seconds (NFR1)
+**Given** generation is in progress
+**When** steps complete
+**Then** progress is shown (e.g., "Generating form fields...")
+**And** partial results are displayed as available
+
+**Given** generation completes
 **When** the configuration is presented
-**Then** it appears as a structured proposal (FR27)
-**And** the Service Designer can review each section
-
-**Given** the cost per generation
-**When** configuration is created
-**Then** total cost is under $1.00 (NFR32)
-**And** cost is logged for billing/monitoring
+**Then** I can review each section before applying (NFR1: < 10s total)
+**And** cost is logged (NFR32: < $1.00)
 
 ---
 
-### Story 6.6: Structured Proposals with Accept/Review/Modify
+### Story 6.5: Iterative Refinement
 
 As a **Service Designer**,
-I want AI proposals presented with accept/review/modify options,
-So that I can approve good suggestions and refine others.
+I want to refine AI-generated configuration through conversation,
+So that I achieve the exact configuration I need.
 
 **Acceptance Criteria:**
 
-**Given** an AI-generated configuration is displayed
-**When** the Service Designer reviews it
-**Then** each component shows:
-  - Accept (apply as-is)
-  - Review (see details before deciding)
-  - Modify (edit before applying)
+**Given** an AI-generated configuration exists
+**When** I request a change (e.g., "add a phone number field")
+**Then** only the affected component is modified
+**And** previous changes are preserved
 
-**Given** the Service Designer clicks "Accept" on a component
-**When** the action is confirmed
-**Then** that component is applied to the service
-**And** the next component can be reviewed
-
-**Given** the Service Designer clicks "Modify"
-**When** the edit interface opens
-**Then** the AI-generated content is editable
-**And** changes can be saved or discarded
-
-**Given** the Service Designer clicks "Review"
-**When** the detail view opens
-**Then** full configuration is shown
-**And** potential issues are highlighted
-
----
-
-### Story 6.7: Iterative Refinement Through Conversation
-
-As a **Service Designer**,
-I want to refine AI suggestions through continued conversation,
-So that I can achieve the exact configuration I need.
-
-**Acceptance Criteria:**
-
-**Given** an AI proposal has been made
-**When** the Service Designer responds with feedback
-**Then** the AI understands the context and refines
-**And** cost per refinement is under $0.10 (NFR33)
-
-**Given** feedback like "add an email field to the contact section"
-**When** the AI processes the refinement
-**Then** only the affected component is regenerated
-**And** previous accepted components are preserved
-
-**Given** conflicting feedback is provided
-**When** the AI detects ambiguity
+**Given** my request is ambiguous
+**When** the AI detects unclear intent
 **Then** clarifying questions are asked
-**And** the Service Designer can guide the resolution
+**And** I can guide the resolution
 
-**Given** multiple refinement rounds
-**When** the conversation continues
-**Then** full context is maintained
-**And** the AI references previous decisions
-
----
-
-### Story 6.8: AI Suggests Form Fields
-
-As a **Service Designer**,
-I want AI to suggest form fields based on service type,
-So that I don't miss important data collection requirements.
-
-**Acceptance Criteria:**
-
-**Given** a service type is specified (e.g., "import license")
-**When** the AI analyzes the type
-**Then** relevant form fields are suggested:
-  - Common fields for that service type
-  - Required regulatory fields
-  - Best practice data points
-
-**Given** field suggestions are displayed
-**When** the Service Designer reviews them
-**Then** each field shows:
-  - Field name and type
-  - Why it's recommended
-  - Accept/Reject options
-
-**Given** the Service Designer accepts a field suggestion
-**When** applied to the form
-**Then** the field is created with appropriate properties
-**And** validation rules are pre-configured
+**Given** I want to undo a change
+**When** I say "undo the last change"
+**Then** the previous state is restored
+**And** the agent confirms the rollback
 
 ---
 
-### Story 6.9: AI Suggests Workflow Structure
+### Story 6.6: Gap Detection
 
 As a **Service Designer**,
-I want AI to suggest workflow structure based on service requirements,
-So that approval chains follow best practices.
-
-**Acceptance Criteria:**
-
-**Given** service requirements mention approvals
-**When** the AI analyzes the requirements
-**Then** a workflow structure is suggested:
-  - Number and order of steps
-  - Role types (HUMAN/BOT)
-  - Typical actions per step
-
-**Given** workflow suggestions are displayed
-**When** the Service Designer reviews them
-**Then** a visual preview shows the proposed flow
-**And** each step can be accepted or modified
-
-**Given** the service is similar to a known pattern
-**When** the AI recognizes it
-**Then** template-based suggestions are offered
-**And** the source pattern is identified
-
----
-
-### Story 6.10: Gap Detection and Proactive Suggestions
-
-As a **Service Designer**,
-I want AI to detect configuration gaps and suggest additions,
+I want the AI to proactively identify configuration gaps,
 So that my service is complete before publication.
 
 **Acceptance Criteria:**
@@ -2352,90 +2372,49 @@ So that my service is complete before publication.
 **When** the AI analyzes the current state
 **Then** potential gaps are identified:
   - Missing required fields
-  - Incomplete workflow paths
+  - Incomplete workflow transitions
   - Unlinked determinants
-  - Missing validation rules
 
 **Given** gaps are detected
-**When** displayed to the Service Designer
+**When** displayed to me
 **Then** each gap shows:
   - What's missing
   - Why it matters
-  - Suggested resolution
+  - "Fix it for me" option
 
-**Given** the Service Designer accepts a gap resolution
+**Given** I accept a fix
 **When** applied to the service
-**Then** the configuration is updated
-**And** the gap is marked as resolved
-
-**Given** the service is near completion
-**When** the AI performs final analysis
-**Then** a completeness summary is provided
-**And** remaining gaps are prioritized
+**Then** the gap is resolved
+**And** the change is confirmed
 
 ---
 
-### Story 6.11: Infer Determinants from Field Relationships
+### Story 6.7: Agent Settings & Preferences
 
 As a **Service Designer**,
-I want AI to infer determinants from form field relationships,
-So that business rules are automatically suggested.
+I want to configure agent behavior,
+So that the AI operates according to my preferences.
 
 **Acceptance Criteria:**
 
-**Given** form fields exist in the service
-**When** the AI analyzes field patterns
-**Then** determinant suggestions are made:
-  - Calculated values (e.g., total = quantity * price)
-  - Derived flags (e.g., isLargeOrder = amount > 10000)
-  - Aggregations across sections
+**Given** the agent settings panel
+**When** I configure preferences
+**Then** options include:
+  - Verbosity (concise/detailed)
+  - Auto-apply mode (with/without confirmation)
+  - Preferred language for responses
 
-**Given** determinant suggestions are displayed
-**When** the Service Designer reviews them
-**Then** the formula logic is explained
-**And** test values can verify the calculation
-
-**Given** the Service Designer accepts a determinant
-**When** applied to the service
-**Then** the determinant is created
-**And** formula is pre-configured
-
----
-
-### Story 6.12: AI vs User Comparison
-
-As a **Service Designer**,
-I want to compare AI-generated configuration with my manual configuration,
-So that I can identify improvements and ensure alignment.
-
-**Acceptance Criteria:**
-
-**Given** both AI-generated and manual configurations exist
-**When** the Service Designer clicks "Compare"
-**Then** a side-by-side comparison is displayed (FR33)
-**And** differences are highlighted
-
-**Given** the comparison view is open
-**When** reviewing differences
-**Then** each difference shows:
-  - AI suggestion
-  - Current configuration
-  - Merge/Accept/Reject options
-
-**Given** the AI version has additional fields
-**When** displayed in comparison
-**Then** additions are marked in green
-**And** the Service Designer can cherry-pick additions
-
-**Given** the manual version differs from AI
-**When** displayed in comparison
-**Then** conflicts are marked in yellow
-**And** the Service Designer chooses which to keep
+**Given** preferences are saved
+**When** I interact with the agent
+**Then** behavior matches my settings
+**And** settings persist across sessions
 
 ---
 
 **Epic 6 Summary:**
-- 12 stories created
+- 13 stories (6-0 spike + 6-1 core + 6-1a-e infrastructure + 6-2 to 6-7 features)
+- Architecture: Vercel AI SDK with dynamic tool generation
+- Key capabilities: Multi-step reasoning, constraint engine, self-healing, real-time state
 - FR25-FR33, FR63-FR64 fully covered
 - NFR1, NFR2, NFR28-29, NFR32-33 addressed
 - Depends on Epic 1-5 (AI generates into existing structures)

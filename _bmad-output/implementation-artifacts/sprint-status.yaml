@@ -91,10 +91,10 @@ development_status:
   # DEFERRABLE: 4-7, 4-8, 4-10, 4-11
   epic-4: in-progress
   4-0-workflow-domain-research-spike: done # Research spike complete
-  4-1-workflow-database-model-api: backlog
-  4-2-define-workflow-steps: backlog
-  4-3-configure-workflow-transitions: backlog
-  4-4-specify-step-actions: backlog
+  4-1-workflow-database-model-api: done
+  4-2-define-workflow-steps: done
+  4-3-configure-workflow-transitions: done
+  4-4-specify-step-actions: in-progress
   4-5-assign-forms-to-workflow-steps: backlog
   4-5a-determinants-in-workflow-conditions: backlog # MERGED from Epic 5-5
   4-6-linear-approval-chain-configuration: backlog
@@ -121,24 +121,30 @@ development_status:
   5-6-reference-validation: deferred-phase2
   epic-5-retrospective: skipped
 
-  # Epic 6: AI-Powered Service Configuration (13 stories - includes spike)
-  # NOTE: 6-0 is a prompt engineering spike
-  # CORE (MVP): 6-0, 6-1, 6-2, 6-3, 6-4, 6-5, 6-6, 6-7
-  # ADVANCED (Post-MVP): 6-8, 6-9, 6-10, 6-11, 6-12
+  # Epic 6: AI Agent for Service Configuration (13 stories)
+  # ARCHITECTURE: Vercel AI SDK (revised from CopilotKit)
+  # See: _bmad-output/implementation-artifacts/epic-6-ai-agent-stories.md
+  #
+  # MVP CORE (9 stories, ~47 points):
+  #   6-0, 6-1, 6-1a, 6-1b, 6-1c, 6-1d, 6-1e, 6-2, 6-3
+  # MVP EXTENDED (+2 stories, +13 points):
+  #   6-4, 6-5
+  # POST-MVP (+2 stories, +8 points):
+  #   6-6, 6-7
   epic-6: backlog
-  6-0-llm-prompt-engineering-spike: backlog # NEW: Research spike
-  6-1-llm-integration-infrastructure: backlog
-  6-2-chat-interface-for-natural-language-input: backlog
-  6-3-ai-streaming-response-display: backlog
-  6-4-cancel-ai-generation: backlog
-  6-5-ai-generates-complete-service-configuration: backlog
-  6-6-structured-proposals-with-accept-review-modify: backlog
-  6-7-iterative-refinement-through-conversation: backlog
-  6-8-ai-suggests-form-fields: backlog # Advanced
-  6-9-ai-suggests-workflow-structure: backlog # Advanced
-  6-10-gap-detection-and-proactive-suggestions: backlog # Advanced
-  6-11-infer-determinants-from-field-relationships: backlog # Advanced
-  6-12-ai-vs-user-comparison: backlog # Advanced
+  6-0-ai-agent-architecture-spike: backlog          # Validate Vercel AI SDK E2E (5 pts)
+  6-1-ai-agent-core-runtime: backlog                # BPAAgent class, streaming (8 pts)
+  6-1a-dynamic-tool-registry: backlog               # OpenAPI → Tools generation (8 pts)
+  6-1b-constraint-engine: backlog                   # YAML rules, confirmations (5 pts)
+  6-1c-self-healing-layer: backlog                  # Error classification, recovery (5 pts)
+  6-1d-backend-event-stream: backlog                # WebSocket, Zustand store (5 pts)
+  6-1e-observability-layer: backlog                 # Audit log, cost tracking (3 pts)
+  6-2-chat-interface-foundation: backlog            # Chat sidebar UI (5 pts)
+  6-3-confirmation-flow-ui: backlog                 # Constraint confirmation UX (3 pts)
+  6-4-service-generation-flow: backlog              # Multi-step generation (8 pts) - MVP Extended
+  6-5-iterative-refinement: backlog                 # Conversational editing (5 pts) - MVP Extended
+  6-6-gap-detection: backlog                        # Proactive suggestions (5 pts) - Post-MVP
+  6-7-agent-settings-preferences: backlog           # User preferences (3 pts) - Post-MVP
   epic-6-retrospective: optional
 
   # Epic 7: Preview & Publishing (8 stories)
@@ -190,9 +196,16 @@ development_status:
 
 # MVP PATH (Optimized):
 # ====================
-# Epic 4 (Core) → Epic 6 (Core) → Epic 7 → Epic 6 (Advanced)
+# Epic 4 (Core) → Epic 6 (Core) → Epic 7 → Epic 6 (Extended)
 #
-# MVP Stories (28 done + 22 remaining = 50 for MVP):
-# - Epic 4: 4-0, 4-1 to 4-6, 4-9 (8 stories)
-# - Epic 6 Core: 6-0 to 6-7 (8 stories)
-# - Epic 7: 7-1 to 7-8 (8 stories, though some may be deferrable)
+# MVP CORE Stories (30 done + 15 remaining = 45):
+# - Epic 4 Core: 4-0 to 4-6, 4-9 (6 remaining after 4-2)
+# - Epic 6 Core: 6-0, 6-1, 6-1a-e, 6-2, 6-3 (9 stories, ~47 pts)
+#
+# MVP EXTENDED (add Epic 6 advanced + Epic 7):
+# - Epic 6 Extended: 6-4, 6-5 (+2 stories, +13 pts)
+# - Epic 7: 7-1 to 7-8 (8 stories)
+#
+# POST-MVP:
+# - Epic 6: 6-6, 6-7 (2 stories, +8 pts)
+# - Epic 8-11: Full scope
