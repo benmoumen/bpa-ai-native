@@ -130,7 +130,7 @@ development_status:
   # Phase 2: ApplicationElement + EntityRequirement (post Epic 6)
   # Phase 3: Full migration + UI (post-MVP)
   adr-implementation: in-progress
-  adr-p1-schema-foundation: ready-for-dev      # 5 enums, 5 new fields (3-5 pts)
+  adr-p1-schema-foundation: done               # 5 enums, 5 new fields (3-5 pts)
   adr-p2-application-element: backlog          # ApplicationElement + ElementRelation (Phase 2)
   adr-p3-shared-entities: backlog              # DataEntityType + EntityRequirement (Phase 2)
   adr-p4-full-migration: backlog               # Rename + UI + deprecation (Phase 3)

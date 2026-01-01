@@ -2,7 +2,7 @@
 
 > **Epic**: ADR Implementation (Phase 1)
 > **Story ID**: ADR-P1
-> **Status**: ready-for-dev
+> **Status**: done
 > **Created**: 2026-01-01
 > **Priority**: HIGH (unblocks Epic 6)
 > **Effort**: 3-5 points
@@ -269,14 +269,14 @@ The following are explicitly **NOT** in this story (deferred to later phases):
 
 ## Definition of Done
 
-- [ ] All 5 new enums added to schema.prisma
-- [ ] Registration model has 3 new fields with defaults
-- [ ] Role model has 2 new fields with defaults
-- [ ] Migration created and applies successfully
-- [ ] Prisma client regenerated with new types
-- [ ] All existing tests pass
-- [ ] No TypeScript errors in API or web packages
-- [ ] Schema comments document ADR references
+- [x] All 5 new enums added to schema.prisma
+- [x] Registration model has 3 new fields with defaults
+- [x] Role model has 2 new fields with defaults
+- [x] Migration created and applies successfully (via db:push)
+- [x] Prisma client regenerated with new types
+- [x] All existing tests pass (API: 358/358)
+- [x] No TypeScript errors in API or web packages
+- [x] Schema comments document ADR references
 
 ---
 
@@ -307,3 +307,5 @@ The following are explicitly **NOT** in this story (deferred to later phases):
 | Date | Change |
 |------|--------|
 | 2026-01-01 | Story created |
+| 2026-01-01 | Implementation complete - all schema changes applied |
+| 2026-01-01 | Code review passed - documentation fixes applied |

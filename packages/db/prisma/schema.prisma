@@ -66,6 +66,53 @@ enum RoleStatusCode {
 }
 
 // =============================================================================
+// ADR Foundation Enums (ADR-002, ADR-003)
+// =============================================================================
+
+/// ProcedureType - defines the output type of a procedure (ADR-002)
+enum ProcedureType {
+  AUTHORIZATION  // Issues document (license, permit, certificate)
+  INQUIRY        // Returns information (no document issued)
+  OBLIGATION     // Collects required data (compliance, tax filing)
+  NOTIFICATION   // Acknowledges receipt (no approval workflow)
+}
+
+/// TriggerType - defines who/what initiates the procedure (ADR-002)
+enum TriggerType {
+  USER_INITIATED  // Applicant decides to apply
+  SCHEDULED       // Time-based trigger (annual renewal)
+  INSTITUTION     // Government requires submission
+  EVENT           // External trigger (ownership change, relocation)
+}
+
+/// ActorType - identifies who performs actions in workflow (ADR-003)
+enum ActorType {
+  APPLICANT  // The person/entity applying
+  OPERATOR   // Government staff processing
+  SYSTEM     // Automated bot processing
+}
+
+/// ElementType - categorizes application components (ADR-003, future use)
+enum ElementType {
+  QUALIFIER    // Questions determining other elements (was GUIDE)
+  DATA         // Information collection (was APPLICANT form)
+  EVIDENCE     // Document uploads
+  PAYMENT      // Fee items
+  DECLARATION  // Sworn statements, terms acceptance
+  SUBMISSION   // Final submit action
+}
+
+/// RelationType - defines relationships between elements (ADR-003, future use)
+enum RelationType {
+  SHOWS       // Answer shows another element
+  HIDES       // Answer hides another element
+  REQUIRES    // Element requires another
+  CALCULATES  // Element calculates value
+  VALIDATES   // Element validates another
+  ROUTES_TO   // Element routes to workflow step
+}
+
+// =============================================================================
 // User & Authentication Models
 // =============================================================================
 
@@ -175,6 +222,14 @@ model Registration {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  /// ADR-002: Procedure type fields with backward-compatible defaults
+  /// procedureType determines the output (AUTHORIZATION=document, INQUIRY=info, etc.)
+  /// triggerType determines initiation (USER_INITIATED, SCHEDULED, INSTITUTION, EVENT)
+  /// outputConfig holds type-specific settings (e.g., document template ID for AUTHORIZATION)
+  procedureType ProcedureType @default(AUTHORIZATION) @map("procedure_type")
+  triggerType   TriggerType   @default(USER_INITIATED) @map("trigger_type")
+  outputConfig  Json?         @map("output_config")
+
   // Relations
   service              Service               @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   documentRequirements DocumentRequirement[]
@@ -184,6 +239,8 @@ model Registration {
   @@unique([serviceId, key])
   @@index([serviceId])
   @@index([isActive])
+  @@index([procedureType])
+  @@index([triggerType])
   @@map("registrations")
 }
 
@@ -386,6 +443,12 @@ model Role {
   createdAt            DateTime     @default(now()) @map("created_at")
   updatedAt            DateTime     @updatedAt @map("updated_at")
 
+  /// ADR-003: Actor type fields with backward-compatible defaults
+  /// actorType identifies who performs actions (APPLICANT, OPERATOR, SYSTEM)
+  /// isEntryPoint marks roles where applicants first interact (typically APPLICANT actors only)
+  actorType            ActorType    @default(OPERATOR) @map("actor_type")
+  isEntryPoint         Boolean      @default(false) @map("is_entry_point")
+
   // UserRole-specific fields (nullable, applies only when roleType = USER)
   formId               String?      @map("form_id")
 
@@ -405,6 +468,7 @@ model Role {
   @@index([roleType])
   @@index([sortOrder])
   @@index([isActive])
+  @@index([actorType])
   @@map("roles")
 }
 
