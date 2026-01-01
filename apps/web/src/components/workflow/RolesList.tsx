@@ -23,6 +23,7 @@ import {
   Users,
   AlertTriangle,
   Settings,
+  Workflow,
 } from 'lucide-react';
 
 import {
@@ -54,6 +55,7 @@ import type { Role, RoleType } from '@/lib/api/roles';
 import type { Form } from '@/lib/api/forms';
 import { CreateRoleDialog } from './CreateRoleDialog';
 import { StepActionsPanel } from './StepActionsPanel';
+import { LinearChainWizard } from './LinearChainWizard';
 
 interface RolesListProps {
   serviceId: string;
@@ -89,6 +91,7 @@ export function RolesList({ serviceId, isEditable = true }: RolesListProps) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editRole, setEditRole] = useState<Role | null>(null);
   const [expandedRoleId, setExpandedRoleId] = useState<string | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   // Calculate which roles have incoming transitions
   // Roles without incoming transitions (except start role) are unreachable
@@ -187,6 +190,10 @@ export function RolesList({ serviceId, isEditable = true }: RolesListProps) {
     setExpandedRoleId((prev) => (prev === roleId ? null : roleId));
   }, []);
 
+  const handleOpenWizard = useCallback(() => {
+    setWizardOpen(true);
+  }, []);
+
   if (isLoading) {
     return <RolesListSkeleton />;
   }
@@ -217,16 +224,22 @@ export function RolesList({ serviceId, isEditable = true }: RolesListProps) {
           </p>
         </div>
         {isEditable && (
-          <Button onClick={handleAddStep}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Step
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleOpenWizard}>
+              <Workflow className="mr-2 h-4 w-4" />
+              Quick Setup
+            </Button>
+            <Button onClick={handleAddStep}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Step
+            </Button>
+          </div>
         )}
       </div>
 
       {/* Empty state or table */}
       {roles.length === 0 ? (
-        <EmptyState onAddStep={handleAddStep} isEditable={isEditable} />
+        <EmptyState onAddStep={handleAddStep} onQuickSetup={handleOpenWizard} isEditable={isEditable} />
       ) : (
         <Table>
           <TableHeader>
@@ -407,16 +420,24 @@ export function RolesList({ serviceId, isEditable = true }: RolesListProps) {
         }}
         editRole={editRole}
       />
+
+      {/* Linear Chain Wizard */}
+      <LinearChainWizard
+        serviceId={serviceId}
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+      />
     </div>
   );
 }
 
 interface EmptyStateProps {
   onAddStep: () => void;
+  onQuickSetup: () => void;
   isEditable: boolean;
 }
 
-function EmptyState({ onAddStep, isEditable }: EmptyStateProps) {
+function EmptyState({ onAddStep, onQuickSetup, isEditable }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-black/20 py-12 text-center">
       <div className="mx-auto h-12 w-12 rounded-full bg-black/5 flex items-center justify-center">
@@ -429,10 +450,17 @@ function EmptyState({ onAddStep, isEditable }: EmptyStateProps) {
         Define the processing steps for this service workflow.
       </p>
       {isEditable && (
-        <Button onClick={onAddStep} className="mt-4">
-          <Plus className="mr-2 h-4 w-4" />
-          Add your first step
-        </Button>
+        <div className="mt-4 flex items-center gap-3">
+          <Button variant="outline" onClick={onQuickSetup}>
+            <Workflow className="mr-2 h-4 w-4" />
+            Quick Setup
+          </Button>
+          <span className="text-xs text-black/40">or</span>
+          <Button onClick={onAddStep}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add manually
+          </Button>
+        </div>
       )}
     </div>
   );
