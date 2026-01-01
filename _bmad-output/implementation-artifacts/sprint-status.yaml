@@ -94,9 +94,9 @@ development_status:
   4-1-workflow-database-model-api: done
   4-2-define-workflow-steps: done
   4-3-configure-workflow-transitions: done
-  4-4-specify-step-actions: in-progress
-  4-5-assign-forms-to-workflow-steps: backlog
-  4-5a-determinants-in-workflow-conditions: backlog # MERGED from Epic 5-5
+  4-4-specify-step-actions: done
+  4-5-assign-forms-to-workflow-steps: done
+  4-5a-determinants-in-workflow-conditions: done # MERGED from Epic 5-5
   4-6-linear-approval-chain-configuration: backlog
   4-7-workflow-diagram-preview: backlog # Deferrable
   4-8-workflow-validation: backlog # Deferrable
