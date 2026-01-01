@@ -7,6 +7,9 @@ This directory contains Architecture Decision Records documenting significant te
 | ID | Title | Status | Date |
 |----|-------|--------|------|
 | [ADR-001](./001-field-reference-consistency.md) | Field Reference Consistency Strategy | Accepted | 2026-01-01 |
+| [ADR-002](./002-procedure-type-architecture.md) | Procedure Type Architecture | Proposed | 2026-01-01 |
+| [ADR-003](./003-unified-application-experience.md) | Unified Application Experience Architecture | Proposed | 2026-01-01 |
+| [ADR-004](./004-shared-data-entities.md) | Shared Data Entities Architecture | Proposed | 2026-01-01 |
 
 ## About ADRs
 
