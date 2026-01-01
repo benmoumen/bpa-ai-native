@@ -243,6 +243,7 @@ export interface FormField {
   visibilityRule: VisibilityRule | null;
   sortOrder: number;
   isActive: boolean;
+  determinantId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -594,4 +595,129 @@ export function getDefaultFieldLabel(type: FieldType): string {
     PHONE: 'New Phone Field',
   };
   return labels[type];
+}
+
+// ============================================================================
+// Form Schema Types & API (Story 3.10)
+// ============================================================================
+
+/**
+ * JSON Schema property for a single field
+ */
+export interface JsonSchemaProperty {
+  type: 'string' | 'number' | 'integer' | 'boolean';
+  title: string;
+  description?: string;
+  format?: 'email' | 'date' | 'data-url';
+  enum?: string[];
+  enumNames?: string[];
+  minLength?: number;
+  maxLength?: number;
+  minimum?: number;
+  maximum?: number;
+  pattern?: string;
+  default?: unknown;
+}
+
+/**
+ * Generated JSON Schema (Draft-07)
+ */
+export interface GeneratedJsonSchema {
+  $schema: 'http://json-schema.org/draft-07/schema#';
+  type: 'object';
+  title: string;
+  properties: Record<string, JsonSchemaProperty>;
+  required: string[];
+}
+
+/**
+ * UI Schema element for JSON Forms
+ */
+export interface UiSchemaElement {
+  type: 'Control' | 'Group' | 'VerticalLayout' | 'HorizontalLayout';
+  scope?: string;
+  label?: string;
+  elements?: UiSchemaElement[];
+  options?: {
+    multi?: boolean;
+    format?: string;
+  };
+}
+
+/**
+ * Generated UI Schema for JSON Forms layout
+ */
+export interface GeneratedUiSchema {
+  type: 'VerticalLayout';
+  elements: UiSchemaElement[];
+}
+
+/**
+ * Visibility rule condition for JSON Rules Engine
+ */
+export interface VisibilityConditionExport {
+  fact: string;
+  operator: string;
+  value: unknown;
+}
+
+/**
+ * JSON Rules Engine compatible rule
+ */
+export interface JsonRulesEngineRule {
+  conditions: {
+    all?: VisibilityConditionExport[];
+    any?: VisibilityConditionExport[];
+  };
+  event: {
+    type: 'visible' | 'hidden';
+  };
+}
+
+/**
+ * Visibility rule mapping for a field or section
+ */
+export interface VisibilityRuleMapping {
+  targetId: string;
+  targetName: string;
+  targetType: 'field' | 'section';
+  rule: JsonRulesEngineRule;
+}
+
+/**
+ * Exported visibility rules for fields and sections
+ */
+export interface VisibilityRulesExport {
+  fields: VisibilityRuleMapping[];
+  sections: VisibilityRuleMapping[];
+}
+
+/**
+ * Complete form schema response
+ */
+export interface FormSchemaResponse {
+  formId: string;
+  formName: string;
+  version: string;
+  jsonSchema: GeneratedJsonSchema;
+  uiSchema: GeneratedUiSchema;
+  rules: VisibilityRulesExport;
+}
+
+/**
+ * Get form schema (JSON Schema, UI Schema, and visibility rules)
+ */
+export async function getFormSchema(formId: string): Promise<FormSchemaResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/forms/${formId}/schema`, {
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error: ApiError = await response.json().catch(() => ({
+      error: { code: 'UNKNOWN', message: 'Failed to fetch form schema' },
+    }));
+    throw new Error(error.error.message);
+  }
+
+  return response.json();
 }

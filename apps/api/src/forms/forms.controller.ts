@@ -37,6 +37,8 @@ import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
 import { ListFormsQueryDto } from './dto/list-forms-query.dto';
 import { FormResponseDto } from './dto/form-response.dto';
+import { FormSchemaResponseDto } from './dto/form-schema-response.dto';
+import { SchemaGeneratorService } from './schema-generator.service';
 import { CurrentUser } from '../auth';
 import { ParseUUIDPipe } from '../common';
 
@@ -44,7 +46,10 @@ import { ParseUUIDPipe } from '../common';
 @ApiBearerAuth()
 @Controller()
 export class FormsController {
-  constructor(private readonly formsService: FormsService) {}
+  constructor(
+    private readonly formsService: FormsService,
+    private readonly schemaGeneratorService: SchemaGeneratorService,
+  ) {}
 
   @Post('services/:serviceId/forms')
   @ApiOperation({ summary: 'Create a new form within a service' })
@@ -122,6 +127,27 @@ export class FormsController {
   ): Promise<FormResponseDto> {
     const form = await this.formsService.findOne(id);
     return FormResponseDto.fromEntity(form);
+  }
+
+  @Get('forms/:id/schema')
+  @ApiOperation({
+    summary: 'Get JSON Schema, UI Schema, and visibility rules for a form',
+    description:
+      'Generates and returns the JSON Schema (Draft-07), UI Schema for JSON Forms, and visibility rules in JSON Rules Engine format.',
+  })
+  @ApiParam({ name: 'id', description: 'Form ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Form schema generated successfully',
+    type: FormSchemaResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid UUID format' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Form not found' })
+  async getSchema(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<FormSchemaResponseDto> {
+    return this.schemaGeneratorService.generateFormSchema(id);
   }
 
   @Patch('forms/:id')

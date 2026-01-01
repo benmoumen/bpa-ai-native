@@ -62,7 +62,7 @@ development_status:
   epic-2-retrospective: done
 
   # Epic 3: Form Building & Configuration (10 stories)
-  epic-3: in-progress
+  epic-3: done
   3-1-form-database-model-api: done
   3-2-create-applicant-form: done
   3-3-create-guide-form: done
@@ -71,9 +71,9 @@ development_status:
   3-6-organize-fields-into-sections: done
   3-7-configure-conditional-visibility-rules: done
   3-8-form-preview-rendering: done
-  3-9-link-fields-to-determinants: backlog
-  3-10-json-schema-generation: backlog
-  epic-3-retrospective: optional
+  3-9-link-fields-to-determinants: done
+  3-10-json-schema-generation: done
+  epic-3-retrospective: done
 
   # Epic 4: Workflow Configuration (11 stories)
   epic-4: backlog

@@ -8,18 +8,22 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import { RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { RefreshCw, AlertCircle, CheckCircle2, ChevronUp, Zap, Code2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Form, FormField, FormSection } from '@/lib/api/forms';
 import { FormPreviewSection } from './FormPreviewSection';
 import { FormPreviewField } from './FormPreviewField';
 import { evaluateVisibilityRule, FormValues } from './utils/evaluateVisibilityRule';
 import { validateField } from './utils/validateField';
+import { useDeterminants } from '@/hooks/use-determinants';
+import { useFormSchema } from '@/hooks/use-form-schema';
+import type { Determinant } from '@/lib/api/determinants';
 
 interface FormPreviewProps {
   form: Form;
   fields: FormField[];
   sections: FormSection[];
+  serviceId: string;
   onRefresh?: () => void;
 }
 
@@ -27,11 +31,20 @@ export function FormPreview({
   form,
   fields,
   sections,
+  serviceId,
   onRefresh,
 }: FormPreviewProps) {
   // Form values state
   const [values, setValues] = useState<FormValues>({});
   const [showValidation, setShowValidation] = useState(false);
+  const [showDeterminants, setShowDeterminants] = useState(false);
+  const [showSchema, setShowSchema] = useState(false);
+
+  // Fetch service determinants
+  const { data: determinantsResponse } = useDeterminants(serviceId, { isActive: true });
+
+  // Fetch form schema (lazy - only when showSchema is true)
+  const { data: schemaData, isLoading: schemaLoading } = useFormSchema(form.id, showSchema);
 
   // Handle field value change
   const handleChange = useCallback(
@@ -97,6 +110,34 @@ export function FormPreview({
     return { total: visibleFields.length, errors };
   }, [showValidation, fields, sections, values]);
 
+  // Compute determinant values from linked fields
+  const determinantValues = useMemo(() => {
+    const determinants = determinantsResponse?.data || [];
+    if (determinants.length === 0) return [];
+
+    return determinants.map((det: Determinant) => {
+      // Find the field linked to this determinant
+      const linkedField = fields.find((f) => f.determinantId === det.id);
+
+      // Get the value from form values
+      const fieldValue = linkedField ? values[linkedField.name] : undefined;
+
+      return {
+        determinant: det,
+        linkedFieldName: linkedField?.name || null,
+        value: fieldValue,
+        hasValue: fieldValue !== undefined && fieldValue !== '',
+      };
+    });
+  }, [determinantsResponse, fields, values]);
+
+  // Count determinants with values
+  const determinantStats = useMemo(() => {
+    const total = determinantValues.length;
+    const withValue = determinantValues.filter((d) => d.hasValue).length;
+    return { total, withValue };
+  }, [determinantValues]);
+
   return (
     <div className="flex h-full flex-col bg-gray-50">
       {/* Preview Header */}
@@ -116,6 +157,24 @@ export function FormPreview({
           )}
           <Button variant="outline" size="sm" onClick={handleReset}>
             Reset
+          </Button>
+          {determinantStats.total > 0 && (
+            <Button
+              variant={showDeterminants ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setShowDeterminants(!showDeterminants)}
+            >
+              <Zap className="mr-1 h-4 w-4" />
+              {determinantStats.withValue}/{determinantStats.total}
+            </Button>
+          )}
+          <Button
+            variant={showSchema ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowSchema(!showSchema)}
+          >
+            <Code2 className="mr-1 h-4 w-4" />
+            Schema
           </Button>
           <Button size="sm" onClick={validateAllFields}>
             Validate
@@ -145,6 +204,122 @@ export function FormPreview({
               <CheckCircle2 className="h-4 w-4" />
               <span className="text-sm">All fields are valid</span>
             </>
+          )}
+        </div>
+      )}
+
+      {/* Determinants Debug Panel */}
+      {showDeterminants && determinantStats.total > 0 && (
+        <div className="border-b border-black/10 bg-amber-50 px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-amber-600" />
+              <span className="text-sm font-medium text-amber-800">
+                Business Rule Values ({determinantStats.withValue}/{determinantStats.total})
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowDeterminants(false)}
+              className="h-6 w-6 p-0"
+            >
+              <ChevronUp className="h-4 w-4 text-amber-600" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {determinantValues.map((dv) => (
+              <div
+                key={dv.determinant.id}
+                className={`rounded-md px-2 py-1.5 text-xs ${
+                  dv.hasValue
+                    ? 'bg-amber-100 border border-amber-200'
+                    : 'bg-amber-50 border border-amber-100'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-medium text-amber-800">
+                    {dv.determinant.name}
+                  </span>
+                  <span className="text-amber-600 uppercase text-[10px]">
+                    {dv.determinant.type}
+                  </span>
+                </div>
+                <div className="mt-0.5">
+                  {dv.hasValue ? (
+                    <span className="font-mono text-amber-900">
+                      {String(dv.value)}
+                    </span>
+                  ) : dv.linkedFieldName ? (
+                    <span className="text-amber-500 italic">
+                      &larr; {dv.linkedFieldName}
+                    </span>
+                  ) : (
+                    <span className="text-amber-400 italic">No linked field</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Schema Debug Panel */}
+      {showSchema && (
+        <div className="border-b border-black/10 bg-blue-50 px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Code2 className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-800">
+                Generated Schema
+                {schemaData?.version && (
+                  <span className="ml-2 text-xs text-blue-500">
+                    v{new Date(schemaData.version).toLocaleString()}
+                  </span>
+                )}
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSchema(false)}
+              className="h-6 w-6 p-0"
+            >
+              <ChevronUp className="h-4 w-4 text-blue-600" />
+            </Button>
+          </div>
+          {schemaLoading ? (
+            <div className="text-sm text-blue-600">Loading schema...</div>
+          ) : schemaData ? (
+            <div className="space-y-3">
+              {/* JSON Schema */}
+              <div>
+                <div className="text-xs font-medium text-blue-700 mb-1">JSON Schema (Draft-07)</div>
+                <pre className="bg-blue-100 border border-blue-200 rounded-md p-2 text-xs font-mono text-blue-900 overflow-x-auto max-h-40 overflow-y-auto">
+                  {JSON.stringify(schemaData.jsonSchema, null, 2)}
+                </pre>
+              </div>
+              {/* UI Schema */}
+              <div>
+                <div className="text-xs font-medium text-blue-700 mb-1">UI Schema (JSON Forms)</div>
+                <pre className="bg-blue-100 border border-blue-200 rounded-md p-2 text-xs font-mono text-blue-900 overflow-x-auto max-h-40 overflow-y-auto">
+                  {JSON.stringify(schemaData.uiSchema, null, 2)}
+                </pre>
+              </div>
+              {/* Visibility Rules */}
+              {(schemaData.rules.fields.length > 0 || schemaData.rules.sections.length > 0) && (
+                <div>
+                  <div className="text-xs font-medium text-blue-700 mb-1">
+                    Visibility Rules ({schemaData.rules.fields.length + schemaData.rules.sections.length})
+                  </div>
+                  <pre className="bg-blue-100 border border-blue-200 rounded-md p-2 text-xs font-mono text-blue-900 overflow-x-auto max-h-40 overflow-y-auto">
+                    {JSON.stringify(schemaData.rules, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-sm text-blue-500">No schema data available</div>
           )}
         </div>
       )}

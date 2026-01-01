@@ -23,3 +23,7 @@ export { FileFieldProperties } from './FileFieldProperties';
 export { SectionList } from './SectionList';
 export { SectionHeader } from './SectionHeader';
 export { SectionPropertiesPanel } from './SectionPropertiesPanel';
+
+// Determinant linking components (Story 3.9)
+export { LinkToDeterminantDialog } from './LinkToDeterminantDialog';
+export { DeterminantBadge } from './DeterminantBadge';

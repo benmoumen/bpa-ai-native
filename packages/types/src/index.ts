@@ -728,3 +728,207 @@ export interface VisibilityRule {
   /** Logical operator to combine conditions (default: 'AND') */
   logic?: 'AND' | 'OR';
 }
+
+// =============================================================================
+// Determinant Types
+// =============================================================================
+
+/**
+ * Determinant type - defines the data type of a determinant value
+ * Mapped from form field types:
+ * - STRING: TEXT, EMAIL, PHONE, TEXTAREA, SELECT, RADIO
+ * - NUMBER: NUMBER
+ * - BOOLEAN: CHECKBOX
+ * - DATE: DATE
+ */
+export type DeterminantType = 'STRING' | 'NUMBER' | 'BOOLEAN' | 'DATE';
+
+/**
+ * Determinant entity - represents a business rule variable derived from form fields
+ */
+export interface Determinant {
+  /** Unique determinant ID */
+  id: string;
+  /** Parent service ID */
+  serviceId: string;
+  /** Determinant name (unique within service, max 100 chars) */
+  name: string;
+  /** Data type of the determinant value */
+  type: DeterminantType;
+  /** Source form field ID (for field-derived determinants) */
+  sourceFieldId?: string | null;
+  /** JSONata formula expression (for calculated determinants, Epic 5) */
+  formula?: string | null;
+  /** Whether the determinant is active */
+  isActive: boolean;
+  /** Creation timestamp */
+  createdAt: Date;
+  /** Last update timestamp */
+  updatedAt: Date;
+  /** Number of linked fields (populated when included) */
+  linkedFieldsCount?: number;
+}
+
+/**
+ * DTO for creating a new determinant
+ */
+export interface CreateDeterminantInput {
+  /** Determinant name (required, max 100 chars) */
+  name: string;
+  /** Data type (required) */
+  type: DeterminantType;
+  /** Source form field ID (optional) */
+  sourceFieldId?: string;
+  /** JSONata formula expression (optional) */
+  formula?: string;
+}
+
+/**
+ * DTO for updating an existing determinant
+ */
+export interface UpdateDeterminantInput {
+  /** Updated name */
+  name?: string;
+  /** Updated formula */
+  formula?: string;
+  /** Updated active status */
+  isActive?: boolean;
+}
+
+/**
+ * Determinant list query parameters
+ */
+export interface ListDeterminantsQuery {
+  /** Page number (1-indexed) */
+  page?: number;
+  /** Items per page */
+  limit?: number;
+  /** Filter by active status */
+  isActive?: boolean;
+  /** Filter by determinant type */
+  type?: DeterminantType;
+  /** Search in name */
+  search?: string;
+}
+
+/**
+ * Maps form field types to determinant types
+ */
+export const FIELD_TYPE_TO_DETERMINANT_TYPE: Record<string, DeterminantType> = {
+  TEXT: 'STRING',
+  EMAIL: 'STRING',
+  PHONE: 'STRING',
+  TEXTAREA: 'STRING',
+  SELECT: 'STRING',
+  RADIO: 'STRING',
+  NUMBER: 'NUMBER',
+  CHECKBOX: 'BOOLEAN',
+  DATE: 'DATE',
+};
+
+// =============================================================================
+// Form Schema Generation Types (Story 3.10)
+// =============================================================================
+
+/**
+ * JSON Schema property for a single field
+ */
+export interface JsonSchemaProperty {
+  type: 'string' | 'number' | 'integer' | 'boolean';
+  title: string;
+  description?: string;
+  format?: 'email' | 'date' | 'data-url';
+  enum?: string[];
+  enumNames?: string[];
+  minLength?: number;
+  maxLength?: number;
+  minimum?: number;
+  maximum?: number;
+  pattern?: string;
+  default?: unknown;
+}
+
+/**
+ * Generated JSON Schema (Draft-07)
+ */
+export interface GeneratedJsonSchema {
+  $schema: 'http://json-schema.org/draft-07/schema#';
+  type: 'object';
+  title: string;
+  properties: Record<string, JsonSchemaProperty>;
+  required: string[];
+}
+
+/**
+ * UI Schema element for JSON Forms
+ */
+export interface UiSchemaElement {
+  type: 'Control' | 'Group' | 'VerticalLayout' | 'HorizontalLayout';
+  scope?: string;
+  label?: string;
+  elements?: UiSchemaElement[];
+  options?: {
+    multi?: boolean;
+    format?: string;
+  };
+}
+
+/**
+ * Generated UI Schema for JSON Forms layout
+ */
+export interface GeneratedUiSchema {
+  type: 'VerticalLayout';
+  elements: UiSchemaElement[];
+}
+
+/**
+ * Visibility rule condition for JSON Rules Engine
+ */
+export interface VisibilityCondition {
+  fact: string;
+  operator: string;
+  value: unknown;
+}
+
+/**
+ * JSON Rules Engine compatible rule
+ */
+export interface JsonRulesEngineRule {
+  conditions: {
+    all?: VisibilityCondition[];
+    any?: VisibilityCondition[];
+  };
+  event: {
+    type: 'visible' | 'hidden';
+  };
+}
+
+/**
+ * Visibility rule mapping for a field or section
+ */
+export interface VisibilityRuleMapping {
+  targetId: string;
+  targetName: string;
+  targetType: 'field' | 'section';
+  rule: JsonRulesEngineRule;
+}
+
+/**
+ * Exported visibility rules for fields and sections
+ */
+export interface VisibilityRulesExport {
+  fields: VisibilityRuleMapping[];
+  sections: VisibilityRuleMapping[];
+}
+
+/**
+ * Complete form schema response
+ */
+export interface FormSchemaResponse {
+  formId: string;
+  formName: string;
+  version: string;
+  jsonSchema: GeneratedJsonSchema;
+  uiSchema: GeneratedUiSchema;
+  rules: VisibilityRulesExport;
+}

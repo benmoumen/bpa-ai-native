@@ -206,6 +206,7 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
           <FieldPropertiesPanel
             field={selectedField}
             formId={formId}
+            serviceId={serviceId}
             onClose={handleCloseProperties}
           />
         </div>
@@ -229,6 +230,7 @@ function FormEditorContent({ serviceId, formId }: FormEditorContentProps) {
             form={form}
             fields={fields}
             sections={sections}
+            serviceId={serviceId}
             onRefresh={handleRefreshPreview}
           />
         </div>

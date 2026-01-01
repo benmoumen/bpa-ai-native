@@ -10,7 +10,7 @@
  */
 
 import { useCallback, useState } from 'react';
-import { X, Link2, Link2Off, Save, Settings2 } from 'lucide-react';
+import { X, Link2, Link2Off, Save, Settings2, Zap } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,10 +26,14 @@ import { SelectFieldProperties } from './SelectFieldProperties';
 import { DateFieldProperties } from './DateFieldProperties';
 import { FileFieldProperties } from './FileFieldProperties';
 import { VisibilityRuleBuilder } from './visibility';
+import { LinkToDeterminantDialog } from './LinkToDeterminantDialog';
+import { DeterminantBadge } from './DeterminantBadge';
+import { useUnlinkFieldFromDeterminant } from '@/hooks/use-determinants';
 
 interface FieldPropertiesPanelProps {
   field: FormField;
   formId: string;
+  serviceId: string;
   onClose: () => void;
 }
 
@@ -43,9 +47,14 @@ export function FieldPropertiesPanel(props: FieldPropertiesPanelProps) {
 function FieldPropertiesPanelInner({
   field,
   formId,
+  serviceId,
   onClose,
 }: FieldPropertiesPanelProps) {
   const updateFieldMutation = useUpdateFormField(formId);
+  const unlinkMutation = useUnlinkFieldFromDeterminant(serviceId, formId);
+
+  // State for link to determinant dialog
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
 
   // Fetch all fields in the form for visibility condition builder
   const { data: fieldsResponse } = useFormFields(formId, { isActive: true });
@@ -133,6 +142,14 @@ function FieldPropertiesPanelInner({
     }
     setIsNameLinked(!isNameLinked);
   }, [isNameLinked, label]);
+
+  const handleUnlinkDeterminant = useCallback(async () => {
+    try {
+      await unlinkMutation.mutateAsync(field.id);
+    } catch {
+      // Error handling - mutation will show error state
+    }
+  }, [field.id, unlinkMutation]);
 
   const handleSave = useCallback(async () => {
     const data: UpdateFormFieldInput = {
@@ -369,6 +386,42 @@ function FieldPropertiesPanelInner({
             </div>
           )}
 
+          {/* Determinant Linking */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-black/70 uppercase tracking-wide">
+              Business Rule Linking
+            </h4>
+            <div className="space-y-2">
+              {field.determinantId ? (
+                <div className="space-y-2">
+                  <p className="text-xs text-black/50">
+                    This field is linked to a determinant:
+                  </p>
+                  <DeterminantBadge
+                    determinantId={field.determinantId}
+                    onUnlink={handleUnlinkDeterminant}
+                    unlinking={unlinkMutation.isPending}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-xs text-black/50">
+                    Link this field to a determinant for workflow decisions.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowLinkDialog(true)}
+                    className="w-full"
+                  >
+                    <Zap className="mr-2 h-4 w-4" />
+                    Link to Determinant
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Conditional Visibility */}
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-black/70 uppercase tracking-wide">
@@ -410,6 +463,15 @@ function FieldPropertiesPanelInner({
           </p>
         )}
       </div>
+
+      {/* Link to Determinant Dialog */}
+      <LinkToDeterminantDialog
+        field={field}
+        serviceId={serviceId}
+        formId={formId}
+        open={showLinkDialog}
+        onOpenChange={setShowLinkDialog}
+      />
     </div>
   );
 }

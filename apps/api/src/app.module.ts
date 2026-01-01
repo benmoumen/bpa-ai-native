@@ -15,6 +15,7 @@ import { CostsModule } from './costs';
 import { FormsModule } from './forms';
 import { FormSectionsModule } from './form-sections';
 import { FormFieldsModule } from './form-fields';
+import { DeterminantsModule } from './determinants';
 
 @Module({
   imports: [
@@ -47,6 +48,8 @@ import { FormFieldsModule } from './form-fields';
     FormSectionsModule,
     // Form Fields module
     FormFieldsModule,
+    // Determinants module
+    DeterminantsModule,
   ],
   controllers: [AppController],
   providers: [

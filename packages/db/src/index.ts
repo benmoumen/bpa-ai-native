@@ -32,6 +32,7 @@ export type { CostModel as Cost } from './generated/prisma/models/Cost.js';
 export type { FormModel as Form } from './generated/prisma/models/Form.js';
 export type { FormSectionModel as FormSection } from './generated/prisma/models/FormSection.js';
 export type { FormFieldModel as FormField } from './generated/prisma/models/FormField.js';
+export type { DeterminantModel as Determinant } from './generated/prisma/models/Determinant.js';
 
 // Re-export enums if any
 export * from './generated/prisma/enums.js';
