@@ -251,7 +251,8 @@ describe('TransitionsList', () => {
       await user.click(screen.getByRole('button', { name: /Add Transition/i }));
 
       await waitFor(() => {
-        expect(screen.getByText('Add Transition')).toBeInTheDocument();
+        // Dialog title appears in addition to the button text
+        expect(screen.getAllByText('Add Transition').length).toBeGreaterThanOrEqual(2);
       });
     });
 

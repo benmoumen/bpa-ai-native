@@ -41,6 +41,42 @@ vi.mock('@/hooks/use-transitions', () => ({
     isError: false,
     error: null,
   }),
+  useTransition: () => ({
+    data: null,
+    isLoading: false,
+    isError: false,
+    error: null,
+  }),
+  useRoleStatuses: () => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+    error: null,
+  }),
+  useCreateTransition: () => ({
+    mutateAsync: vi.fn().mockResolvedValue({}),
+    isPending: false,
+  }),
+  useUpdateTransition: () => ({
+    mutateAsync: vi.fn().mockResolvedValue({}),
+    isPending: false,
+  }),
+  useDeleteTransition: () => ({
+    mutateAsync: vi.fn().mockResolvedValue({}),
+    isPending: false,
+  }),
+  useCreateDefaultStatuses: () => ({
+    mutateAsync: vi.fn().mockResolvedValue({}),
+    isPending: false,
+  }),
+  useUpdateRoleStatus: () => ({
+    mutateAsync: vi.fn().mockResolvedValue({}),
+    isPending: false,
+  }),
+  useDeleteRoleStatus: () => ({
+    mutateAsync: vi.fn().mockResolvedValue({}),
+    isPending: false,
+  }),
 }));
 
 vi.mock('@/hooks/use-forms', () => ({
@@ -247,7 +283,7 @@ describe('RolesList', () => {
         screen.getByText('Define the processing steps for this service workflow.')
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: /Add your first step/i })
+        screen.getByRole('button', { name: /Add manually/i })
       ).toBeInTheDocument();
     });
 

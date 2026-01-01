@@ -23,3 +23,12 @@ class MockResizeObserver {
   disconnect = vi.fn();
 }
 global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
+
+// Mock pointer capture methods for Radix UI Select component
+// JSDOM doesn't implement these DOM APIs
+Element.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);
+Element.prototype.setPointerCapture = vi.fn();
+Element.prototype.releasePointerCapture = vi.fn();
+
+// Mock scrollIntoView for Radix UI components
+Element.prototype.scrollIntoView = vi.fn();

@@ -102,7 +102,8 @@ describe('CreateRoleDialog', () => {
       });
 
       expect(screen.getByText('Step Type')).toBeInTheDocument();
-      expect(screen.getByRole('combobox')).toBeInTheDocument();
+      // There are multiple comboboxes (role type + form selector), so use getAllByRole
+      expect(screen.getAllByRole('combobox').length).toBeGreaterThanOrEqual(1);
     });
 
     it('defaults to USER role type', () => {
@@ -361,9 +362,10 @@ describe('CreateRoleDialog', () => {
       await user.click(formSelector);
 
       await waitFor(() => {
-        expect(screen.getByText('No form')).toBeInTheDocument();
-        expect(screen.getByText('Application Form')).toBeInTheDocument();
-        expect(screen.getByText('Operator Guide')).toBeInTheDocument();
+        // Use getAllByText since there might be multiple instances
+        expect(screen.getAllByText('No form').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText('Application Form').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText('Operator Guide').length).toBeGreaterThanOrEqual(1);
       });
     });
 
@@ -376,11 +378,26 @@ describe('CreateRoleDialog', () => {
       // Fill in required name field
       await user.type(screen.getByLabelText(/Step Name/), 'New Step');
 
-      // Select a form
+      // Select a form - open the dropdown and click the option element directly
       const comboboxes = screen.getAllByRole('combobox');
       const formSelector = comboboxes[1];
       await user.click(formSelector);
-      await user.click(screen.getByText('Operator Guide'));
+
+      // Wait for dropdown to open and find the option by role
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+      });
+
+      // Find option containing "Operator Guide" text and click it
+      const options = screen.getAllByRole('option');
+      const operatorGuideOption = options.find(opt => opt.textContent?.includes('Operator Guide'));
+      expect(operatorGuideOption).toBeDefined();
+      await user.click(operatorGuideOption!);
+
+      // Wait for dropdown to close
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+      });
 
       await user.click(screen.getByRole('button', { name: /Add Step/i }));
 

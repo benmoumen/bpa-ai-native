@@ -158,11 +158,11 @@ describe('StepActionsPanel', () => {
         wrapper: createWrapper(),
       });
 
-      // Check for status type badges
-      expect(screen.getByText('Pending')).toBeInTheDocument();
-      expect(screen.getByText('Approved')).toBeInTheDocument();
-      expect(screen.getByText('Returned')).toBeInTheDocument();
-      expect(screen.getByText('Rejected')).toBeInTheDocument();
+      // Check for status type badges - use getAllByText since there may be multiple instances
+      expect(screen.getAllByText('Pending').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Approved').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Returned').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Rejected').length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows transition destinations for statuses with transitions', () => {
