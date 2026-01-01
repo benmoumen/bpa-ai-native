@@ -29,7 +29,7 @@ export class CreateDeterminantDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: 'Type of the determinant',
@@ -37,7 +37,7 @@ export class CreateDeterminantDto {
     example: 'NUMBER',
   })
   @IsEnum(DeterminantTypeDto)
-  type: DeterminantTypeDto;
+  type!: DeterminantTypeDto;
 
   @ApiPropertyOptional({
     description: 'ID of the source form field',

@@ -9,34 +9,34 @@ import type { Determinant } from '@bpa/db';
 
 export class DeterminantResponseDto {
   @ApiProperty({ description: 'Determinant ID' })
-  id: string;
+  id!: string;
 
   @ApiProperty({ description: 'Parent service ID' })
-  serviceId: string;
+  serviceId!: string;
 
   @ApiProperty({ description: 'Determinant name' })
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: 'Determinant type',
     enum: ['STRING', 'NUMBER', 'BOOLEAN', 'DATE'],
   })
-  type: string;
+  type!: string;
 
   @ApiPropertyOptional({ description: 'Source form field ID' })
-  sourceFieldId: string | null;
+  sourceFieldId!: string | null;
 
   @ApiPropertyOptional({ description: 'JSONata formula expression' })
-  formula: string | null;
+  formula!: string | null;
 
   @ApiProperty({ description: 'Whether determinant is active' })
-  isActive: boolean;
+  isActive!: boolean;
 
   @ApiProperty({ description: 'Creation timestamp' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @ApiProperty({ description: 'Last update timestamp' })
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @ApiPropertyOptional({ description: 'Number of linked fields' })
   linkedFieldsCount?: number;

@@ -441,7 +441,7 @@ export class SchemaGeneratorService {
       return null;
     }
 
-    const rule = storedRule as StoredVisibilityRule;
+    const rule = storedRule as unknown as StoredVisibilityRule;
 
     // Find the source field to get its name (facts are referenced by field name)
     const sourceField = fields.find((f) => f.id === rule.sourceFieldId);

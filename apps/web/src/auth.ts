@@ -9,8 +9,17 @@
 
 import NextAuth from 'next-auth';
 import Keycloak from 'next-auth/providers/keycloak';
-import type { NextAuthConfig } from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+import type { NextAuthConfig, Provider } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
+
+// Check if Keycloak is configured
+const isKeycloakConfigured = !!(
+  process.env.KEYCLOAK_URL &&
+  process.env.KEYCLOAK_REALM &&
+  process.env.KEYCLOAK_CLIENT_ID &&
+  process.env.KEYCLOAK_CLIENT_SECRET
+);
 
 // Inactivity timeout in seconds (NFR9: 30 minutes)
 const INACTIVITY_TIMEOUT = 30 * 60;
@@ -71,23 +80,58 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 /**
  * Keycloak provider configuration with PKCE
  */
-const keycloakProvider = Keycloak({
-  clientId: process.env.KEYCLOAK_CLIENT_ID!,
-  clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
-  issuer: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`,
-  authorization: {
-    params: {
-      // Force PKCE for enhanced security (NFR10)
-      code_challenge_method: 'S256',
-    },
-  },
-});
+const keycloakProvider = isKeycloakConfigured
+  ? Keycloak({
+      clientId: process.env.KEYCLOAK_CLIENT_ID!,
+      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
+      issuer: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`,
+      authorization: {
+        params: {
+          // Force PKCE for enhanced security (NFR10)
+          code_challenge_method: 'S256',
+        },
+      },
+    })
+  : null;
+
+/**
+ * Development-only credentials provider
+ * WARNING: Only for local development - NOT for production
+ */
+const devCredentialsProvider =
+  process.env.NODE_ENV === 'development' && !isKeycloakConfigured
+    ? Credentials({
+        name: 'Development Login',
+        credentials: {
+          email: { label: 'Email', type: 'email', placeholder: 'dev@example.com' },
+          password: { label: 'Password', type: 'password' },
+        },
+        async authorize(credentials) {
+          // Development-only: accept any credentials
+          if (credentials?.email) {
+            return {
+              id: 'dev-user-1',
+              email: credentials.email as string,
+              name: 'Development User',
+            };
+          }
+          return null;
+        },
+      })
+    : null;
+
+/**
+ * Build providers array based on configuration
+ */
+const providers: Provider[] = [];
+if (keycloakProvider) providers.push(keycloakProvider);
+if (devCredentialsProvider) providers.push(devCredentialsProvider);
 
 /**
  * Auth.js configuration
  */
 const authConfig: NextAuthConfig = {
-  providers: [keycloakProvider],
+  providers,
 
   // Use JWT strategy for stateless sessions
   session: {
@@ -100,26 +144,38 @@ const authConfig: NextAuthConfig = {
     /**
      * JWT callback - runs when JWT is created or updated
      */
-    async jwt({ token, account, profile, trigger }) {
+    async jwt({ token, account, profile, user, trigger }) {
       const now = Math.floor(Date.now() / 1000);
 
-      // Initial sign in - add Keycloak data to token
-      if (account && profile) {
-        token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
-        token.idToken = account.id_token;
-        token.expiresAt = account.expires_at;
-        token.keycloakId = profile.sub ?? undefined;
-        token.lastActivity = now;
+      // Initial sign in
+      if (account) {
+        // Dev credentials provider - simple token setup
+        if (account.provider === 'credentials' && user) {
+          token.accessToken = 'dev-access-token';
+          token.expiresAt = now + 60 * 60; // 1 hour
+          token.lastActivity = now;
+          token.roles = ['user', 'admin']; // Dev gets all roles
+          return token;
+        }
 
-        // Extract roles from Keycloak token
-        const keycloakProfile = profile as {
-          realm_access?: { roles: string[] };
-          resource_access?: Record<string, { roles: string[] }>;
-        };
+        // Keycloak provider - add Keycloak data to token
+        if (profile) {
+          token.accessToken = account.access_token;
+          token.refreshToken = account.refresh_token;
+          token.idToken = account.id_token;
+          token.expiresAt = account.expires_at;
+          token.keycloakId = profile.sub ?? undefined;
+          token.lastActivity = now;
 
-        token.roles = keycloakProfile.realm_access?.roles ?? [];
-        return token;
+          // Extract roles from Keycloak token
+          const keycloakProfile = profile as {
+            realm_access?: { roles: string[] };
+            resource_access?: Record<string, { roles: string[] }>;
+          };
+
+          token.roles = keycloakProfile.realm_access?.roles ?? [];
+          return token;
+        }
       }
 
       // Update last activity on session update (client-side activity refresh)

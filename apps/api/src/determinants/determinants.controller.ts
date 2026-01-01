@@ -43,7 +43,7 @@ import { CurrentUser } from '../auth';
 import { ParseUUIDPipe } from '../common';
 
 class LinkDeterminantDto {
-  determinantId: string;
+  determinantId!: string;
 }
 
 @ApiTags('Determinants')

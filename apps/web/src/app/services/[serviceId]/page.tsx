@@ -190,11 +190,11 @@ function ServiceDetailSkeleton() {
 }
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ serviceId: string }>;
 }
 
 export default function ServiceDetailPage({ params }: PageProps) {
-  const { id } = use(params);
+  const { serviceId } = use(params);
 
   return (
     <>
@@ -231,7 +231,7 @@ export default function ServiceDetailPage({ params }: PageProps) {
             />
           }
         >
-          <ServiceDetailContent serviceId={id} />
+          <ServiceDetailContent serviceId={serviceId} />
         </AppShell>
       </Suspense>
     </>

@@ -14,10 +14,10 @@ import { ApiProperty } from '@nestjs/swagger';
  */
 class JsonSchemaPropertyDto {
   @ApiProperty({ enum: ['string', 'number', 'integer', 'boolean'] })
-  type: 'string' | 'number' | 'integer' | 'boolean';
+  type!: 'string' | 'number' | 'integer' | 'boolean';
 
   @ApiProperty()
-  title: string;
+  title!: string;
 
   @ApiProperty({ required: false })
   description?: string;
@@ -55,19 +55,19 @@ class JsonSchemaPropertyDto {
  */
 class GeneratedJsonSchemaDto {
   @ApiProperty({ example: 'http://json-schema.org/draft-07/schema#' })
-  $schema: 'http://json-schema.org/draft-07/schema#';
+  $schema!: 'http://json-schema.org/draft-07/schema#';
 
   @ApiProperty({ example: 'object' })
-  type: 'object';
+  type!: 'object';
 
   @ApiProperty()
-  title: string;
+  title!: string;
 
   @ApiProperty({ type: 'object', additionalProperties: { type: 'object' } })
-  properties: Record<string, JsonSchemaPropertyDto>;
+  properties!: Record<string, JsonSchemaPropertyDto>;
 
   @ApiProperty({ type: [String] })
-  required: string[];
+  required!: string[];
 }
 
 /**
@@ -77,7 +77,7 @@ class UiSchemaElementDto {
   @ApiProperty({
     enum: ['Control', 'Group', 'VerticalLayout', 'HorizontalLayout'],
   })
-  type: 'Control' | 'Group' | 'VerticalLayout' | 'HorizontalLayout';
+  type!: 'Control' | 'Group' | 'VerticalLayout' | 'HorizontalLayout';
 
   @ApiProperty({ required: false, example: '#/properties/fieldName' })
   scope?: string;
@@ -100,10 +100,10 @@ class UiSchemaElementDto {
  */
 class GeneratedUiSchemaDto {
   @ApiProperty({ example: 'VerticalLayout' })
-  type: 'VerticalLayout';
+  type!: 'VerticalLayout';
 
   @ApiProperty({ type: [UiSchemaElementDto] })
-  elements: UiSchemaElementDto[];
+  elements!: UiSchemaElementDto[];
 }
 
 /**
@@ -111,10 +111,10 @@ class GeneratedUiSchemaDto {
  */
 class VisibilityConditionDto {
   @ApiProperty({ description: 'Field name to evaluate' })
-  fact: string;
+  fact!: string;
 
   @ApiProperty({ description: 'Comparison operator' })
-  operator: string;
+  operator!: string;
 
   @ApiProperty({ description: 'Value to compare against' })
   value: unknown;
@@ -126,30 +126,19 @@ class VisibilityConditionDto {
 class JsonRulesEngineRuleDto {
   @ApiProperty({
     required: false,
-    type: 'object',
-    properties: {
-      all: {
-        type: 'array',
-        items: { $ref: '#/components/schemas/VisibilityConditionDto' },
-      },
-      any: {
-        type: 'array',
-        items: { $ref: '#/components/schemas/VisibilityConditionDto' },
-      },
-    },
+    type: Object,
+    description: 'Conditions object with all/any arrays',
   })
-  conditions: {
+  conditions!: {
     all?: VisibilityConditionDto[];
     any?: VisibilityConditionDto[];
   };
 
   @ApiProperty({
-    type: 'object',
-    properties: {
-      type: { type: 'string', enum: ['visible', 'hidden'] },
-    },
+    type: Object,
+    description: 'Event object with type (visible/hidden)',
   })
-  event: {
+  event!: {
     type: 'visible' | 'hidden';
   };
 }
@@ -159,16 +148,16 @@ class JsonRulesEngineRuleDto {
  */
 class VisibilityRuleMappingDto {
   @ApiProperty({ description: 'ID of the target field or section' })
-  targetId: string;
+  targetId!: string;
 
   @ApiProperty({ description: 'Name of the target field or section' })
-  targetName: string;
+  targetName!: string;
 
   @ApiProperty({ enum: ['field', 'section'] })
-  targetType: 'field' | 'section';
+  targetType!: 'field' | 'section';
 
   @ApiProperty({ type: JsonRulesEngineRuleDto })
-  rule: JsonRulesEngineRuleDto;
+  rule!: JsonRulesEngineRuleDto;
 }
 
 /**
@@ -176,10 +165,10 @@ class VisibilityRuleMappingDto {
  */
 class VisibilityRulesExportDto {
   @ApiProperty({ type: [VisibilityRuleMappingDto] })
-  fields: VisibilityRuleMappingDto[];
+  fields!: VisibilityRuleMappingDto[];
 
   @ApiProperty({ type: [VisibilityRuleMappingDto] })
-  sections: VisibilityRuleMappingDto[];
+  sections!: VisibilityRuleMappingDto[];
 }
 
 /**
@@ -187,32 +176,32 @@ class VisibilityRulesExportDto {
  */
 export class FormSchemaResponseDto {
   @ApiProperty({ description: 'Form ID' })
-  formId: string;
+  formId!: string;
 
   @ApiProperty({ description: 'Form name' })
-  formName: string;
+  formName!: string;
 
   @ApiProperty({
     description: 'Version timestamp (ISO 8601)',
     example: '2024-01-15T10:30:00.000Z',
   })
-  version: string;
+  version!: string;
 
   @ApiProperty({
     type: GeneratedJsonSchemaDto,
     description: 'JSON Schema (Draft-07)',
   })
-  jsonSchema: GeneratedJsonSchemaDto;
+  jsonSchema!: GeneratedJsonSchemaDto;
 
   @ApiProperty({
     type: GeneratedUiSchemaDto,
     description: 'UI Schema for JSON Forms',
   })
-  uiSchema: GeneratedUiSchemaDto;
+  uiSchema!: GeneratedUiSchemaDto;
 
   @ApiProperty({
     type: VisibilityRulesExportDto,
     description: 'Visibility rules export',
   })
-  rules: VisibilityRulesExportDto;
+  rules!: VisibilityRulesExportDto;
 }
