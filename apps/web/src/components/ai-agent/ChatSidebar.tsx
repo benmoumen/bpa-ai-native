@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { X, Bot, Wifi, WifiOff, AlertCircle, StopCircle } from 'lucide-react';
+import { X, Bot, Wifi, WifiOff, AlertCircle, StopCircle, Undo2, Redo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { ChatSidebarProps, ChatSession } from './types';
@@ -12,16 +12,19 @@ import { useGenerationFlow, GenerationStep } from './use-generation-flow';
 import { GenerationProgress } from './GenerationProgress';
 import { GenerationPreview } from './GenerationPreview';
 import { GenerationSummary } from './GenerationSummary';
+import { useRefinementFlow } from './use-refinement-flow';
+import { ChangePreview } from './ChangePreview';
 
 /**
  * Chat Sidebar Component
  *
  * Story 6-2: Chat Interface Foundation
  * Story 6-4: Service Generation Flow (Task 6 - Cancellation)
+ * Story 6-5: Iterative Refinement (Task 5 - Integration)
  *
  * Main chat interface for interacting with the AI agent.
  * Displays as a sidebar panel in the service builder.
- * Integrates generation progress tracking and cancellation.
+ * Integrates generation progress tracking, cancellation, and refinement flow.
  */
 export function ChatSidebar({
   serviceId,
@@ -64,7 +67,39 @@ export function ChatSidebar({
   // Track if we're in generation mode
   const isGenerating = generationFlow.isGenerating;
   const isReviewStep = generationFlow.state.currentStep === GenerationStep.REVIEW;
+  const isCompleted = generationFlow.state.currentStep === GenerationStep.COMPLETED;
   const [isSaving, setIsSaving] = React.useState(false);
+
+  // Service configuration state (for refinement)
+  const [serviceConfig, setServiceConfig] = React.useState<Record<string, unknown>>({});
+
+  // Refinement flow (active after generation is complete)
+  const refinementFlow = useRefinementFlow({
+    storageKey: serviceId,
+    config: serviceConfig,
+    onConfigChange: setServiceConfig,
+    maxUndoDepth: 10,
+  });
+
+  // Activate refinement mode after generation completes
+  React.useEffect(() => {
+    if (isCompleted && !refinementFlow.state.isActive) {
+      refinementFlow.activate();
+    }
+  }, [isCompleted, refinementFlow]);
+
+  // Update config when generation results change
+  React.useEffect(() => {
+    if (generationFlow.state.results) {
+      // Convert GenerationResults to Record<string, unknown>
+      const results = generationFlow.state.results;
+      const config: Record<string, unknown> = {};
+      for (const key of Object.keys(results) as (keyof typeof results)[]) {
+        config[key] = results[key];
+      }
+      setServiceConfig(config);
+    }
+  }, [generationFlow.state.results]);
 
   // Handle cancel with Escape key
   React.useEffect(() => {
@@ -92,9 +127,20 @@ export function ChatSidebar({
   /**
    * Handle sending a message
    * Detects generation intent and starts flow if needed
+   * In refinement mode, parses refinement intents
    */
   const handleSendMessage = React.useCallback(
     async (content: string) => {
+      // In refinement mode, parse refinement intents
+      if (refinementFlow.state.isActive) {
+        const intent = refinementFlow.parseIntent(content);
+        if (intent.type !== 'UNKNOWN') {
+          // Don't send to AI - show change preview instead
+          return;
+        }
+        // Unknown intent - fall through to normal chat
+      }
+
       // Check if this is a generation request
       const isGenerationRequest =
         content.toLowerCase().includes('create') ||
@@ -108,13 +154,19 @@ export function ChatSidebar({
 
       await sendMessage(content);
     },
-    [sendMessage, session.sessionId, serviceId, isGenerating, generationFlow]
+    [sendMessage, session.sessionId, serviceId, isGenerating, generationFlow, refinementFlow]
   );
 
   /**
    * Handle cancellation
    */
   const handleCancel = React.useCallback(() => {
+    // Cancel pending refinement intent
+    if (refinementFlow.state.pendingIntent) {
+      refinementFlow.cancelIntent();
+      return;
+    }
+
     // Cancel the streaming request
     cancelChat();
 
@@ -122,7 +174,21 @@ export function ChatSidebar({
     if (isGenerating) {
       generationFlow.cancel();
     }
-  }, [cancelChat, isGenerating, generationFlow]);
+  }, [cancelChat, isGenerating, generationFlow, refinementFlow]);
+
+  /**
+   * Handle applying refinement changes
+   */
+  const handleApplyRefinement = React.useCallback(async () => {
+    await refinementFlow.applyIntent();
+  }, [refinementFlow]);
+
+  /**
+   * Handle canceling refinement changes
+   */
+  const handleCancelRefinement = React.useCallback(() => {
+    refinementFlow.cancelIntent();
+  }, [refinementFlow]);
 
   /**
    * Handle generation approval
@@ -180,6 +246,31 @@ export function ChatSidebar({
           <ConnectionIndicator state={session.connectionState} />
         </div>
         <div className="flex items-center gap-1">
+          {/* Undo/Redo buttons when in refinement mode */}
+          {refinementFlow.state.isActive && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => refinementFlow.undo()}
+                disabled={!refinementFlow.canUndo}
+                aria-label={`Undo (${refinementFlow.undoCount} available)`}
+                title={`Undo (${refinementFlow.undoCount} available)`}
+              >
+                <Undo2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => refinementFlow.redo()}
+                disabled={!refinementFlow.canRedo}
+                aria-label={`Redo (${refinementFlow.redoCount} available)`}
+                title={`Redo (${refinementFlow.redoCount} available)`}
+              >
+                <Redo2 className="h-4 w-4" />
+              </Button>
+            </>
+          )}
           {/* Cancel button during streaming/generation */}
           {(session.isStreaming || isGenerating) && (
             <Button
@@ -249,8 +340,42 @@ export function ChatSidebar({
         )}
       </div>
 
-      {/* Input (hidden during review) */}
-      {!isReviewStep && (
+      {/* Change Preview (when refinement intent detected) */}
+      {refinementFlow.state.pendingIntent && (
+        <div className="border-t p-3">
+          <ChangePreview
+            intent={refinementFlow.state.pendingIntent}
+            onApply={handleApplyRefinement}
+            onCancel={handleCancelRefinement}
+            isApplying={refinementFlow.state.isApplying}
+          />
+        </div>
+      )}
+
+      {/* Refinement mode indicator */}
+      {refinementFlow.state.isActive && !refinementFlow.state.pendingIntent && (
+        <div className="border-t px-3 py-2 bg-blue-50 text-xs text-blue-700 flex items-center gap-2">
+          <span>Refinement mode active. Type commands like &quot;add phone field&quot; or &quot;remove fax&quot;.</span>
+        </div>
+      )}
+
+      {/* Last change notification */}
+      {refinementFlow.state.lastChange && !refinementFlow.state.pendingIntent && (
+        <div className="border-t px-3 py-2 bg-green-50 text-xs text-green-700">
+          ✓ {refinementFlow.state.lastChange}
+        </div>
+      )}
+
+      {/* Refinement error */}
+      {refinementFlow.state.error && (
+        <div className="border-t px-3 py-2 bg-red-50 text-xs text-red-700 flex items-center gap-2">
+          <AlertCircle className="h-3 w-3" />
+          {refinementFlow.state.error}
+        </div>
+      )}
+
+      {/* Input (hidden during review or when showing change preview) */}
+      {!isReviewStep && !refinementFlow.state.pendingIntent && (
         <MessageInput
           onSend={handleSendMessage}
           disabled={session.isStreaming || session.connectionState !== 'connected'}
@@ -259,7 +384,9 @@ export function ChatSidebar({
               ? 'Connecting...'
               : session.isStreaming
                 ? 'AI is responding...'
-                : 'Ask the AI to configure your service...'
+                : refinementFlow.state.isActive
+                  ? 'Type a refinement command (e.g., "add email field")...'
+                  : 'Ask the AI to configure your service...'
           }
         />
       )}

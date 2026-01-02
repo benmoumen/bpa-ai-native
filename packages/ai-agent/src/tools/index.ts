@@ -52,3 +52,24 @@ export { executeTool } from './executor.js';
 
 // Schema utilities
 export { openApiToZod, createParametersSchema, resolveRefs } from './schemas.js';
+
+// Refinement tools (Story 6-5)
+export {
+  createRefinementTools,
+  getRefinementToolMetadata,
+  isRefinementTool,
+  requiresConfirmation,
+  refineFormFieldSchema,
+  refineSectionSchema,
+  refineValidationSchema,
+  refineWorkflowStepSchema,
+  undoRefinementSchema,
+} from './refinement.js';
+
+export type {
+  RefineFormFieldParams,
+  RefineSectionParams,
+  RefineValidationParams,
+  RefineWorkflowStepParams,
+  UndoRefinementParams,
+} from './refinement.js';
