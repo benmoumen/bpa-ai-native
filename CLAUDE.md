@@ -198,11 +198,79 @@ bpa-ai-native/
 
 ```bash
 pnpm install          # Install dependencies
-pnpm dev              # Start development servers
+pnpm dev              # Start development servers (local)
 pnpm build            # Build all packages
 pnpm test             # Run tests
 pnpm lint             # Lint code
 ```
+
+## Docker Development Stack
+
+Full containerized development environment with hot reload. Use this for consistency with staging/production.
+
+### Quick Start
+
+```bash
+pnpm docker:dev       # Build and start full stack (foreground)
+pnpm docker:dev:detach # Build and start in background
+pnpm docker:logs      # Follow container logs
+pnpm docker:down      # Stop all containers
+pnpm docker:reset     # Stop and remove all data (fresh start)
+```
+
+### Services
+
+| Service | Container | Port | Description |
+|---------|-----------|------|-------------|
+| PostgreSQL | bpa-postgres | 5432 | Database |
+| Redis | bpa-redis | 6379 | Cache/sessions |
+| Keycloak | bpa-keycloak | 8080 | Auth server |
+| Web | bpa-web | 3000 | Next.js frontend |
+| API | bpa-api | 4000 | NestJS backend |
+
+### Hot Reload
+
+Source code is mounted as volumes for hot reload:
+- `apps/web/src/` → changes trigger Next.js fast refresh
+- `apps/api/src/` → changes trigger NestJS watch mode
+- `packages/*/src/` → shared package changes reflect immediately
+
+### Environment Configuration
+
+Docker uses `.env.docker` for container-specific settings:
+- `KEYCLOAK_URL=http://host.docker.internal:8080` - Server-side Keycloak access
+- `KEYCLOAK_ISSUER=http://localhost:8080` - Browser-facing issuer URL
+
+### Keycloak in Docker
+
+The `KEYCLOAK_ISSUER` vs `KEYCLOAK_URL` split handles Docker networking:
+- Server-side code uses `host.docker.internal:8080` to reach Keycloak
+- Token issuer must match browser URL (`localhost:8080`) for validation
+- Both are configured in `apps/web/src/auth.ts`
+
+### Troubleshooting
+
+```bash
+# Rebuild specific container
+docker compose -f docker-compose.dev.yml build --no-cache api
+
+# Check container logs
+docker logs bpa-api --tail 50
+
+# Shell into container
+docker exec -it bpa-api sh
+
+# Full reset (removes volumes)
+pnpm docker:reset
+```
+
+### Key Files
+
+- `docker-compose.dev.yml` - Full dev stack definition
+- `apps/web/Dockerfile.dev` - Web container (Next.js)
+- `apps/api/Dockerfile.dev` - API container (NestJS)
+- `.env.docker` - Docker environment variables
+- `.dockerignore` - Excludes node_modules, .next, etc.
 
 ## Commit Messages
 

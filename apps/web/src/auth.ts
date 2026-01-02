@@ -79,18 +79,28 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 
 /**
  * Keycloak provider configuration with PKCE
+ *
+ * Supports Docker setup where:
+ * - KEYCLOAK_URL: server-side connection URL (e.g., http://host.docker.internal:8080)
+ * - KEYCLOAK_ISSUER: token issuer URL matching what browser sees (e.g., http://localhost:8080)
+ * If KEYCLOAK_ISSUER is not set, KEYCLOAK_URL is used for both
  */
+const keycloakIssuerBase = process.env.KEYCLOAK_ISSUER || process.env.KEYCLOAK_URL;
 const keycloakProvider = isKeycloakConfigured
   ? Keycloak({
       clientId: process.env.KEYCLOAK_CLIENT_ID!,
       clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
-      issuer: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`,
+      // Issuer must match the 'iss' claim in tokens (browser-facing URL)
+      issuer: `${keycloakIssuerBase}/realms/${process.env.KEYCLOAK_REALM}`,
       authorization: {
         params: {
           // Force PKCE for enhanced security (NFR10)
           code_challenge_method: 'S256',
         },
       },
+      // Override token/userinfo endpoints to use server-side URL
+      token: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`,
+      userinfo: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/userinfo`,
     })
   : null;
 
