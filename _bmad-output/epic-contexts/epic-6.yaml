@@ -1,0 +1,153 @@
+# Epic 6 Context File
+# Generated: 2026-01-02
+# Epic: AI Agent for Service Configuration
+
+epic: 6
+name: AI Agent for Service Configuration
+description: |
+  Transform the service designer experience through an intelligent AI Agent
+  that operates as a "junior engineer" - understanding backend state, executing
+  complex multi-step operations, respecting constraints, and auto-healing when possible.
+
+  Architecture: Vercel AI SDK (revised from CopilotKit)
+  Key Features:
+  - Dynamic tool generation from OpenAPI spec
+  - YAML-based constraint engine
+  - WebSocket event stream for real-time state sync
+  - Self-healing error classifier
+  - LLM cost tracking and audit logging
+
+status: backlog
+
+# FRs Covered: FR25, FR26, FR27, FR28, FR29, FR30, FR31, FR32, FR33, FR63, FR64
+# NFRs: NFR1 (AI < 10s), NFR2 (streaming < 1s), NFR28-29 (LLM fallback), NFR32-33 (cost)
+
+spike:
+  required: true
+  story_id: "6-0"
+  title: "AI Agent Architecture Spike"
+  research_targets:
+    - apps/api/src # Existing API patterns
+    - packages/ # Package structure patterns
+    - apps/web/src/app # Next.js App Router patterns
+    - _bmad-output/architecture.md # Vercel AI SDK requirements
+
+stories:
+  mvp_critical:
+    - id: "6-0"
+      title: "AI Agent Architecture Spike"
+      status: backlog
+      points: 5
+      type: research
+
+    - id: "6-1"
+      title: "AI Agent Core Runtime"
+      status: backlog
+      points: 8
+      type: implementation
+      depends_on: ["6-0"]
+
+    - id: "6-1a"
+      title: "Dynamic Tool Registry"
+      status: backlog
+      points: 8
+      type: implementation
+      depends_on: ["6-1"]
+
+    - id: "6-1b"
+      title: "Constraint Engine"
+      status: backlog
+      points: 5
+      type: implementation
+      depends_on: ["6-1"]
+
+    - id: "6-1c"
+      title: "Self-Healing Layer"
+      status: backlog
+      points: 5
+      type: implementation
+      depends_on: ["6-1"]
+
+    - id: "6-1d"
+      title: "Backend Event Stream"
+      status: backlog
+      points: 5
+      type: implementation
+      depends_on: ["6-1"]
+
+    - id: "6-1e"
+      title: "Observability Layer"
+      status: backlog
+      points: 3
+      type: implementation
+      depends_on: ["6-1"]
+
+    - id: "6-2"
+      title: "Chat Interface Foundation"
+      status: backlog
+      points: 5
+      type: implementation
+      depends_on: ["6-1e"]
+
+    - id: "6-3"
+      title: "Confirmation Flow UI"
+      status: backlog
+      points: 3
+      type: implementation
+      depends_on: ["6-2"]
+
+  mvp_extended:
+    - id: "6-4"
+      title: "Service Generation Flow"
+      status: backlog
+      points: 8
+      type: implementation
+      depends_on: ["6-3"]
+
+    - id: "6-5"
+      title: "Iterative Refinement"
+      status: backlog
+      points: 5
+      type: implementation
+      depends_on: ["6-4"]
+
+  post_mvp:
+    - id: "6-6"
+      title: "Gap Detection"
+      status: backlog
+      points: 5
+      type: implementation
+      depends_on: ["6-5"]
+
+    - id: "6-7"
+      title: "Agent Settings & Preferences"
+      status: backlog
+      points: 3
+      type: implementation
+      depends_on: ["6-6"]
+
+constraints:
+  - "Use Vercel AI SDK (not CopilotKit) - unlimited tools, Apache 2.0"
+  - "Generate tools dynamically from OpenAPI spec at /api/v1/openapi.json"
+  - "Primary LLM: Groq (llama-3.3-70b-versatile), fallback: Claude via LiteLLM"
+  - "Session cost limit: $1.00 per service configuration (NFR32)"
+  - "AI response time < 10 seconds (NFR17)"
+  - "Streaming response start < 1 second (NFR2)"
+  - "Package location: packages/ai-agent"
+  - "WebSocket events at /ws/events with JWT auth"
+  - "YAML-based constraint rules, hot-reloadable"
+
+prerequisites:
+  - epic: 4
+    required_status: done
+    reason: "Workflow configuration is a target for AI agent"
+  - epic: 3
+    required_status: done
+    reason: "Form building is a target for AI agent"
+  - item: adr-p1-schema-foundation
+    required_status: done
+    reason: "Schema foundation needed before AI generates into it"
+
+# Total MVP Points: 47 (9 stories)
+# MVP Extended: +13 points (2 stories)
+# Post-MVP: +8 points (2 stories)

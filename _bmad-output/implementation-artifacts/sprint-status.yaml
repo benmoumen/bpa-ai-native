@@ -105,7 +105,7 @@ development_status:
   4-9-role-status-configuration-4-status-model: done
   4-10-role-registration-binding: done # Deferrable
   4-11-role-institution-assignment: backlog # Deferrable (Phase 2)
-  epic-4-retrospective: done
+  epic-4-retrospective: done  # Updated 2026-01-02 with full epic analysis
 
   # Epic 5: Determinants & Business Rules - SUPERSEDED
   # Rationale: Core functionality implemented in Epic 3 (3.7, 3.9)
@@ -145,8 +145,8 @@ development_status:
   #   6-4, 6-5
   # POST-MVP (+2 stories, +8 points):
   #   6-6, 6-7
-  epic-6: backlog
-  6-0-ai-agent-architecture-spike: backlog          # Validate Vercel AI SDK E2E (5 pts)
+  epic-6: in-progress
+  6-0-ai-agent-architecture-spike: done              # Validate Vercel AI SDK E2E (5 pts)
   6-1-ai-agent-core-runtime: backlog                # BPAAgent class, streaming (8 pts)
   6-1a-dynamic-tool-registry: backlog               # OpenAPI → Tools generation (8 pts)
   6-1b-constraint-engine: backlog                   # YAML rules, confirmations (5 pts)
