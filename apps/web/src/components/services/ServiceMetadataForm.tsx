@@ -11,6 +11,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import type { Resolver } from 'react-hook-form';
 import { Loader2, Check } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -60,7 +61,8 @@ export function ServiceMetadataForm({
     reset,
     formState: { errors, isDirty },
   } = useForm<UpdateServiceFormData>({
-    resolver: zodResolver(updateServiceSchema),
+    // Type assertion needed due to Zod v4 / @hookform/resolvers type mismatch
+    resolver: zodResolver(updateServiceSchema) as Resolver<UpdateServiceFormData>,
     defaultValues: {
       name: service.name,
       description: service.description || '',

@@ -54,3 +54,6 @@ export type {
 } from './types.js';
 
 export { AI_AGENT_VERSION, DEFAULT_CONFIG, LLM_MODELS } from './types.js';
+
+// Gap detection module (Story 6-6)
+export * from './gaps/index.js';

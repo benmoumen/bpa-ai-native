@@ -4,6 +4,8 @@
  * Story 6-2: Chat Interface Foundation
  * Story 6-3: Confirmation Flow UI
  * Story 6-4: Service Generation Flow
+ * Story 6-5: Iterative Refinement
+ * Story 6-6: Gap Detection
  */
 
 // Main components
@@ -17,6 +19,21 @@ export { ConfirmationDialog } from './ConfirmationDialog';
 export { GenerationProgress } from './GenerationProgress';
 export { GenerationPreview } from './GenerationPreview';
 export { GenerationSummary } from './GenerationSummary';
+
+// Refinement components
+export { ChangePreview } from './ChangePreview';
+
+// Gap detection components
+export { GapReport } from './GapReport';
+export {
+  gapFixToIntent,
+  generateFixPreviews,
+  applyGapFixes,
+  filterGapsByIds,
+  getFixableGaps,
+  describeFixAction,
+} from './gap-fixer';
+export type { FixPreviewItem, ApplyFixesResult } from './gap-fixer';
 
 // Hooks
 export { useChat } from './use-chat';
@@ -34,6 +51,19 @@ export type {
   UseGenerationFlowOptions,
   UseGenerationFlowReturn,
 } from './use-generation-flow';
+export { useRefinementFlow } from './use-refinement-flow';
+export { useGapDetection } from './use-gap-detection';
+export type {
+  GapReportData,
+  GapDetectionState,
+  ServiceConfigForAnalysis,
+  UseGapDetectionOptions,
+  UseGapDetectionReturn,
+} from './use-gap-detection';
+
+// Refinement parser
+export { parseRefinementIntent, describeIntent, isDestructiveIntent } from './refinement-parser';
+export type { RefinementIntent } from './refinement-parser';
 
 // Types
 export type {
@@ -47,3 +77,9 @@ export type {
   MessageInputProps,
   StreamingMessageProps,
 } from './types';
+export type {
+  GapSeverity,
+  GapFix,
+  GapItem,
+  GapReportProps,
+} from './GapReport';

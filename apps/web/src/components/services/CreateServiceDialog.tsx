@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import type { Resolver } from 'react-hook-form';
 import { Loader2, FileText, LayoutTemplate, ArrowLeft } from 'lucide-react';
 
 import {
@@ -75,7 +76,8 @@ export function CreateServiceDialog({
     reset,
     formState: { errors },
   } = useForm<CreateServiceFormData>({
-    resolver: zodResolver(createServiceSchema),
+    // Type assertion needed due to Zod v4 / @hookform/resolvers type mismatch
+    resolver: zodResolver(createServiceSchema) as Resolver<CreateServiceFormData>,
     defaultValues: {
       name: '',
       description: '',
