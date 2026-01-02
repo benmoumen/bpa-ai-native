@@ -1,6 +1,6 @@
 # Story 6.4: Service Generation Flow
 
-Status: review
+Status: done
 
 ## Story
 
