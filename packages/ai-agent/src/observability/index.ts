@@ -1,37 +1,47 @@
 /**
- * Observability Layer - Audit logging and cost tracking
+ * Observability Layer
  *
- * Implements Story 6-1e: Observability Layer
- * Placeholder for now, will be implemented in 6-1e
+ * Story 6-1e: Observability Layer
+ *
+ * Provides audit logging, cost tracking, and metrics for the AI agent.
  */
 
-export const OBSERVABILITY_VERSION = '0.0.1' as const;
+export const OBSERVABILITY_VERSION = '1.0.0' as const;
 
-export interface AuditEntry {
-  id: string;
-  timestamp: Date;
-  userId: string;
-  sessionId: string;
-  toolName: string;
-  args: Record<string, unknown>;
-  result: unknown;
-  durationMs: number;
-  tokenUsage?: {
-    promptTokens: number;
-    completionTokens: number;
-    costUsd: number;
-  };
-}
+// Types
+export type {
+  TokenUsage,
+  ModelCost,
+  CostResult,
+  AuditEntry,
+  SessionSummary,
+  ServiceCostSummary,
+  AgentMetrics,
+  AuditLogQuery,
+} from './types.js';
 
-// Placeholder exports - will be implemented in Story 6-1e
-export function logAuditEntry(_entry: Omit<AuditEntry, 'id' | 'timestamp'>): void {
-  // Will be implemented in Story 6-1e
-}
+// Cost tracking
+export {
+  calculateCost,
+  getModelCost,
+  isModelSupported,
+  getProviderFromModel,
+  createCostTracker,
+  CostTracker,
+  GROQ_PRICING,
+  ANTHROPIC_PRICING,
+} from './cost.js';
 
-export function getSessionCost(_sessionId: string): number {
-  return 0;
-}
+// Audit logging
+export {
+  createAuditLogger,
+  startTimer,
+  AuditLogger,
+} from './audit.js';
 
-export function getAuditLog(_sessionId: string): AuditEntry[] {
-  return [];
-}
+// Metrics
+export {
+  createMetricsCollector,
+  getMetricsCollector,
+  MetricsCollector,
+} from './metrics.js';
