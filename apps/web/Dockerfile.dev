@@ -1,0 +1,41 @@
+# BPA AI-Native Web Application - Development Dockerfile
+# Supports hot reload via volume mounts
+
+FROM node:20-alpine
+
+RUN apk add --no-cache libc6-compat openssl
+
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files first for better caching
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps/web/package.json ./apps/web/
+COPY packages/types/package.json ./packages/types/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/config/package.json ./packages/config/
+COPY packages/db/package.json ./packages/db/
+COPY packages/ai-agent/package.json ./packages/ai-agent/
+
+# Install all dependencies (including devDependencies)
+RUN pnpm install
+
+# Copy Prisma schema and generate client
+COPY packages/db/prisma ./packages/db/prisma/
+RUN pnpm --filter=@bpa/db db:generate
+
+# Source code will be mounted as volume for hot reload
+# Copy only what's needed for initial startup
+COPY packages/ ./packages/
+COPY apps/web/ ./apps/web/
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV NODE_ENV=development
+
+# Use turbo for dev with proper filtering
+CMD ["pnpm", "turbo", "run", "dev", "--filter=web"]
