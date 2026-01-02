@@ -30,6 +30,8 @@ export interface ChatMessage {
   status: MessageStatus;
   /** Error message if status is error */
   error?: string;
+  /** Optional metadata (e.g., tool calls, generation progress) */
+  metadata?: Record<string, unknown>;
 }
 
 /**

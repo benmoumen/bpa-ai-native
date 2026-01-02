@@ -7,10 +7,10 @@ import type { ChatMessage, ChatSession } from './types';
  * Chat state hook
  *
  * Story 6-2: Chat Interface Foundation
+ * Story 6-4: Service Generation Flow (Task 2 - Real Agent Integration)
  *
  * Custom hook for managing chat state and interactions.
- * Provides methods for sending messages, managing streaming,
- * and handling connection state.
+ * Connects to the real BPAAgent via /api/agent/chat endpoint.
  */
 
 interface UseChatOptions {
@@ -39,6 +39,24 @@ interface UseChatReturn {
   connect: () => void;
   /** Disconnect from the chat service */
   disconnect: () => void;
+  /** Cancel current streaming request */
+  cancel: () => void;
+}
+
+/** SSE response chunk from the agent */
+interface AgentResponseChunk {
+  text: string;
+  isStreaming?: boolean;
+  error?: {
+    code: string;
+    message: string;
+    retryable?: boolean;
+  };
+  toolCalls?: Array<{
+    toolName: string;
+    args: Record<string, unknown>;
+    result: unknown;
+  }>;
 }
 
 export function useChat({
@@ -58,6 +76,7 @@ export function useChat({
   }));
 
   const lastUserMessageRef = React.useRef<string | null>(null);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
 
   /**
    * Generate unique message ID
@@ -92,26 +111,101 @@ export function useChat({
   );
 
   /**
+   * Build message history for API request
+   */
+  const buildHistory = React.useCallback(() => {
+    return session.messages
+      .filter((msg) => msg.status === 'complete')
+      .map((msg) => ({
+        role: msg.role as 'user' | 'assistant' | 'system',
+        content: msg.content,
+      }));
+  }, [session.messages]);
+
+  /**
    * Connect to the chat service
    */
   const connect = React.useCallback(() => {
     setSession((prev) => ({ ...prev, connectionState: 'connecting' }));
-
-    // Simulate connection - replace with actual WebSocket connection
-    setTimeout(() => {
-      setSession((prev) => ({ ...prev, connectionState: 'connected' }));
-    }, 500);
+    // Connection is now immediate since we use HTTP streaming
+    setSession((prev) => ({ ...prev, connectionState: 'connected' }));
   }, []);
 
   /**
    * Disconnect from the chat service
    */
   const disconnect = React.useCallback(() => {
+    // Cancel any ongoing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
     setSession((prev) => ({ ...prev, connectionState: 'disconnected' }));
   }, []);
 
   /**
-   * Send a message
+   * Cancel current streaming request
+   */
+  const cancel = React.useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setSession((prev) => ({ ...prev, isStreaming: false }));
+  }, []);
+
+  /**
+   * Parse SSE stream from the agent API
+   */
+  async function* parseSSEStream(
+    stream: ReadableStream<Uint8Array>
+  ): AsyncGenerator<AgentResponseChunk> {
+    const decoder = new TextDecoder();
+    const reader = stream.getReader();
+    let buffer = '';
+
+    try {
+      let done = false;
+      while (!done) {
+        const result = await reader.read();
+        done = result.done;
+        if (result.value) {
+          buffer += decoder.decode(result.value, { stream: true });
+        }
+
+        // Parse complete SSE messages
+        const lines = buffer.split('\n\n');
+        const remaining = lines.pop();
+        buffer = remaining ?? '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const json = line.slice(6);
+            try {
+              yield JSON.parse(json) as AgentResponseChunk;
+            } catch {
+              console.warn('[useChat] Failed to parse SSE chunk:', json);
+            }
+          }
+        }
+      }
+
+      // Parse any remaining buffer
+      if (buffer.length > 0 && buffer.startsWith('data: ')) {
+        const json = buffer.slice(6);
+        try {
+          yield JSON.parse(json) as AgentResponseChunk;
+        } catch {
+          // Ignore incomplete final chunk
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+
+  /**
+   * Send a message to the agent
    */
   const sendMessage = React.useCallback(
     async (content: string) => {
@@ -154,28 +248,85 @@ export function useChat({
 
       addMessage(aiMessage);
 
-      try {
-        // Simulate AI response - replace with actual agent call
-        const response = generateMockResponse(content, serviceId);
+      // Create abort controller for cancellation
+      abortControllerRef.current = new AbortController();
 
-        // Simulate streaming
-        for (let i = 0; i <= response.length; i++) {
-          await new Promise((resolve) => setTimeout(resolve, 15));
-          updateMessage(aiMessageId, { content: response.slice(0, i) });
+      try {
+        // Build request body
+        const history = buildHistory();
+        const requestBody = {
+          message: content,
+          serviceId,
+          sessionId: session.sessionId,
+          history,
+        };
+
+        // Call the agent API
+        const response = await fetch('/api/agent/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+          signal: abortControllerRef.current.signal,
+        });
+
+        // Handle non-OK responses
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage =
+            errorData.error?.message || `Request failed with status ${response.status}`;
+          throw new Error(errorMessage);
+        }
+
+        // Check if we have a stream
+        if (!response.body) {
+          throw new Error('Response has no body');
+        }
+
+        // Parse the SSE stream
+        let lastText = '';
+        for await (const chunk of parseSSEStream(response.body)) {
+          // Handle errors in stream
+          if (chunk.error) {
+            throw new Error(chunk.error.message);
+          }
+
+          // Update message with streamed text
+          if (chunk.text) {
+            lastText = chunk.text;
+            updateMessage(aiMessageId, { content: chunk.text });
+          }
+
+          // Handle tool calls (for future use)
+          if (chunk.toolCalls && chunk.toolCalls.length > 0) {
+            updateMessage(aiMessageId, {
+              metadata: { toolCalls: chunk.toolCalls },
+            });
+          }
         }
 
         // Complete message
         const completedMessage: ChatMessage = {
           ...aiMessage,
-          content: response,
+          content: lastText,
           status: 'complete',
         };
         updateMessage(aiMessageId, {
-          content: response,
+          content: lastText,
           status: 'complete',
         });
         onResponseReceived?.(completedMessage);
       } catch (error) {
+        // Handle abort
+        if (error instanceof Error && error.name === 'AbortError') {
+          updateMessage(aiMessageId, {
+            status: 'complete',
+            content: aiMessage.content || '(Cancelled)',
+          });
+          return;
+        }
+
         const err = error instanceof Error ? error : new Error('Unknown error');
         updateMessage(aiMessageId, {
           status: 'error',
@@ -183,16 +334,19 @@ export function useChat({
         });
         onError?.(err);
       } finally {
+        abortControllerRef.current = null;
         setSession((prev) => ({ ...prev, isStreaming: false }));
       }
     },
     [
       session.connectionState,
       session.isStreaming,
+      session.sessionId,
       serviceId,
       generateMessageId,
       addMessage,
       updateMessage,
+      buildHistory,
       onMessageSent,
       onResponseReceived,
       onError,
@@ -214,10 +368,10 @@ export function useChat({
    */
   const retry = React.useCallback(async () => {
     if (lastUserMessageRef.current) {
-      // Remove the last failed message
+      // Remove both the failed assistant message and the user message that triggered it
       setSession((prev) => ({
         ...prev,
-        messages: prev.messages.slice(0, -1),
+        messages: prev.messages.slice(0, -2),
       }));
       await sendMessage(lastUserMessageRef.current);
     }
@@ -247,61 +401,8 @@ export function useChat({
     retry,
     connect,
     disconnect,
+    cancel,
   };
-}
-
-/**
- * Generate a mock response for testing
- * Replace with actual agent integration
- */
-function generateMockResponse(userMessage: string, serviceId: string): string {
-  const lowerMessage = userMessage.toLowerCase();
-
-  if (lowerMessage.includes('form')) {
-    return `I can help you create a form for this service. For service ${serviceId}, I'll analyze the requirements and suggest appropriate form fields. Would you like me to:
-
-1. Create a new applicant form
-2. Add fields to an existing form
-3. Configure field validations
-
-Just let me know which option you'd prefer!`;
-  }
-
-  if (lowerMessage.includes('workflow')) {
-    return `I'll help you configure the workflow for service ${serviceId}. Currently, I can:
-
-- Define workflow steps
-- Set up transitions between steps
-- Configure role assignments
-- Add approval chains
-
-What aspect of the workflow would you like to work on?`;
-  }
-
-  if (lowerMessage.includes('help') || lowerMessage.includes('what can')) {
-    return `I'm your AI assistant for configuring BPA services. I can help you with:
-
-**Forms**
-- Create and configure forms
-- Add and organize form fields
-- Set up validation rules
-
-**Workflow**
-- Design approval workflows
-- Configure step transitions
-- Assign roles to steps
-
-**Documents & Requirements**
-- Define required documents
-- Set up cost calculations
-- Configure determinants
-
-Just describe what you'd like to do and I'll guide you through it!`;
-  }
-
-  return `I understand you're asking about "${userMessage}". I'm analyzing the current configuration for service ${serviceId} to provide the best assistance.
-
-Is there a specific aspect of the service configuration you'd like help with? I can assist with forms, workflows, registrations, and more.`;
 }
 
 export default useChat;
