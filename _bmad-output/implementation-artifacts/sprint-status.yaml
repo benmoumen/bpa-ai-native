@@ -147,7 +147,7 @@ development_status:
   #   6-6, 6-7
   epic-6: in-progress
   6-0-ai-agent-architecture-spike: done              # Validate Vercel AI SDK E2E (5 pts)
-  6-1-ai-agent-core-runtime: backlog                # BPAAgent class, streaming (8 pts)
+  6-1-ai-agent-core-runtime: done                    # BPAAgent class, streaming (8 pts)
   6-1a-dynamic-tool-registry: backlog               # OpenAPI → Tools generation (8 pts)
   6-1b-constraint-engine: backlog                   # YAML rules, confirmations (5 pts)
   6-1c-self-healing-layer: backlog                  # Error classification, recovery (5 pts)
