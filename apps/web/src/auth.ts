@@ -8,7 +8,6 @@
  */
 
 import NextAuth from 'next-auth';
-import Keycloak from 'next-auth/providers/keycloak';
 import Credentials from 'next-auth/providers/credentials';
 import type { NextAuthConfig } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
@@ -78,30 +77,54 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 }
 
 /**
- * Keycloak provider configuration with PKCE
+ * Custom Keycloak OIDC provider configuration with PKCE
  *
- * Supports Docker setup where:
+ * Uses custom provider instead of built-in Keycloak to support Docker environments:
  * - KEYCLOAK_URL: server-side connection URL (e.g., http://host.docker.internal:8080)
  * - KEYCLOAK_ISSUER: token issuer URL matching what browser sees (e.g., http://localhost:8080)
- * If KEYCLOAK_ISSUER is not set, KEYCLOAK_URL is used for both
+ *
+ * In Docker, the web container cannot reach localhost:8080, but the browser can.
+ * Server-side calls (token, userinfo, jwks) use KEYCLOAK_URL.
+ * Browser-facing calls (authorization) use KEYCLOAK_ISSUER.
  */
-const keycloakIssuerBase = process.env.KEYCLOAK_ISSUER || process.env.KEYCLOAK_URL;
-const keycloakProvider = isKeycloakConfigured
-  ? Keycloak({
+const keycloakServerUrl = process.env.KEYCLOAK_URL;
+const keycloakBrowserUrl = process.env.KEYCLOAK_ISSUER || process.env.KEYCLOAK_URL;
+const keycloakRealm = process.env.KEYCLOAK_REALM;
+
+const keycloakProvider: NextAuthConfig['providers'][number] | null = isKeycloakConfigured
+  ? {
+      id: 'keycloak',
+      name: 'Keycloak',
+      type: 'oidc',
+      // Issuer must match 'iss' claim in tokens (what browser sees)
+      issuer: `${keycloakBrowserUrl}/realms/${keycloakRealm}`,
       clientId: process.env.KEYCLOAK_CLIENT_ID!,
       clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
-      // Issuer must match the 'iss' claim in tokens (browser-facing URL)
-      issuer: `${keycloakIssuerBase}/realms/${process.env.KEYCLOAK_REALM}`,
+      // Browser-facing authorization endpoint
       authorization: {
+        url: `${keycloakBrowserUrl}/realms/${keycloakRealm}/protocol/openid-connect/auth`,
         params: {
+          scope: 'openid email profile',
           // Force PKCE for enhanced security (NFR10)
           code_challenge_method: 'S256',
         },
       },
-      // Override token/userinfo endpoints to use server-side URL
-      token: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`,
-      userinfo: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/userinfo`,
-    })
+      // Server-side endpoints (must be reachable from container)
+      token: `${keycloakServerUrl}/realms/${keycloakRealm}/protocol/openid-connect/token`,
+      userinfo: `${keycloakServerUrl}/realms/${keycloakRealm}/protocol/openid-connect/userinfo`,
+      jwks_endpoint: `${keycloakServerUrl}/realms/${keycloakRealm}/protocol/openid-connect/certs`,
+      // Profile mapping
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name ?? profile.preferred_username,
+          email: profile.email,
+          image: profile.picture,
+        };
+      },
+      // Skip OIDC discovery - we've defined all endpoints explicitly
+      checks: ['pkce', 'state'],
+    }
   : null;
 
 /**

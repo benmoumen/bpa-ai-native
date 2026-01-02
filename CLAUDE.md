@@ -272,6 +272,37 @@ pnpm docker:reset
 - `.env.docker` - Docker environment variables
 - `.dockerignore` - Excludes node_modules, .next, etc.
 
+## Environment Variables
+
+### Which File to Edit
+
+| Development Mode | Web App | API App |
+|-----------------|---------|---------|
+| **Local** (`pnpm dev`) | `apps/web/.env.local` | `apps/api/.env` |
+| **Docker** (`pnpm docker:dev`) | `.env.docker` | `.env.docker` |
+
+### After Changing Env Vars
+
+**Local development:**
+- Next.js (web): Most changes hot-reload automatically
+- NestJS (api): Requires restart - stop and run `pnpm dev` again
+- `NEXT_PUBLIC_*` vars: Require rebuild (`pnpm build`) in production
+
+**Docker development:**
+```bash
+# Restart containers to pick up .env.docker changes
+pnpm docker:down && pnpm docker:dev
+
+# Full reset if needed (clears volumes)
+pnpm docker:reset && pnpm docker:dev
+```
+
+### Important Notes
+
+- `NEXT_PUBLIC_` prefix exposes vars to browser (baked into client bundle at build time)
+- Server-only vars (no prefix) are only available in API routes and server components
+- Never commit `.env.local` or secrets - use `.env.example` as template
+
 ## Commit Messages
 
 Follow conventional commits:
