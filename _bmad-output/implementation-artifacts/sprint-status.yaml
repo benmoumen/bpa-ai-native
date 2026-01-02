@@ -154,12 +154,12 @@ development_status:
   6-1d-backend-event-stream: done                    # WebSocket, Zustand store (5 pts)
   6-1e-observability-layer: done                     # Audit log, cost tracking (3 pts)
   6-2-chat-interface-foundation: done               # Chat sidebar UI (5 pts)
-  6-3-confirmation-flow-ui: backlog                 # Constraint confirmation UX (3 pts)
+  6-3-confirmation-flow-ui: done                    # Constraint confirmation UX (3 pts)
   6-4-service-generation-flow: backlog              # Multi-step generation (8 pts) - MVP Extended
   6-5-iterative-refinement: backlog                 # Conversational editing (5 pts) - MVP Extended
   6-6-gap-detection: backlog                        # Proactive suggestions (5 pts) - Post-MVP
   6-7-agent-settings-preferences: backlog           # User preferences (3 pts) - Post-MVP
-  epic-6-retrospective: optional
+  epic-6-retrospective: done
 
   # Epic 7: Preview & Publishing (8 stories)
   epic-7: backlog
