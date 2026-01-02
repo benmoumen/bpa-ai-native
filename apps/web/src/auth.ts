@@ -95,8 +95,9 @@ const keycloakProvider: NextAuthConfig['providers'][number] | null = isKeycloakC
   ? {
       id: 'keycloak',
       name: 'Keycloak',
-      type: 'oidc',
-      // Issuer must match 'iss' claim in tokens (what browser sees)
+      // Use 'oauth' type to avoid OIDC discovery (which fails in Docker)
+      type: 'oauth',
+      // Issuer for token validation - must match 'iss' claim (browser-facing URL)
       issuer: `${keycloakBrowserUrl}/realms/${keycloakRealm}`,
       clientId: process.env.KEYCLOAK_CLIENT_ID!,
       clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
@@ -109,11 +110,15 @@ const keycloakProvider: NextAuthConfig['providers'][number] | null = isKeycloakC
           code_challenge_method: 'S256',
         },
       },
-      // Server-side endpoints (must be reachable from container)
-      token: `${keycloakServerUrl}/realms/${keycloakRealm}/protocol/openid-connect/token`,
-      userinfo: `${keycloakServerUrl}/realms/${keycloakRealm}/protocol/openid-connect/userinfo`,
-      jwks_endpoint: `${keycloakServerUrl}/realms/${keycloakRealm}/protocol/openid-connect/certs`,
-      // Profile mapping
+      // Server-side token endpoint (must be reachable from container)
+      token: {
+        url: `${keycloakServerUrl}/realms/${keycloakRealm}/protocol/openid-connect/token`,
+      },
+      // Server-side userinfo endpoint
+      userinfo: {
+        url: `${keycloakServerUrl}/realms/${keycloakRealm}/protocol/openid-connect/userinfo`,
+      },
+      // Profile mapping from userinfo response
       profile(profile) {
         return {
           id: profile.sub,
@@ -122,7 +127,7 @@ const keycloakProvider: NextAuthConfig['providers'][number] | null = isKeycloakC
           image: profile.picture,
         };
       },
-      // Skip OIDC discovery - we've defined all endpoints explicitly
+      // Enable PKCE and state checks
       checks: ['pkce', 'state'],
     }
   : null;

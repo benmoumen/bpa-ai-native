@@ -62,8 +62,17 @@ RUN adduser --system --uid 1001 nestjs
 # Copy built application and dependencies
 COPY --from=builder --chown=nestjs:nestjs /app/apps/api/dist ./dist
 COPY --from=builder --chown=nestjs:nestjs /app/apps/api/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nestjs /app/packages/db/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder --chown=nestjs:nestjs /app/packages/db/prisma ./prisma
+
+# Copy workspace packages (pnpm symlinks need the actual packages)
+# @bpa/db - includes Prisma client generated to src/generated/prisma
+COPY --from=builder --chown=nestjs:nestjs /app/packages/db/dist ./packages/db/dist
+COPY --from=builder --chown=nestjs:nestjs /app/packages/db/src/generated ./packages/db/src/generated
+COPY --from=builder --chown=nestjs:nestjs /app/packages/db/package.json ./packages/db/package.json
+COPY --from=builder --chown=nestjs:nestjs /app/packages/db/prisma ./packages/db/prisma
+COPY --from=builder --chown=nestjs:nestjs /app/packages/db/node_modules ./packages/db/node_modules
+# @bpa/types
+COPY --from=builder --chown=nestjs:nestjs /app/packages/types/dist ./packages/types/dist
+COPY --from=builder --chown=nestjs:nestjs /app/packages/types/package.json ./packages/types/package.json
 
 USER nestjs
 
