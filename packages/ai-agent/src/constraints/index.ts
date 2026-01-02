@@ -1,29 +1,29 @@
 /**
- * Constraint Engine - YAML-based rule evaluation
+ * Constraint Engine
  *
- * Implements Story 6-1b: Constraint Engine
- * Placeholder for now, will be implemented in 6-1b
+ * Implements Story 6-1b: YAML-based constraint rules for AI agent actions
  */
 
 export const CONSTRAINTS_VERSION = '0.0.1' as const;
 
-export type ConstraintAction = 'require_confirmation' | 'block' | 'warn' | 'transform';
+// Types
+export type {
+  ConstraintAction,
+  ConstraintRule,
+  ConstraintConfig,
+  ConstraintContext,
+  ConstraintResult,
+  ConstraintEngineOptions,
+} from './types.js';
 
-export interface ConstraintRule {
-  name: string;
-  condition: string;
-  action: ConstraintAction;
-  message: string;
-}
+// Parser
+export { parseRules, getDefaultRulesContent, validateCondition } from './parser.js';
 
-// Placeholder exports - will be implemented in Story 6-1b
-export function evaluateConstraints(
-  _toolName: string,
-  _context: unknown,
-): { action: ConstraintAction; message: string } | null {
-  return null;
-}
-
-export function loadConstraintRules(_yamlPath: string): ConstraintRule[] {
-  throw new Error('Not implemented - see Story 6-1b');
-}
+// Engine
+export {
+  ConstraintEngine,
+  createConstraintEngine,
+  getConstraintEngine,
+  initializeConstraintEngine,
+  clearConstraintEngine,
+} from './engine.js';

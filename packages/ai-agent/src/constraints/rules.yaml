@@ -1,0 +1,59 @@
+# Default Constraint Rules
+# Story 6-1b: Constraint Engine
+#
+# Format:
+#   - name: unique identifier
+#   - condition: JavaScript expression (tool, context, args available)
+#   - action: require_confirmation | block | warn | transform
+#   - message: User-facing message
+#   - priority: Lower = higher priority (default: 100)
+#   - enabled: true | false (default: true)
+
+version: "1.0.0"
+
+settings:
+  maxSessionCost: 1.00
+  confirmationsEnabled: true
+
+rules:
+  # Delete operations require confirmation
+  - name: confirm_delete
+    condition: "tool.name.match(/delete|remove/i)"
+    action: require_confirmation
+    message: "This will permanently delete data. Are you sure?"
+    priority: 10
+
+  # Archive operations require confirmation
+  - name: confirm_archive
+    condition: "tool.name.match(/archive/i)"
+    action: require_confirmation
+    message: "Archiving will move this to inactive state. Continue?"
+    priority: 20
+
+  # Publish service requires confirmation
+  - name: confirm_publish
+    condition: "tool.name === 'publishService'"
+    action: require_confirmation
+    message: "Publishing will make this service live to all users. Proceed?"
+    priority: 10
+
+  # Session cost limit
+  - name: cost_guard
+    condition: "context.sessionCost >= 1.00"
+    action: block
+    message: "Session cost limit reached ($1.00). Please start a new session."
+    priority: 1
+
+  # Warn on modifying published services
+  - name: warn_modify_published
+    condition: "context.isPublished && tool.mutates"
+    action: warn
+    message: "Warning: This service is published. Changes will affect live users."
+    priority: 50
+
+  # Block operations without service context
+  - name: require_service_context
+    condition: "!context.serviceId && tool.path.includes('/services/{serviceId}')"
+    action: block
+    message: "No service selected. Please select a service first."
+    priority: 5
