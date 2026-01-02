@@ -10,9 +10,12 @@ export { ChatSidebar } from './ChatSidebar';
 export { MessageList } from './MessageList';
 export { MessageInput } from './MessageInput';
 export { StreamingMessage } from './StreamingMessage';
+export { ConfirmationDialog } from './ConfirmationDialog';
 
 // Hooks
 export { useChat } from './use-chat';
+export { useConfirmation, createPendingAction } from './use-confirmation';
+export type { ConfirmationResult } from './use-confirmation';
 
 // Types
 export type {
