@@ -29,6 +29,9 @@
     ],
     "packages/config/**/*.{ts,tsx}": [
       "eslint --config packages/config/eslint.config.js --fix"
+    ],
+    "packages/ai-agent/**/*.ts": [
+      "eslint --config packages/ai-agent/eslint.config.mjs --fix"
     ]
   }
 }

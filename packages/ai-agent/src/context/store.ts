@@ -4,7 +4,7 @@
  * Story 6-1d: Backend Event Stream
  */
 
-import { createStore } from 'zustand/vanilla';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import type {
   ContextSnapshot,
   ContextStoreState,
@@ -16,6 +16,9 @@ import type {
   RegistrationEntity,
   DeterminantEntity,
 } from './types.js';
+
+/** Zustand store type */
+export type ContextStore = StoreApi<ContextStoreState>;
 
 /**
  * Default context snapshot
@@ -211,5 +214,3 @@ function applyToArray<T extends { id: string }>(
   }
 }
 
-/** Zustand store type */
-export type ContextStore = ReturnType<typeof createStore<ContextStoreState>>;

@@ -26,11 +26,7 @@ export type {
 } from './types.js';
 
 // Store
-export {
-  createContextStore,
-  type ContextStore,
-  type ContextStoreState,
-} from './store.js';
+export { createContextStore, type ContextStore } from './store.js';
 
 // Events Client
 export {

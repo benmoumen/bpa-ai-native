@@ -1,1 +1,23 @@
+#!/bin/sh
+
+# Check if lockfile is in sync with package.json files
+echo "Checking lockfile sync..."
+pnpm install --frozen-lockfile --ignore-scripts 2>/dev/null || {
+  echo ""
+  echo "⚠️  pnpm-lock.yaml is out of sync with package.json!"
+  echo "   Run 'pnpm install' and commit the updated lockfile."
+  echo ""
+  exit 1
+}
+
+# Run lint-staged for ESLint fixes
 pnpm lint-staged
+
+# Run type checking on affected packages (catches TypeScript errors before CI)
+echo "Running type check on affected packages..."
+pnpm turbo build --affected --concurrency=4 2>/dev/null || {
+  echo ""
+  echo "⚠️  Type check failed! Please fix the TypeScript errors above before committing."
+  echo ""
+  exit 1
+}

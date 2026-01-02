@@ -7,13 +7,14 @@
  * Story 2.4: Edit Service Metadata
  * Story 2.10: Registration CRUD within Service
  * Story 3.2: Create Applicant Form
+ * Story 6-2: AI Agent Chat Integration (Demo)
  */
 
-import { Suspense, use } from 'react';
+import { Suspense, use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Bot } from 'lucide-react';
 
 import {
   AppShell,
@@ -28,6 +29,7 @@ import { RolesList, TransitionsList, WorkflowDiagram, ValidationPanel } from '@/
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useService } from '@/hooks/use-services';
+import { ChatSidebar } from '@/components/ai-agent';
 
 const statusVariantMap = {
   DRAFT: 'draft',
@@ -56,6 +58,7 @@ interface ServiceDetailContentProps {
 function ServiceDetailContent({ serviceId }: ServiceDetailContentProps) {
   const router = useRouter();
   const { data: service, isLoading, isError, error } = useService(serviceId);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   if (isLoading) {
     return <ServiceDetailSkeleton />;
@@ -103,12 +106,22 @@ function ServiceDetailContent({ serviceId }: ServiceDetailContentProps) {
               <span>Last modified: {formatTimestamp(service.updatedAt)}</span>
             </div>
           </div>
-          <Button variant="outline" asChild>
-            <Link href="/services">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Services
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="default"
+              onClick={() => setIsChatOpen(true)}
+              className="gap-2"
+            >
+              <Bot className="h-4 w-4" />
+              AI Assistant
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/services">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Services
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -166,6 +179,14 @@ function ServiceDetailContent({ serviceId }: ServiceDetailContentProps) {
           <ValidationPanel serviceId={serviceId} />
         </div>
       </div>
+
+      {/* AI Agent Chat Sidebar */}
+      <ChatSidebar
+        serviceId={serviceId}
+        userId="demo-user"
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+      />
     </div>
   );
 }
