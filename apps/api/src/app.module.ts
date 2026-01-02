@@ -20,6 +20,7 @@ import { RolesModule } from './roles';
 import { RoleStatusesModule } from './role-statuses';
 import { TransitionsModule } from './transitions';
 import { InstitutionsModule } from './institutions/institutions.module';
+import { EventsModule } from './events';
 
 @Module({
   imports: [
@@ -60,6 +61,8 @@ import { InstitutionsModule } from './institutions/institutions.module';
     TransitionsModule,
     // Institutions module (global organization registry)
     InstitutionsModule,
+    // Events module for WebSocket broadcasting (Story 6-1d)
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [
