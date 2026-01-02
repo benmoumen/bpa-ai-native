@@ -18,6 +18,7 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/config/package.json ./packages/config/
 COPY packages/db/package.json ./packages/db/
+COPY packages/ai-agent/package.json ./packages/ai-agent/
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
@@ -39,6 +40,7 @@ COPY --from=deps /app/packages/types/node_modules ./packages/types/node_modules
 COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
 COPY --from=deps /app/packages/config/node_modules ./packages/config/node_modules
 COPY --from=deps /app/packages/db/node_modules ./packages/db/node_modules
+COPY --from=deps /app/packages/ai-agent/node_modules ./packages/ai-agent/node_modules
 
 # Copy source code
 COPY . .
